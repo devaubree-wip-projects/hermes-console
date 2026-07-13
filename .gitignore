@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# workspace uploads + hermes runtime data (session debris, never committed)
+/data/
+
+# images are session debris, never deliverables
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+!src/app/favicon.ico
+
+!.env.example

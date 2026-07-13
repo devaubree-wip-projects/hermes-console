@@ -1,0 +1,32 @@
+# Hermes Client Console — project-scoped services only.
+# Postgres is NOT deployed here: the app uses the shared `infra-postgres`
+# container (database `hermes_console`) from the dev-infra stack.
+#
+# WARNING: the image name and env vars below come from the Hermes Agent docs
+# (https://hermes-agent.nousresearch.com/docs/user-guide/docker) as referenced
+# in the product brief — they were NOT verified against a live registry.
+# Check them before `docker compose up`. For local dev without Hermes, use
+# `bun run mock:hermes` instead (same /v1 API on port 8642).
+name: hermes-console
+
+services:
+  hermes-client-a:
+    image: nousresearch/hermes-agent:latest
+    command: gateway run
+    environment:
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: "0.0.0.0"
+      API_SERVER_PORT: "8642"
+      API_SERVER_KEY: local-secret
+    volumes:
+      - ./data/hermes/client-a:/opt/data
+    ports:
+      - "8642:8642"
+    networks:
+      - dev-shared-net
+    labels:
+      dev.dozzle.group: "hermes-console"
+
+networks:
+  dev-shared-net:
+    external: true # shared dev-infra network — never recreate it here
