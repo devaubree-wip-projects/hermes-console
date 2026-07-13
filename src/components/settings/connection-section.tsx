@@ -103,7 +103,7 @@ export function ConnectionSection({
             <Button
               type="button"
               variant="link"
-              className="h-auto p-0 text-destructive"
+              className="min-h-11 px-0 text-destructive"
               disabled={isRemoving}
               onClick={handleRemoveKey}
             >

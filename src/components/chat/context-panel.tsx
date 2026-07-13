@@ -40,8 +40,8 @@ export function ContextPanel({
             <dd className="mt-0.5 text-muted-foreground">Aucun fichier déposé.</dd>
           ) : (
             <dd className="mt-1 space-y-1">
-              {visibleFiles.map((name) => (
-                <p key={name} className="truncate text-xs" title={name}>
+              {visibleFiles.map((name, i) => (
+                <p key={`${i}-${name}`} className="truncate text-xs" title={name}>
                   {name}
                 </p>
               ))}

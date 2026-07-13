@@ -60,7 +60,7 @@ export default async function ChatIndexPage({
                     <p className="text-xs text-muted-foreground">{formatDateTime(session.createdAt)}</p>
                   </div>
                   <Badge variant="secondary" className="shrink-0 tabular-nums">
-                    {session.messageCount} messages
+                    {session.messageCount} message{session.messageCount > 1 ? "s" : ""}
                   </Badge>
                 </Link>
               </li>

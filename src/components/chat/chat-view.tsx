@@ -34,12 +34,16 @@ export function ChatView({
   const [streamingText, setStreamingText] = useState<string | null>(null);
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Retry (re-POST with only sessionId) only succeeds when nothing streamed —
+  // otherwise the server persisted the assistant reply and returns "Rien à relancer".
+  const [canRetry, setCanRetry] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const autostartTriggered = useRef(false);
 
   const runStream = useCallback(
     async (content?: string) => {
       setError(null);
+      setCanRetry(false);
       setStreaming(true);
       setStreamingText("");
 
@@ -66,6 +70,7 @@ export function ChatView({
         if (!res.ok || !res.body) {
           const data = (await res.json().catch(() => null)) as { error?: string } | null;
           setError(data?.error ?? "Une erreur est survenue. Réessayez.");
+          setCanRetry(true); // nothing streamed yet — a retry can succeed
           return;
         }
 
@@ -91,15 +96,20 @@ export function ChatView({
           { id: `assistant-${Date.now()}`, role: "assistant", content: text, createdAt: new Date().toISOString() },
         ]);
       } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") {
-          if (text) {
-            setMessages((prev) => [
-              ...prev,
-              { id: `assistant-${Date.now()}`, role: "assistant", content: text, createdAt: new Date().toISOString() },
-            ]);
+        const aborted = err instanceof DOMException && err.name === "AbortError";
+        if (text) {
+          // Partial reply already streamed and was persisted server-side: keep it
+          // instead of dropping it, and don't offer a retry that would 400.
+          setMessages((prev) => [
+            ...prev,
+            { id: `assistant-${Date.now()}`, role: "assistant", content: text, createdAt: new Date().toISOString() },
+          ]);
+          if (!aborted) {
+            setError("La connexion a été interrompue. La réponse est peut-être incomplète.");
           }
-        } else {
+        } else if (!aborted) {
           setError("La connexion a été interrompue. Réessayez.");
+          setCanRetry(true);
         }
       } finally {
         setStreaming(false);
@@ -137,6 +147,10 @@ export function ChatView({
     void runStream(content);
   }
 
+  // Abort any in-flight stream when the view unmounts (client-navigation mid-stream).
+  // The server's cancel() handler persists the partial reply, same as the Stop button.
+  useEffect(() => () => abortRef.current?.abort(), []);
+
   function handleStop() {
     abortRef.current?.abort();
   }
@@ -156,9 +170,11 @@ export function ChatView({
               <Alert variant="destructive">
                 <AlertDescription className="flex flex-wrap items-center justify-between gap-2">
                   <span>{error}</span>
-                  <Button type="button" size="sm" variant="outline" onClick={handleRetry}>
-                    Réessayer
-                  </Button>
+                  {canRetry && (
+                    <Button type="button" size="sm" variant="outline" onClick={handleRetry}>
+                      Réessayer
+                    </Button>
+                  )}
                 </AlertDescription>
               </Alert>
             </div>

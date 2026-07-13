@@ -25,7 +25,8 @@ export async function POST(
     return Response.json({ error: "Tâche introuvable." }, { status: 404 });
   }
 
-  if (task.status !== "draft") {
+  // "draft" = first run; "failed" = retry after a gateway/persist failure.
+  if (task.status !== "draft" && task.status !== "failed") {
     return Response.json(
       { error: "Cette tâche ne peut pas être exécutée dans son état actuel." },
       { status: 409 },

@@ -17,23 +17,26 @@ export function UploadZone({ workspaceId }: { workspaceId: string }) {
   async function uploadFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
     setIsUploading(true);
-    let successCount = 0;
 
-    for (const file of Array.from(fileList)) {
-      try {
-        const formData = new FormData();
-        formData.append("workspaceId", workspaceId);
-        formData.append("file", file);
-        const res = await fetch("/api/files", { method: "POST", body: formData });
-        if (!res.ok) {
-          const body = await res.json().catch(() => null);
-          throw new Error(body?.error ?? "Échec de l'envoi.");
+    const results = await Promise.all(
+      Array.from(fileList).map(async (file) => {
+        try {
+          const formData = new FormData();
+          formData.append("workspaceId", workspaceId);
+          formData.append("file", file);
+          const res = await fetch("/api/files", { method: "POST", body: formData });
+          if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            throw new Error(body?.error ?? "Échec de l'envoi.");
+          }
+          return true;
+        } catch (err) {
+          toast.error(`${file.name} : ${err instanceof Error ? err.message : "échec de l'envoi."}`);
+          return false;
         }
-        successCount++;
-      } catch (err) {
-        toast.error(`${file.name} : ${err instanceof Error ? err.message : "échec de l'envoi."}`);
-      }
-    }
+      }),
+    );
+    const successCount = results.filter(Boolean).length;
 
     setIsUploading(false);
     if (inputRef.current) inputRef.current.value = "";
@@ -68,8 +71,9 @@ export function UploadZone({ workspaceId }: { workspaceId: string }) {
         ref={inputRef}
         type="file"
         multiple
+        tabIndex={-1}
+        aria-hidden
         className="sr-only"
-        id="file-upload-input"
         onChange={(e) => void uploadFiles(e.target.files)}
         disabled={isUploading}
       />

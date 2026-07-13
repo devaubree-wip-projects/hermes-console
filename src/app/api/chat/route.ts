@@ -1,4 +1,4 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { chatSessions, files, memoryItems, messages, tasks } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       await db
         .update(tasks)
         .set({ status: "failed", updatedAt: new Date() })
-        .where(eq(tasks.id, session.taskId));
+        .where(and(eq(tasks.id, session.taskId), eq(tasks.status, "running")));
     }
     return Response.json(
       { error: "Le gateway Hermes est injoignable. Vérifiez la connexion dans les réglages." },
@@ -113,17 +113,33 @@ export async function POST(request: Request) {
   const decoder = new TextDecoder();
   let buffer = "";
   let accumulated = "";
+  let upstreamFailed = false;
   let persisted = false;
 
   async function persist() {
     if (persisted) return;
     persisted = true;
-    await db.insert(messages).values({ chatSessionId: session.id, role: "assistant", content: accumulated });
-    if (session.taskId) {
-      await db
-        .update(tasks)
-        .set({ status: "done", output: accumulated, updatedAt: new Date() })
-        .where(eq(tasks.id, session.taskId));
+    try {
+      await db.insert(messages).values({ chatSessionId: session.id, role: "assistant", content: accumulated });
+      if (session.taskId) {
+        // Only the initial execution stream (task still "running") writes the
+        // deliverable; follow-up messages in the same conversation are inert.
+        // A mid-stream upstream failure or an empty reply lands as "failed".
+        const status = upstreamFailed || !accumulated ? "failed" : "done";
+        await db
+          .update(tasks)
+          .set({ status, output: accumulated, updatedAt: new Date() })
+          .where(and(eq(tasks.id, session.taskId), eq(tasks.status, "running")));
+      }
+    } catch (err) {
+      console.error("[chat] persist failed", { sessionId: session.id, taskId: session.taskId }, err);
+      if (session.taskId) {
+        await db
+          .update(tasks)
+          .set({ status: "failed", updatedAt: new Date() })
+          .where(and(eq(tasks.id, session.taskId), eq(tasks.status, "running")))
+          .catch(() => {});
+      }
     }
   }
 
@@ -148,7 +164,8 @@ export async function POST(request: Request) {
           }
         }
       } catch {
-        // Upstream read error: fall through and persist whatever was accumulated.
+        // Upstream read error mid-stream: mark the linked task failed, not done.
+        upstreamFailed = true;
       } finally {
         try {
           controller.close();
