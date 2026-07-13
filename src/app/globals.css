@@ -4,12 +4,55 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  BoardUI design tokens (extracted from boardui.com production CSS)
+  Fonts: Inter / JetBrains Mono · Accent: blue · Neutrals: zinc-like
+  Signature: vertical-gradient primary button (180deg blue-500 -> blue-600)
+*/
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo,
+    Consolas, monospace;
+  --font-heading: var(--font-inter);
+
+  /* BoardUI brand (blue) scale — primary buttons + active nav */
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bedbff;
+  --color-brand-300: #90c5ff;
+  --color-brand-400: #3392ff;
+  --color-brand-500: #3080ff;
+  --color-brand-600: #155dfc;
+  --color-brand-700: #1447e6;
+
+  /* BoardUI data-viz (Tailwind lime) — the signature chart accent */
+  --color-viz-200: #d9f99d; /* lime-200 */
+  --color-viz-400: #a3e635; /* lime-400 — bars + area */
+  --color-viz-500: #84cc16; /* lime-500 — revenue line */
+  --color-viz-600: #65a30d; /* lime-600 */
+
+  /* semantic status (measured from boardui.com) */
+  --color-pos-100: #d9f99d; /* lime-200 */
+  --color-pos-600: #4d7c0f;
+  --color-pos-700: #3c6300;
+  --color-warn-100: #fff085; /* yellow-200 */
+  --color-warn-600: #a65f00;
+  --color-warn-700: #894b00;
+  --color-neg-100: #ffccd3; /* rose-200 */
+  --color-neg-600: #c70036;
+  --color-neg-700: #a50036;
+
+  /* contribution heatmap (Tailwind violet, empty = neutral-300) */
+  --color-heat-0: #d4d4d4;
+  --color-heat-1: #ddd6ff; /* violet-200 */
+  --color-heat-2: #a684ff; /* violet-400 */
+  --color-heat-3: #8e51ff; /* violet-500 */
+  --color-heat-4: #7f22fe; /* violet-600 */
+  --color-heat-5: #7008e7; /* violet-700 */
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +82,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* radius: BoardUI 2lg = 10px is the dominant container radius */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,93 +91,106 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* BoardUI elevation tokens */
+  --shadow-xs: 0 1px 2px 0 #0000000d;
+  --shadow-card: 0 1px 1px 0 #0000000a, 0 4px 4px 0 #00000005;
+  --shadow-elevated: 0 1px 0 0 #00000005, 0 1px 12px 0 #0000000f,
+    0 0 1px 0 #00000052;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.625rem; /* 10px — BoardUI 2lg */
+
+  --background: #ffffff;
+  --foreground: #0a0a0a; /* neutral-950 */
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+
+  --primary: #155dfc; /* brand-600 */
+  --primary-foreground: #ffffff;
+  --secondary: #f7f7f7; /* neutral-100 */
+  --secondary-foreground: #262626; /* neutral-800 */
+  --muted: #f7f7f7;
+  --muted-foreground: #737373; /* neutral-500 */
+  --accent: #f7f7f7;
+  --accent-foreground: #171717;
+  --destructive: #fb2c36; /* red-500 */
+
+  --border: #ebebeb; /* neutral-200 */
+  --input: #ebebeb;
+  --ring: #3080ff; /* brand-500 focus ring */
+
+  --chart-1: #3080ff; /* brand-500 */
+  --chart-2: #90c5ff; /* brand-300 */
+  --chart-3: #1447e6; /* brand-700 */
+  --chart-4: #a1a1a1; /* neutral-400 */
+  --chart-5: #d4d4d4; /* neutral-300 */
+
+  /* inset frame: gray sidebar area, white floating content */
+  --sidebar: #f7f7f7; /* neutral-100 */
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #155dfc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ebebeb; /* neutral-200 hover */
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #ebebeb;
+  --sidebar-ring: #3080ff;
+
+  --navbar-h: 3.5rem; /* fixed header height for sticky offsets */
+
+  /* signature primary-button gradients */
+  --gradient-primary: linear-gradient(180deg, #3080ff 0%, #155dfc 100%);
+  --gradient-primary-hover: linear-gradient(180deg, #3392ff 0%, #3080ff 100%);
+  --gradient-primary-active: linear-gradient(180deg, #155dfc 0%, #1447e6 100%);
+  --shadow-btn-primary: inset 0 1px 0 0 #ffffff40, 0 0 0 1px #155dfc,
+    0 1px 2px 0 #0000001a;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #171717;
+  --card-foreground: #fafafa;
+  --popover: #171717;
+  --popover-foreground: #fafafa;
 
-/* Hermes Client Console overrides — single teal accent, fixed navbar height */
-:root {
-  --navbar-h: 3.5rem;
-  --primary: oklch(0.5 0.1 195);
-  --primary-foreground: oklch(0.985 0 0);
-  --ring: oklch(0.5 0.1 195);
-  --sidebar-primary: oklch(0.5 0.1 195);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-}
+  --primary: #3080ff;
+  --primary-foreground: #ffffff;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a1a1a1;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #ff6568;
 
-.dark {
-  --primary: oklch(0.78 0.11 195);
-  --primary-foreground: oklch(0.2 0.04 200);
-  --ring: oklch(0.78 0.11 195);
-  --sidebar-primary: oklch(0.78 0.11 195);
-  --sidebar-primary-foreground: oklch(0.2 0.04 200);
+  --border: #ffffff1a;
+  --input: #ffffff26;
+  --ring: #3080ff;
+
+  --chart-1: #3080ff;
+  --chart-2: #90c5ff;
+  --chart-3: #1447e6;
+  --chart-4: #737373;
+  --chart-5: #404040;
+
+  --sidebar: #171717;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #3080ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #ffffff1a;
+  --sidebar-ring: #3080ff;
+
+  --gradient-primary: linear-gradient(180deg, #3392ff 0%, #155dfc 100%);
+  --gradient-primary-hover: linear-gradient(180deg, #3392ff 0%, #3080ff 100%);
+  --gradient-primary-active: linear-gradient(180deg, #155dfc 0%, #1447e6 100%);
+  --shadow-btn-primary: inset 0 1px 0 0 #ffffff33, 0 0 0 1px #155dfc,
+    0 1px 2px 0 #00000040;
 }
 
 @layer base {
@@ -144,6 +202,49 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* toast auto-dismiss progress bar (drains left→right, ends → dismiss) */
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* sonner loading spinner — 12 bars, verbatim geometry from sonner (assets + styles.css) */
+.sonner-loader {
+  --spinner-size: 16px;
+  position: relative;
+  height: var(--spinner-size);
+  width: var(--spinner-size);
+}
+.sonner-loader .sonner-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: var(--spinner-size);
+  width: var(--spinner-size);
+}
+.sonner-loader .sonner-bar {
+  position: absolute;
+  top: -3.9%;
+  left: -10%;
+  height: 8%;
+  width: 24%;
+  border-radius: 6px;
+  background: currentColor;
+  animation: sonner-spin 1.2s linear infinite;
+}
+@keyframes sonner-spin {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
   }
 }
 
