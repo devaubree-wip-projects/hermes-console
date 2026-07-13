@@ -1,10 +1,10 @@
 /**
- * Mock Hermes gateway — OpenAI-compatible /v1/chat/completions with SSE streaming.
- * Dev fixture only: lets the console be exercised end-to-end without a real
- * Hermes container. Run with: bun run mock:hermes
+ * Mock Hermes proxy — OpenAI-compatible /v1/chat/completions with SSE streaming.
+ * Dev fixture only: lets the console be exercised end-to-end offline, without a
+ * running `hermes proxy start` (which needs Nous/xAI OAuth). Run: bun run mock:hermes
  */
 
-const PORT = Number(process.env.MOCK_HERMES_PORT ?? 8642);
+const PORT = Number(process.env.MOCK_HERMES_PORT ?? 8645);
 
 function sseChunk(content: string): string {
   return `data: ${JSON.stringify({

@@ -62,7 +62,7 @@ export function NewWorkspaceForm() {
           type="url"
           value={hermesBaseUrl}
           onChange={(e) => setHermesBaseUrl(e.target.value)}
-          placeholder="http://localhost:8642/v1"
+          placeholder="http://localhost:8645/v1"
         />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}

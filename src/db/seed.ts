@@ -32,7 +32,7 @@ async function seed() {
     .values({
       tenantId: tenant.id,
       name: "Assistant Garage Dupont",
-      hermesBaseUrl: process.env.HERMES_DEFAULT_BASE_URL ?? "http://localhost:8642/v1",
+      hermesBaseUrl: process.env.HERMES_DEFAULT_BASE_URL ?? "http://localhost:8645/v1",
       hermesApiKey: process.env.HERMES_DEFAULT_API_KEY ?? null,
       permissions: DEFAULT_PERMISSIONS,
     })

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     );
   }
 
-  let hermesBaseUrl = process.env.HERMES_DEFAULT_BASE_URL ?? "http://localhost:8642/v1";
+  let hermesBaseUrl = process.env.HERMES_DEFAULT_BASE_URL ?? "http://localhost:8645/v1";
   if (typeof body?.hermesBaseUrl === "string" && body.hermesBaseUrl.trim().length > 0) {
     const candidate = body.hermesBaseUrl.trim();
     if (!isValidGatewayUrl(candidate)) {

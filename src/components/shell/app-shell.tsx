@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Monitor,
   Moon,
+  PanelLeft,
   Plus,
   Settings,
   ShieldCheck,
@@ -23,6 +24,13 @@ import {
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -33,6 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export type ShellWorkspace = { id: string; name: string };
@@ -49,7 +58,7 @@ type NavItem = {
 function navItems(workspaceId: string, pendingApprovals: number): NavItem[] {
   const base = `/w/${workspaceId}`;
   return [
-    { href: base, label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: base, label: "Tableau de bord", icon: LayoutDashboard, exact: true },
     { href: `${base}/chat`, label: "Chat", icon: MessageSquare },
     { href: `${base}/tasks`, label: "Tâches", icon: ListTodo },
     { href: `${base}/files`, label: "Fichiers", icon: FolderOpen },
@@ -68,23 +77,39 @@ function initials(name: string): string {
     .join("");
 }
 
+function isActive(item: NavItem, pathname: string): boolean {
+  return item.exact
+    ? pathname === item.href
+    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
 function WorkspaceSwitcher({
   workspace,
   workspaces,
+  collapsed,
 }: {
   workspace: ShellWorkspace;
   workspaces: ShellWorkspace[];
+  collapsed: boolean;
 }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
-          className="h-11 w-full justify-between px-3 font-medium"
+          variant="outline"
+          className={cn(
+            "h-11 w-full gap-2 bg-background font-medium",
+            collapsed ? "justify-center px-0" : "justify-between px-3",
+          )}
           aria-label="Changer de workspace"
         >
-          <span className="truncate">{workspace.name}</span>
-          <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="grid size-6 shrink-0 place-items-center rounded-md bg-[image:var(--gradient-primary)] text-[11px] font-semibold text-white">
+              {initials(workspace.name)}
+            </span>
+            {!collapsed && <span className="truncate">{workspace.name}</span>}
+          </span>
+          {!collapsed && <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
@@ -109,7 +134,7 @@ function WorkspaceSwitcher({
   );
 }
 
-function UserMenu({ user }: { user: ShellUser }) {
+function UserMenu({ user, collapsed }: { user: ShellUser; collapsed: boolean }) {
   const router = useRouter();
   const { setTheme } = useTheme();
 
@@ -122,14 +147,22 @@ function UserMenu({ user }: { user: ShellUser }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-12 w-full justify-start gap-3 px-3">
+        <Button
+          variant="ghost"
+          className={cn(
+            "h-12 w-full gap-3",
+            collapsed ? "justify-center px-0" : "justify-start px-2",
+          )}
+        >
           <Avatar className="size-8">
-            <AvatarFallback>{initials(user.name)}</AvatarFallback>
+            <AvatarFallback className="bg-background text-xs">{initials(user.name)}</AvatarFallback>
           </Avatar>
-          <span className="flex min-w-0 flex-col items-start">
-            <span className="truncate text-sm font-medium">{user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-          </span>
+          {!collapsed && (
+            <span className="flex min-w-0 flex-col items-start">
+              <span className="truncate text-sm font-medium">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </span>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
@@ -152,47 +185,91 @@ function UserMenu({ user }: { user: ShellUser }) {
   );
 }
 
-function SidebarNav({
-  items,
-  pathname,
+function NavLink({
+  item,
+  active,
+  collapsed,
   onNavigate,
 }: {
+  item: NavItem;
+  active: boolean;
+  collapsed: boolean;
+  onNavigate?: () => void;
+}) {
+  const Icon = item.icon;
+  const link = (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "group flex h-11 items-center gap-3 rounded-[10px] text-sm font-medium transition-colors",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        collapsed ? "justify-center px-0" : "px-3",
+        active
+          ? "bg-background text-foreground shadow-xs"
+          : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+      )}
+    >
+      <Icon className={cn("size-[18px] shrink-0", active && "text-primary")} />
+      {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+      {!collapsed && item.badge !== undefined && item.badge > 0 && (
+        <Badge className="tabular-nums" variant="secondary">
+          {item.badge}
+        </Badge>
+      )}
+      {collapsed && item.badge !== undefined && item.badge > 0 && (
+        <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-primary" />
+      )}
+    </Link>
+  );
+
+  if (!collapsed) return link;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="relative block">{link}</span>
+      </TooltipTrigger>
+      <TooltipContent side="right">{item.label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function SidebarInner({
+  workspace,
+  workspaces,
+  user,
+  items,
+  pathname,
+  collapsed,
+  onNavigate,
+}: {
+  workspace: ShellWorkspace;
+  workspaces: ShellWorkspace[];
+  user: ShellUser;
   items: NavItem[];
   pathname: string;
+  collapsed: boolean;
   onNavigate?: () => void;
 }) {
   return (
-    <nav aria-label="Navigation principale" className="flex flex-col gap-1 px-2">
-      {items.map((item) => {
-        const active = item.exact
-          ? pathname === item.href
-          : pathname === item.href || pathname.startsWith(`${item.href}/`);
-        const Icon = item.icon;
-        return (
-          <Link
+    <div className="flex h-full flex-col gap-2 p-2">
+      <WorkspaceSwitcher workspace={workspace} workspaces={workspaces} collapsed={collapsed} />
+      <nav aria-label="Navigation principale" className="flex flex-1 flex-col gap-1 overflow-y-auto">
+        {items.map((item) => (
+          <NavLink
             key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "flex h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-              active
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <Icon className="size-4 shrink-0" />
-            <span className="flex-1 truncate">{item.label}</span>
-            {item.badge !== undefined && item.badge > 0 && (
-              <Badge variant="secondary" className="tabular-nums">
-                {item.badge}
-              </Badge>
-            )}
-          </Link>
-        );
-      })}
-    </nav>
+            item={item}
+            active={isActive(item, pathname)}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </nav>
+      <div className="border-t pt-2 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+        <UserMenu user={user} collapsed={collapsed} />
+      </div>
+    </div>
   );
 }
 
@@ -211,44 +288,85 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const items = navItems(workspace.id, pendingApprovals);
-
-  const sidebarInner = (onNavigate?: () => void) => (
-    <div className="flex h-full flex-col">
-      <div className="p-2">
-        <WorkspaceSwitcher workspace={workspace} workspaces={workspaces} />
-      </div>
-      <div className="flex-1 overflow-y-auto py-2">
-        <SidebarNav items={items} pathname={pathname} onNavigate={onNavigate} />
-      </div>
-      <div className="border-t p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        <UserMenu user={user} />
-      </div>
-    </div>
-  );
+  const activeLabel = items.find((i) => isActive(i, pathname))?.label ?? "Espace client";
 
   return (
-    <div className="h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
+    <div className="flex h-dvh overflow-hidden bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden border-r bg-sidebar lg:block">{sidebarInner()}</aside>
+      <aside
+        className={cn(
+          "hidden shrink-0 border-r bg-sidebar transition-[width] duration-200 md:block",
+          collapsed ? "w-[76px]" : "w-[260px]",
+        )}
+      >
+        <div className="h-full">
+          <SidebarInner
+            workspace={workspace}
+            workspaces={workspaces}
+            user={user}
+            items={items}
+            pathname={pathname}
+            collapsed={collapsed}
+          />
+        </div>
+      </aside>
 
-      <div className="flex h-dvh flex-col lg:h-auto lg:min-h-0">
-        {/* Mobile topbar */}
-        <header className="flex h-[var(--navbar-h)] shrink-0 items-center gap-2 border-b px-2 pt-[env(safe-area-inset-top)] lg:hidden">
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Header (fixed row above the scrollable main) */}
+        <header className="flex h-[var(--navbar-h)] shrink-0 items-center gap-2 border-b bg-background px-2 pt-[env(safe-area-inset-top)] sm:px-4">
+          {/* Mobile: drawer trigger */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-11" aria-label="Ouvrir le menu">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-11 md:hidden"
+                aria-label="Ouvrir le menu"
+              >
                 <Menu className="size-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0">
+            <SheetContent side="left" className="w-[264px] bg-sidebar p-0">
               <SheetHeader className="sr-only">
                 <SheetTitle>Navigation</SheetTitle>
               </SheetHeader>
-              {sidebarInner(() => setMobileOpen(false))}
+              <SidebarInner
+                workspace={workspace}
+                workspaces={workspaces}
+                user={user}
+                items={items}
+                pathname={pathname}
+                collapsed={false}
+                onNavigate={() => setMobileOpen(false)}
+              />
             </SheetContent>
           </Sheet>
-          <span className="truncate text-sm font-semibold">{workspace.name}</span>
+
+          {/* Desktop: collapse toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden size-9 md:inline-flex"
+            aria-label={collapsed ? "Déplier le menu" : "Replier le menu"}
+            aria-pressed={collapsed}
+            onClick={() => setCollapsed((v) => !v)}
+          >
+            <PanelLeft className="size-[18px]" />
+          </Button>
+
+          <Breadcrumb className="min-w-0">
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden min-[420px]:block">
+                <span className="truncate text-muted-foreground">{workspace.name}</span>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden min-[420px]:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="truncate font-medium">{activeLabel}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </header>
 
         <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>

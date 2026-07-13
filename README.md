@@ -19,24 +19,30 @@ bun install
 cp .env.example .env        # fill DATABASE_URL (infra-postgres) — see below
 bun run db:push             # apply schema
 bun run db:seed             # demo user: demo@hermes.local / demo-password
-bun run mock:hermes         # terminal 1 — OpenAI-compatible mock gateway on :8642
+bun run mock:hermes         # terminal 1 — offline OpenAI-compatible mock on :8645
 bun run dev                 # terminal 2 — http://localhost:3000
 ```
 
 `DATABASE_URL` targets the shared dev-infra Postgres (`localhost:5432`, database
 `hermes_console`). In containers, the hostname would be `infra-postgres` on `dev-shared-net`.
 
-## Hermes gateway
+## Hermes integration
 
-Each workspace stores its own gateway URL + API key (Réglages → Connexion à l'agent).
-Anything OpenAI-compatible works. Options:
+Hermes is installed **natively** on this machine (`~/.local/bin/hermes`), not as a Docker
+container. Each workspace stores the OpenAI-compatible base URL it talks to (Réglages →
+Connexion à l'agent); the API key is **optional**. Two ways to run the upstream:
 
-- **Mock (default dev)**: `bun run mock:hermes` → `http://localhost:8642/v1`. Canned streamed
-  replies; lets you exercise the whole product without Hermes.
-- **Real Hermes**: `docker compose up -d` starts one Hermes container per client on
-  `dev-shared-net` (see `docker-compose.yml`). ⚠️ The image name and env vars in that file come
-  from the Hermes docs referenced in the product brief and were **not verified** against a live
-  registry — check them before use.
+- **Real Hermes proxy**: `hermes proxy start` runs a local OpenAI-compatible server on
+  **`http://127.0.0.1:8645/v1`** that forwards `/v1/chat/completions` to an OAuth provider
+  (`--provider nous` by default, or `xai`). It attaches your real credentials, so the client
+  bearer token can be anything. Pick the model with `hermes model`.
+- **Offline mock**: `bun run mock:hermes` → `http://localhost:8645/v1`. Canned streamed replies;
+  lets you exercise the whole product with no network / no OAuth.
+
+> The proxy is a **pass-through LLM** — it does not expose Hermes' tools/skills/memory. The full
+> agent runtime lives behind `hermes serve` (JSON-RPC/WebSocket on `:9119`, used by the desktop
+> app). Driving that from the console — so permissions actually gate real tools — is a later
+> milestone; today permissions/approvals shape the system prompt and gate task execution only.
 
 ## Architecture
 

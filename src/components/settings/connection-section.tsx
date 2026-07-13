@@ -78,7 +78,7 @@ export function ConnectionSection({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="hermes-base-url">URL du gateway</Label>
+          <Label htmlFor="hermes-base-url">URL du proxy Hermes</Label>
           <Input
             id="hermes-base-url"
             type="url"
@@ -86,19 +86,24 @@ export function ConnectionSection({
             onChange={(e) => setBaseUrl(e.target.value)}
           />
           <p className="text-xs text-muted-foreground">
-            URL du gateway Hermes (API compatible OpenAI, ex. http://localhost:8642/v1).
+            API compatible OpenAI exposée par <code className="font-mono">hermes proxy start</code>{" "}
+            (par défaut <code className="font-mono">http://localhost:8645/v1</code>).
           </p>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="hermes-api-key">Clé API</Label>
+          <Label htmlFor="hermes-api-key">Clé API (optionnelle)</Label>
           <Input
             id="hermes-api-key"
             type="password"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            placeholder={keyRegistered ? "••••••••  (clé enregistrée)" : "Clé API (optionnel)"}
+            placeholder={keyRegistered ? "••••••••  (clé enregistrée)" : "Laissez vide avec le proxy Hermes"}
             autoComplete="off"
           />
+          <p className="text-xs text-muted-foreground">
+            Le proxy Hermes attache lui-même vos identifiants (OAuth Nous / xAI) — un bearer
+            quelconque suffit. Renseignez une clé uniquement pour un endpoint OpenAI direct.
+          </p>
           {keyRegistered && (
             <Button
               type="button"
