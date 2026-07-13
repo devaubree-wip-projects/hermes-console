@@ -1,7 +1,0 @@
-- heading "Hermes Client Console" [level=1]
-- form:
-  - textbox "Email" [ref=e1]
-  - textbox "Mot de passe" [ref=e2]
-  - button "Se connecter" [ref=e3]
-- link "Créer un compte" [ref=e4]
-- button "Open Next.js Dev Tools" [ref=e5]

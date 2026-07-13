@@ -52,3 +52,6 @@ next-env.d.ts
 !src/app/favicon.ico
 
 !.env.example
+
+# ghostchrome/playwright session dumps
+.playwright-cli/
