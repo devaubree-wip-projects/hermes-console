@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
-import { Info } from "lucide-react";
 import { db } from "@/db";
 import { memoryItems } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
@@ -33,8 +32,7 @@ export default async function KnowledgePage({
         Ce que votre assistant retient de votre activité.
       </p>
 
-      <Alert className="mt-4">
-        <Info />
+      <Alert variant="info" className="mt-4">
         <AlertDescription>
           Mémoire en lecture seule dans ce POC — l&apos;agent la consulte à chaque conversation ;
           l&apos;édition arrivera avec l&apos;intégration Hermes complète.

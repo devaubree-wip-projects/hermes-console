@@ -68,10 +68,8 @@ export default async function TaskDetailPage({
       </Card>
 
       {task.status === "waiting_approval" && (
-        <Alert className="mt-6 border-amber-500/40 bg-amber-500/10">
-          <AlertTitle className="text-amber-700 dark:text-amber-400">
-            En attente de validation
-          </AlertTitle>
+        <Alert variant="warning" className="mt-6">
+          <AlertTitle>En attente de validation</AlertTitle>
           <AlertDescription>
             Cette tâche nécessite une validation avant de pouvoir être exécutée.{" "}
             <Link href={`/w/${workspaceId}/approvals`}>Voir les validations</Link>
