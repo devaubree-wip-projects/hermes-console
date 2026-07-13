@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hermes Client Console
 
-## Getting Started
+POC — a client-facing web cockpit for a [Hermes Agent](https://hermes-agent.nousresearch.com) instance.
+Hermes stays the engine; this console is the business surface a non-technical client uses to
+drive their agent: chat, structured tasks, files, knowledge, permissions, and approvals.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + React 19 + TypeScript strict
+- Tailwind CSS v4 + shadcn/ui (radix-nova)
+- Drizzle ORM + PostgreSQL (shared dev container `infra-postgres`, database `hermes_console`)
+- Bun as package manager / runtime for scripts
+- Hermes gateway consumed through its OpenAI-compatible `/v1` API (streaming SSE)
+
+## Getting started (dev)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+cp .env.example .env        # fill DATABASE_URL (infra-postgres) — see below
+bun run db:push             # apply schema
+bun run db:seed             # demo user: demo@hermes.local / demo-password
+bun run mock:hermes         # terminal 1 — OpenAI-compatible mock gateway on :8642
+bun run dev                 # terminal 2 — http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`DATABASE_URL` targets the shared dev-infra Postgres (`localhost:5432`, database
+`hermes_console`). In containers, the hostname would be `infra-postgres` on `dev-shared-net`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Hermes gateway
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Each workspace stores its own gateway URL + API key (Réglages → Connexion à l'agent).
+Anything OpenAI-compatible works. Options:
 
-## Learn More
+- **Mock (default dev)**: `bun run mock:hermes` → `http://localhost:8642/v1`. Canned streamed
+  replies; lets you exercise the whole product without Hermes.
+- **Real Hermes**: `docker compose up -d` starts one Hermes container per client on
+  `dev-shared-net` (see `docker-compose.yml`). ⚠️ The image name and env vars in that file come
+  from the Hermes docs referenced in the product brief and were **not verified** against a live
+  registry — check them before use.
 
-To learn more about Next.js, take a look at the following resources:
+## Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+Next.js (app router)
+  ├── pages: dashboard / chat / tasks / files / knowledge / approvals / settings
+  ├── API routes: auth, chat (SSE proxy), chat-sessions, tasks, approvals, files, workspaces
+  ├── Drizzle → infra-postgres (hermes_console)
+  └── streamHermesChat() → Hermes gateway /v1/chat/completions (SSE)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Model: `Tenant → Workspace → { ChatSessions → Messages, Tasks, Files, MemoryItems, Approvals }`.
+Every workspace-scoped access goes through `getWorkspaceForUser()` (ownership guard).
 
-## Deploy on Vercel
+Task flow: template → task (`draft`, or `waiting_approval` when the mapped permission is
+disabled) → approval (client validates) → run = seeded chat session (`?autostart=1`) → the
+chat stream completion marks the task `done` and stores the deliverable.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## POC limits (assumed, on purpose)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Permissions/approvals are **advisory**: they shape the system prompt and gate task
+  execution in the console, but nothing is enforced inside the Hermes runtime itself.
+  Real enforcement needs gateway-side tool policies.
+- File contents are **not** injected into the model context (names only). No RAG.
+- Knowledge/memory is read-only, seeded in DB — not yet synced with Hermes memory.
+- Gateway API keys are stored plaintext in DB — encrypt before anything multi-client-real.
+- Auth is minimal (scrypt + DB session cookie). No rate limiting, no email verification.

@@ -1,0 +1,104 @@
+import { rm } from "node:fs/promises";
+import path from "node:path";
+import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { workspaces } from "@/db/schema";
+import { getCurrentUser } from "@/lib/auth";
+import { getWorkspaceForUser } from "@/lib/workspace";
+import { normalizePermissions } from "@/lib/permissions";
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./data/uploads";
+
+function isValidGatewayUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ workspaceId: string }> },
+) {
+  const { workspaceId } = await params;
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Authentification requise." }, { status: 401 });
+  }
+
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) {
+    return NextResponse.json({ error: "Workspace introuvable." }, { status: 404 });
+  }
+
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+  }
+
+  const updates: Partial<typeof workspaces.$inferInsert> = {};
+
+  if ("name" in body) {
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    if (!name || name.length > 100) {
+      return NextResponse.json(
+        { error: "Le nom du workspace est requis (100 caractères max)." },
+        { status: 400 },
+      );
+    }
+    updates.name = name;
+  }
+
+  if ("hermesBaseUrl" in body) {
+    const value = typeof body.hermesBaseUrl === "string" ? body.hermesBaseUrl.trim() : "";
+    if (!isValidGatewayUrl(value)) {
+      return NextResponse.json({ error: "URL du gateway invalide." }, { status: 400 });
+    }
+    updates.hermesBaseUrl = value;
+  }
+
+  if ("hermesApiKey" in body) {
+    if (body.hermesApiKey === null) {
+      updates.hermesApiKey = null;
+    } else if (typeof body.hermesApiKey === "string") {
+      const key = body.hermesApiKey.trim();
+      if (key.length > 0) updates.hermesApiKey = key;
+    } else {
+      return NextResponse.json({ error: "Clé API invalide." }, { status: 400 });
+    }
+  }
+
+  if ("permissions" in body) {
+    updates.permissions = normalizePermissions(body.permissions);
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await db.update(workspaces).set(updates).where(eq(workspaces.id, workspaceId));
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ workspaceId: string }> },
+) {
+  const { workspaceId } = await params;
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Authentification requise." }, { status: 401 });
+  }
+
+  const workspace = await getWorkspaceForUser(workspaceId, user.id);
+  if (!workspace) {
+    return NextResponse.json({ error: "Workspace introuvable." }, { status: 404 });
+  }
+
+  await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
+  await rm(path.join(UPLOAD_DIR, workspaceId), { recursive: true, force: true }).catch(() => {});
+
+  return NextResponse.json({ ok: true });
+}
