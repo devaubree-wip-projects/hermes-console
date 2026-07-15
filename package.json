@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "bun test --path-ignore-patterns=e2e/**",
-    "test:e2e:seed": "bun run e2e/seed.ts",
+    "test:e2e:seed": "bun run db:migrate:runtime && bun run e2e/seed.ts",
     "test:e2e": "bun run test:e2e:seed && bunx playwright test",
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
@@ -17,9 +17,14 @@
     "mock:hermes": "bun run scripts/mock-hermes.ts",
     "test:telegram-control": "python3 -m unittest hermes-extensions/hermes-console-control/test_plugin.py",
     "telegram-control:install": "bun run scripts/install-hermes-console-control.ts",
-    "dev:bridge": "bun run bridge/agent-bridge.ts",
-    "dev:agent": "concurrently -k -n next,bridge -c cyan,magenta \"bun run dev\" \"bun run dev:bridge\"",
-    "db:migrate:product": "bun run scripts/migrate-product-model.ts"
+    "runtime:import-systemwide": "bun run scripts/import-hermes-systemwide.ts",
+    "runtime:maintain-backups": "bun run scripts/maintain-runtime-backups.ts",
+    "dev:gateway": "go run ./cmd/hermes-gateway",
+    "dev:bridge": "bun run dev:gateway",
+    "dev:agent": "concurrently -k -n next,gateway -c cyan,magenta \"bun run dev\" \"bun run dev:gateway\"",
+    "test:gateway": "go test -race ./gateway/... ./cmd/...",
+    "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts",
+    "db:migrate:runtime": "bun run scripts/migrate-runtime-installations.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3",

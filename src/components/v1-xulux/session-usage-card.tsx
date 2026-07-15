@@ -208,19 +208,19 @@ export function SessionUsageCard({
               {numberFormatter.format(context.usedTokens)} / {numberFormatter.format(context.maxTokens)}
             </span>
           ) : (
-            <span className="text-muted-foreground">Indisponible</span>
+            <span className="text-muted-foreground">Mesure provider en attente</span>
           )}
         </div>
         <div
           aria-label={context
             ? `${numberFormatter.format(context.remainingTokens)} tokens de contexte restants`
-            : "Mesure du contexte indisponible"}
+            : "Mesure du contexte en attente"}
           aria-valuemax={context ? 100 : undefined}
           aria-valuemin={context ? 0 : undefined}
           aria-valuenow={percent === null ? undefined : Math.round(percent)}
           aria-valuetext={context
             ? `${percentFormatter.format(percent ?? 0)} pour cent utilisé, ${numberFormatter.format(context.remainingTokens)} tokens restants`
-            : "Indisponible"}
+            : "Mesure du contexte en attente"}
           className="h-1.5 overflow-hidden rounded-full bg-muted"
           role="progressbar"
         >

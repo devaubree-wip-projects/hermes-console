@@ -18,10 +18,7 @@ export function hermesProfileHome(profile: string, hermesRoot?: string) {
 export async function syncHermesConsoleControlExtension(input: {
   profile: string;
   hermesRoot?: string;
-  sourceRoot?: string;
 }) {
-  const sourceRoot = input.sourceRoot
-    ?? path.join(process.cwd(), "hermes-extensions", HERMES_CONSOLE_CONTROL_PLUGIN);
   const targetRoot = path.join(
     hermesProfileHome(input.profile, input.hermesRoot),
     "plugins",
@@ -30,7 +27,10 @@ export async function syncHermesConsoleControlExtension(input: {
   await mkdir(targetRoot, { recursive: true, mode: 0o700 });
 
   for (const filename of EXTENSION_FILES) {
-    const content = await readFile(path.join(sourceRoot, filename));
+    const source = filename === "plugin.yaml"
+      ? path.join(process.cwd(), "hermes-extensions", "hermes-console-control", "plugin.yaml")
+      : path.join(process.cwd(), "hermes-extensions", "hermes-console-control", "__init__.py");
+    const content = await readFile(source);
     const target = path.join(targetRoot, filename);
     const temporary = `${target}.tmp-${process.pid}-${Date.now()}`;
     try {

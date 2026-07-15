@@ -51,6 +51,95 @@ test("matches the HonoUI composer structure across responsive widths", async ({ 
   }
 });
 
+test("explains and completes the real Telegram handoff in a responsive 75% dialog", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const calls = await openComposer(page);
+
+  await page.getByRole("button", { name: "Comprendre le transfert vers Telegram" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "Continuer cette session sur Telegram" })).toBeVisible();
+  await expect(dialog.getByText("Même session, nouveau canal")).toBeVisible();
+  await expect(dialog.getByText("De la Console au gateway Telegram")).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: "Un bot, plusieurs sessions" })).toBeVisible();
+  const accessibility = await new AxeBuilder({ page }).include('[role="dialog"]').analyze();
+  expect(accessibility.violations).toEqual([]);
+
+  const desktopViewport = await page.evaluate(() => ({
+    width: document.documentElement.clientWidth,
+    height: document.documentElement.clientHeight,
+  }));
+  await expect.poll(async () => {
+    const box = await dialog.boundingBox();
+    return (box?.width ?? 0) / desktopViewport.width;
+  }).toBeCloseTo(0.75, 2);
+  await expect.poll(async () => {
+    const box = await dialog.boundingBox();
+    return (box?.height ?? 0) / desktopViewport.height;
+  }).toBeCloseTo(0.75, 2);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(async () => (await dialog.boundingBox())?.width ?? Number.POSITIVE_INFINITY)
+    .toBeLessThanOrEqual(390);
+  const mobileBox = await dialog.boundingBox();
+  expect(mobileBox?.height ?? Number.POSITIVE_INFINITY).toBeLessThanOrEqual(844);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+
+  await dialog.getByRole("button", { name: "Continuer sur Telegram" }).click();
+  await expect(dialog.getByText("Transfert terminé", { exact: true }).first()).toBeVisible();
+  await expect.poll(() => lastCall(calls, "handoff.request")?.params).toMatchObject({
+    session_id: "live-e2e",
+    platform: "telegram",
+  });
+  expect(calls.some((call) => call.method === "session.create")).toBe(true);
+  expect(calls.filter((call) => call.method === "handoff.state").length).toBeGreaterThanOrEqual(2);
+  expect(calls.some((call) => call.method === "slash.exec" && String(call.params.command).includes("handoff"))).toBe(false);
+});
+
+test("creates an isolated agent from /agent-create without opening a Hermes session", async ({ page }) => {
+  const calls = await openComposer(page);
+  let createPayload: Record<string, unknown> | null = null;
+  await page.route("**/api/e2e/e2e/agents", async (route) => {
+    createPayload = await route.request().postDataJSON() as Record<string, unknown>;
+    await route.fulfill({
+      status: 201,
+      contentType: "application/json",
+      body: JSON.stringify({
+        agent: { id: "agent-seo-e2e", name: createPayload.name },
+        redirectTo: chatUrl,
+      }),
+    });
+  });
+
+  await typeMessage(page, "/agent");
+  await expect(page.getByText("Créer un agent : /agent-create :mission")).toBeVisible();
+  await page.getByText("/agent-create", { exact: true }).click();
+  const commandBadge = page.locator('[data-slot="aui-command-badge"]');
+  await expect(commandBadge).toContainText("/agent-create");
+  await expect(page.locator(".aui-composer-input .aui-directive-chip")).toHaveCount(0);
+
+  const composerInput = page.locator(".aui-composer-input [contenteditable=true]");
+  await composerInput.pressSequentially(" mission conservée");
+  await commandBadge.getByRole("button", { name: "Retirer /agent-create" }).click();
+  await expect(commandBadge).toHaveCount(0);
+  await expect(composerInput).toHaveText("mission conservée");
+
+  await typeMessage(page, "/agent");
+  await page.getByText("/agent-create", { exact: true }).click();
+  await composerInput.pressSequentially(
+    " :Crée un agent qui analyse le SEO technique et prépare les priorités",
+  );
+  await page.getByRole("button", { name: "Send message" }).click();
+
+  await expect.poll(() => createPayload).toMatchObject({
+    name: "Analyse le SEO technique et prépare les priorités",
+    description: "Crée un agent qui analyse le SEO technique et prépare les priorités",
+  });
+  await expect(page.getByText("Agent créé")).toBeVisible();
+  expect(calls.some((call) => call.method === "session.create")).toBe(false);
+  expect(calls.some((call) => call.method === "slash.exec")).toBe(false);
+});
+
 test("keeps an existing thread composer docked while delayed history loads", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await installHermesMock(page, { sessionsDelayMs: 1_000, historyDelayMs: 1_000 });
@@ -369,10 +458,11 @@ test("does not estimate a context Hermes cannot measure", async ({ page }) => {
   await page.goto(`${chatUrl}/c/history-e2e`);
 
   const card = page.getByRole("region", { name: "Utilisation de la session active" });
-  await expect(card).toContainText("ContexteIndisponible");
   await expect(card).toContainText("En attente d’une mesure provider");
   await expect(card.getByRole("progressbar")).not.toHaveAttribute("aria-valuenow");
-  await expect(card.getByRole("progressbar")).toHaveAttribute("aria-valuetext", "Indisponible");
+  await expect(card).toContainText("Mesure provider en attente");
+  await expect(card.getByRole("progressbar")).toHaveAttribute("aria-valuetext", "Mesure du contexte en attente");
+  await expect(card).not.toContainText("Indisponible");
 });
 
 test("uses the validated Telegram context in the composer indicator", async ({ page }) => {

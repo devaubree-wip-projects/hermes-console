@@ -56,9 +56,11 @@ export async function GET(
   const [row, recent, modelInfo, gateway] = await Promise.all([
     hermesFetch<HermesSessionMetricsRow>(
       `/api/sessions/${encodeURIComponent(sessionId)}?${profileQuery}`,
+      {},
+      { agentId: agent.id, profile },
     ),
-    listHermesSessions(profile, 100),
-    hermesFetch<HermesModelContextInfo>(`/api/model/info?${profileQuery}`),
+    listHermesSessions(profile, 100, { agentId: agent.id }),
+    hermesFetch<HermesModelContextInfo>(`/api/model/info?${profileQuery}`, {}, { agentId: agent.id, profile }),
     readLocalProfileGatewaySession(profile, sessionId),
   ]);
   const recentRow = recent.sessions.find((session: HermesSessionRow) => (

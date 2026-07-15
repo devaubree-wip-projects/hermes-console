@@ -8,9 +8,11 @@ import {
   tenants,
   users,
   workspaces,
+  runtimeInstallations,
 } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { createHermesProfile, HermesRuntimeError } from "@/lib/hermes/server";
+import { environmentRuntimeInstallationValues } from "@/lib/hermes/installations";
 import { getAgentTemplate } from "@/lib/onboarding";
 import { DEFAULT_PERMISSIONS } from "@/lib/permissions";
 import {
@@ -51,6 +53,7 @@ export async function POST(request: Request) {
   const tenantId = randomUUID();
   const workspaceId = randomUUID();
   const agentId = randomUUID();
+  const runtimeInstallationId = randomUUID();
   const tenantSlug = await allocateTenantSlug(organizationName);
   const workspaceSlug = await allocateWorkspaceSlug(tenantId, workspaceName);
   const identity = await allocateAgentIdentity(
@@ -74,12 +77,17 @@ export async function POST(request: Request) {
       tenantId,
       name: workspaceName,
       slug: workspaceSlug,
-      hermesBaseUrl: process.env.HERMES_RUNTIME_URL ?? "http://127.0.0.1:9119",
+      hermesBaseUrl: process.env.HERMES_DEFAULT_GATEWAY_URL ?? "http://127.0.0.1:8787",
       permissions: DEFAULT_PERMISSIONS,
+    });
+    await tx.insert(runtimeInstallations).values({
+      id: runtimeInstallationId,
+      ...environmentRuntimeInstallationValues(tenantId, user.id),
     });
     await tx.insert(agents).values({
       id: agentId,
       workspaceId,
+      runtimeInstallationId,
       slug: identity.slug,
       name: agentName,
       description,
@@ -95,7 +103,10 @@ export async function POST(request: Request) {
   let runtimeState: "ready" | "setup_required" | "error" = "ready";
   let runtimeError: string | null = null;
   try {
-    await createHermesProfile({ name: identity.profileName, description });
+    await createHermesProfile(
+      { name: identity.profileName, description },
+      { agentId, profile: identity.profileName },
+    );
   } catch (error) {
     runtimeState = error instanceof HermesRuntimeError && !error.status ? "setup_required" : "error";
     runtimeError = error instanceof Error

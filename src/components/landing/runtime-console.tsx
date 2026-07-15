@@ -37,34 +37,34 @@ export function RuntimeConsole() {
 
   return (
     <div className="relative w-full max-w-md">
-      {/* ambient lime glow behind the panel */}
+      {/* ambient desk glow behind the panel */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem] opacity-60 blur-2xl"
+        className="pointer-events-none absolute -inset-8 -z-10 rounded-[2rem] opacity-40"
         style={{
           background:
-            "radial-gradient(60% 60% at 70% 20%, oklch(0.86 0.2 130 / 0.22), transparent 70%)",
+            "linear-gradient(140deg, oklch(0.18_0.01_145 / 0.12), transparent 70%)",
         }}
       />
 
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-[oklch(0.19_0_0)] shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_20px_60px_-20px_rgba(0,0,0,0.7)]">
+      <div className="overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
         {/* window chrome */}
-        <div className="flex items-center gap-2.5 border-b border-white/10 px-4 py-3">
-          <span className="relative flex size-2">
+        <div className="flex items-center gap-2.5 border-b border-border bg-background px-4 py-3">
+          <span className="relative flex size-2 text-[var(--ok)]">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#a3e635] opacity-60" />
-            <span className="relative inline-flex size-2 rounded-full bg-[#a3e635]" />
+            <span className="relative inline-flex size-2 rounded-full bg-[var(--ok)]" />
           </span>
-          <span className="font-mono text-xs text-white/60">
+          <span className="font-mono text-xs text-muted-foreground">
             session · analyse-contrat
           </span>
-          <span className="ml-auto font-mono text-[0.65rem] tracking-wide text-white/35">
+          <span className="ml-auto font-mono text-[0.65rem] tracking-wide text-muted-foreground">
             RUNTIME · LIVE
           </span>
         </div>
 
         {/* transcript */}
         <motion.ol
-          className="flex flex-col gap-3 p-4 font-mono text-[0.8rem] leading-relaxed"
+          className="flex flex-col gap-3 p-4 font-mono text-[0.8rem] leading-relaxed text-foreground"
           variants={reduce ? undefined : container}
           initial={reduce ? undefined : "hidden"}
           animate={reduce ? undefined : "show"}
@@ -79,9 +79,9 @@ export function RuntimeConsole() {
           {!reduce && (
             <motion.li
               variants={line}
-              className="flex items-center gap-2 text-white/40"
+              className="flex items-center gap-2 text-muted-foreground"
             >
-              <span className="text-[#a3e635]">▸</span>
+              <span className="text-[var(--ok)]">▸</span>
               <span className="inline-block h-4 w-1.5 animate-pulse bg-white/50" />
             </motion.li>
           )}
@@ -93,42 +93,44 @@ export function RuntimeConsole() {
 
 function TranscriptLine({ line }: { line: Line }) {
   switch (line.kind) {
-    case "user":
-      return (
-        <div className="flex gap-2.5">
-          <span className="shrink-0 text-white/35">▸ user</span>
-          <span className="text-white/85">{line.text}</span>
-        </div>
-      );
+      case "user":
+        return (
+          <div className="flex gap-2.5">
+            <span className="shrink-0 text-muted-foreground">▸ user</span>
+            <span className="text-foreground/90">{line.text}</span>
+          </div>
+        );
     case "tool":
       return (
         <div className="flex items-center gap-2.5">
-          <span className="shrink-0 text-sky-400/80">◇ tool</span>
-          <span className="text-white/70">
+          <span className="shrink-0 text-[var(--foreground-soft)]">◇ tool</span>
+          <span className="text-foreground/80">
             {line.label}
-            <span className="text-white/35"> · {line.arg}</span>
+            <span className="text-muted-foreground"> · {line.arg}</span>
           </span>
-          <span className="ml-auto flex items-center gap-1.5 text-[#a3e635]">
+          <span className="ml-auto flex items-center gap-1.5 text-[var(--ok)]">
             <span aria-hidden>✓</span>
-            <span className="text-white/35">{line.ms}</span>
+            <span className="text-muted-foreground">{line.ms}</span>
           </span>
         </div>
       );
     case "approval":
       return (
-        <div className="rounded-lg border border-amber-400/25 bg-amber-400/[0.06] px-3 py-2.5">
+        <div className="rounded-lg border border-[var(--warn)]/30 bg-[var(--warn)]/[0.06] px-3 py-2.5">
           <div className="flex items-center gap-2 text-amber-300/90">
-            <span aria-hidden>⚠</span>
+            <span className="text-[var(--warn)]" aria-hidden>
+              ⚠
+            </span>
             <span className="text-[0.7rem] tracking-wide uppercase">
               Approbation requise
             </span>
           </div>
-          <p className="mt-1 text-white/80">{line.text}</p>
+          <p className="mt-1 text-foreground/80">{line.text}</p>
           <div className="mt-2.5 flex gap-2">
-            <span className="rounded-md bg-[#a3e635] px-2.5 py-1 text-[0.7rem] font-semibold text-black">
+            <span className="rounded-md bg-[var(--ok)] px-2.5 py-1 text-[0.7rem] font-semibold text-background">
               Approuver
             </span>
-            <span className="rounded-md border border-white/15 px-2.5 py-1 text-[0.7rem] text-white/70">
+            <span className="rounded-md border border-border px-2.5 py-1 text-[0.7rem] text-muted-foreground">
               Refuser
             </span>
           </div>
@@ -136,9 +138,9 @@ function TranscriptLine({ line }: { line: Line }) {
       );
     case "result":
       return (
-        <div className="flex gap-2.5 text-[#a3e635]">
+        <div className="flex gap-2.5 text-[var(--ok)]">
           <span aria-hidden>✓</span>
-          <span className="text-white/70">{line.text}</span>
+          <span className="text-foreground/90">{line.text}</span>
         </div>
       );
   }

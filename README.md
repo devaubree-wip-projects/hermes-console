@@ -57,20 +57,29 @@ Owners et Members peuvent valider ; seul un Owner peut modifier la configuration
 
 ## Démarrage local
 
-Prérequis : Bun, PostgreSQL et Hermes installé localement.
+Prérequis : Bun, PostgreSQL et Docker avec le plugin Compose.
 
 ```bash
 bun install
 bun run db:migrate:product
 
-# Next.js + broker local ; le broker démarre Hermes si nécessaire
+# Next.js + Edge Go + Hermes Docker
 make dev
 ```
 
 `make help` affiche toutes les commandes, classées par développement, qualité, base de données et runtime
 Hermes. Les scripts restent exécutés exclusivement avec Bun. `make dev` et `make dev-fresh` exposent le
-frontend sur `http://localhost:3010`. `make dev-fresh` supprime uniquement le cache généré `.next` avant de
-relancer la stack.
+frontend sur `http://localhost:3010`. `make dev-fresh` arrête d'abord la stack, puis supprime uniquement le
+cache généré `.next` avant de la relancer.
+
+En développement, `compose.dev.yaml` force `restart: "no"` pour Hermes, l'Edge et le Relay. `Ctrl+C` sur
+`make dev` arrête Next.js puis exécute `docker compose down`; `make stop` produit le même état final depuis un
+autre terminal. Les volumes de données sont conservés, mais aucun processus ni conteneur de la stack ne reste
+actif.
+
+Avant de lancer Next.js, `make dev` partage les mêmes secrets locaux avec l'Edge, crée dans le volume Docker
+les profils manquants déjà associés aux agents en base, puis actualise l'état et les capacités des installations
+locales. Un workspace existant reste ainsi utilisable après le passage d'un Hermes systemwide à Hermes Docker.
 
 Pour retrouver volontairement une base vide :
 
@@ -84,37 +93,83 @@ Les données « Garage Dupont » ne sont plus implicites ; elles ne sont créée
 Variables importantes :
 
 - `DATABASE_URL`
-- `HERMES_RUNTIME_URL` (défaut `http://127.0.0.1:9119`)
-- `HERMES_RUNTIME_WS` (défaut `ws://127.0.0.1:9119/api/ws`)
-- `HERMES_RUNTIME_AUTOSTART` (`true` par défaut)
-- `HERMES_CLI_COMMAND` (`hermes` par défaut)
+- `HERMES_DEFAULT_GATEWAY_URL` (défaut `http://127.0.0.1:8787`)
+- `HERMES_DEFAULT_INSTALLATION_ID` (défaut `local-default`)
+- `HERMES_GATEWAY_ENV` (`development` localement, `production` sur tout Edge/Relay déployé)
+- `HERMES_GATEWAY_TICKET_SECRET` (tickets navigateur à durée de vie courte)
+- `HERMES_GATEWAY_SERVICE_SECRET` (signature des appels serveur Next vers Edge)
+- `HERMES_GATEWAY_ALLOWED_HOSTS` (hôtes distants explicitement autorisés à la connexion)
+- `HERMES_RUNTIME_TOKEN` (secret interne Edge → dashboard Hermes)
 - `HERMES_SESSION_CHANGE_DEBOUNCE_MS` (`200` par défaut)
-- `HERMES_SESSION_RECONCILE_MS` (`0` par défaut ; intervalle opt-in pour un stockage sans watcher fiable)
-- `HERMES_DASHBOARD_SESSION_TOKEN` (optionnel en loopback local)
-- `HERMES_BRIDGE_SECRET` (même valeur côté Next et broker)
+- `HERMES_SESSION_RECONCILE_MS` (`30000` dans la stack Docker)
 - `HERMES_ALLOWED_ORIGINS`
-- `NEXT_PUBLIC_BRIDGE_URL`
 
-Le broker observe `state.db` et `state.db-wal` une seule fois par profil actif. Une modification déclenche une
+L'Edge Go observe `state.db` et `state.db-wal` une seule fois par profil actif. Une modification déclenche une
 invalidation ciblée sur le WebSocket déjà ouvert ; le navigateur recharge alors l'historique canonique. Il n'y
 a donc aucun polling périodique de l'API Next par onglet. La réconciliation périodique est désactivée par
 défaut ; `HERMES_SESSION_RECONCILE_MS` permet de l'activer explicitement lorsque le stockage ne fournit pas
 de notifications filesystem fiables.
 
+Par défaut, `make dev` lance un conteneur Hermes officiel multi-profils et l'Edge Go, puis Next.js. Seul
+`127.0.0.1:8787` est publié : le dashboard Hermes reste sur le loopback du namespace réseau partagé et n'est
+jamais exposé directement. Les actions start/restart passent par son API de cycle de vie authentifiée, sans
+partage du namespace PID et sans socket Docker. `make dev-system` reste disponible pour viser une installation
+Hermes systemwide.
+
+Le seul workspace monté par défaut est `./data/workspace` vers `/workspace`, en lecture seule. Pour autoriser un
+autre répertoire, définissez explicitement `HERMES_WORKSPACE_DIR`; le passage en écriture exige également
+`HERMES_WORKSPACE_READ_ONLY=false`. Aucun répertoire global de l’utilisateur n’est monté implicitement.
+
+### Import contrôlé d’un Hermes systemwide
+
+`make runtime-import PROFILE=default TARGET_PROFILE=imported-default` copie uniquement les données Hermes
+allowlistées de `~/.hermes` vers un **nouveau** profil Docker. L’import est atomique, refuse les liens
+symboliques et tout écrasement implicite, exclut les secrets par défaut et écrit un manifeste SHA-256.
+Ajoutez `INCLUDE_SECRETS=1` uniquement après revue explicite des credentials. La source systemwide n’est
+jamais modifiée ni arrêtée par cette commande.
+
+`make runtime-import-rollback TARGET_PROFILE=imported-default` supprime seulement un profil importé dont
+le manifeste et tous les condensats sont encore valides. Une modification post-import bloque donc le rollback
+automatique afin de ne pas détruire de nouvelles données.
+
+### Connexion distante via Relay
+
+`make runtime-relay-up` démarre le même binaire Go en mode Relay sur `127.0.0.1:8790` avec TLS 1.3. Dans
+la page **Installations**, « Enrôler via Relay » produit un jeton opaque valable dix minutes et affiché une
+seule fois. Sur le VPS, la commande `hermes-gateway enroll` génère la clé privée localement, échange le jeton,
+puis ouvre un tunnel **sortant** mTLS. Le Relay multiplexe HTTP et WebSocket sans exposer Hermes ni son port
+9119. Les credentials sont liés au certificat et au tenant ; les révocations sont persistées et ferment le
+tunnel actif.
+
+Pour un Hermes **systemwide** distant, l’Edge reste lui-même sous Docker grâce à `compose.edge.yaml`. Ce
+fichier exige explicitement le chemin Hermes, l’origine Console, le token local du dashboard et l’UID/GID ;
+il ne monte aucun home global et garde les données Hermes en lecture seule. Exécutez la commande d’enrôlement
+affichée dans la Console avec ce Compose (`docker compose -f compose.edge.yaml run --rm edge enroll …`), puis
+`docker compose -f compose.edge.yaml up -d edge`. La clé privée, le credential Relay et les deux secrets HMAC
+dérivés uniquement pour cette installation restent dans `data/edge-identity` en mode `0600`.
+
+Le certificat créé par `make runtime-relay-cert` sert uniquement au développement local. En déploiement,
+utilisez un certificat public valide, des secrets aléatoires distincts et un stockage persistant pour
+`HERMES_RELAY_REVOCATION_FILE`. Les limites de connexions, de trames et de requêtes empêchent qu’un Edge
+sature tous les autres. En mode `production`, le binaire refuse de démarrer avec les secrets de développement
+implicites ; Next.js refuse également d’émettre tickets, signatures ou identités sans secrets serveur explicites.
+
+Les sauvegardes managées sont chiffrées AES-GCM, vérifiées avant d’être marquées prêtes, excluent les secrets
+par défaut et imposent une sauvegarde de sécurité avant restauration. Un upgrade Docker passe par un exécuteur
+de déploiement allowlisté (`HERMES_UPGRADE_EXECUTABLE`) : l’image officielle ne supporte pas `hermes update`
+dans le conteneur, donc le contrôle plane doit recréer le conteneur avec une image épinglée puis valider la
+version observée. Sans exécuteur déclaré, l’Edge n’annonce jamais la capacité d’upgrade.
+
 ### Clé d'inférence Hermes
 
-`hermes-console/.env.local` ne contient pas la clé OpenAI. Le chat `/d/chat` parle au runtime Hermes et le
-broker force le profil de l'agent à chaque appel. Hermes charge donc la clé depuis le `.env` de ce profil :
+`hermes-console/.env.local` ne contient pas la clé OpenAI. Le chat `/d/chat` parle au runtime Hermes et l'Edge
+force le profil de l'agent à chaque appel. Dans la stack Docker, Hermes charge la clé depuis le volume persistant :
 
 ```text
-~/.hermes/profiles/<nom-du-profil>/.env
+/opt/data/profiles/<nom-du-profil>/.env
 ```
 
-Pour l'agent local actuel `test-test-assistant-principal`, le chemin exact est :
-
-```text
-/home/kev/.hermes/profiles/test-test-assistant-principal/.env
-```
+En mode `make dev-system`, le chemin reste `~/.hermes/profiles/<nom-du-profil>/.env`.
 
 Ajoutez-y sans guillemets :
 
@@ -152,12 +207,10 @@ profil manuellement :
 bun run telegram-control:install --profile <profil> --restart
 ```
 
-Le broker doit rester sur loopback. Il réutilise un runtime Hermes déjà actif ; sinon il lance `hermes serve`
-et ne stoppe à sa fermeture que ce processus enfant. Le port `8787` empêche plusieurs brokers, et un verrou
-de démarrage interne garantit qu’un afflux de clients ne crée qu’un seul runtime.
-
-Ne l’exposez jamais directement : Hermes peut exécuter des commandes et accéder aux fichiers autorisés de la
-machine. Pour gérer Hermes manuellement, utilisez `HERMES_RUNTIME_AUTOSTART=false`.
+N'exposez jamais le dashboard Hermes directement : il peut exécuter des commandes et accéder aux fichiers
+autorisés du runtime. L'Edge Go est l'unique frontière publique ; il applique tickets courts, signature HMAC,
+RBAC, profils forcés et allowlist de routes. Une installation distante se déclare ensuite depuis
+`Infrastructure → Installations`, après ajout explicite de son hôte à `HERMES_GATEWAY_ALLOWED_HOSTS`.
 
 ## Validation
 
@@ -165,7 +218,10 @@ machine. Pour gérer Hermes manuellement, utilisez `HERMES_RUNTIME_AUTOSTART=fal
 bun run typecheck
 bun run lint
 bun run build
-bun build bridge/agent-bridge.ts --target bun --outfile /tmp/hermes-console-bridge.js
+bun run test
+bun run test:gateway
+bun run test:e2e
+docker compose config --quiet
 ```
 
 Le chat affiche fidèlement l’erreur Hermes quand aucun provider d’inférence n’est configuré.

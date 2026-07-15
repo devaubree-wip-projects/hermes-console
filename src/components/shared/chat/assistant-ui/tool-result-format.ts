@@ -28,7 +28,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isSkillPayload(value: unknown) {
+function isSkillPayload(value: unknown): value is Record<string, unknown> & { content: string; name: string } {
   return isRecord(value) && typeof value.content === "string" && typeof value.name === "string";
 }
 

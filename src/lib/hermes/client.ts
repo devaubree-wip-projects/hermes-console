@@ -23,6 +23,9 @@ import {
   type SessionSummary,
   type HermesModelOption,
   type HermesToolset,
+  type HandoffFailResult,
+  type HandoffRequestResult,
+  type HandoffStateResult,
 } from "@/lib/hermes/protocol";
 
 export type ConnState = "connecting" | "open" | "closed";
@@ -30,7 +33,6 @@ type EventHandler = (ev: AgentEvent) => void;
 type StateHandler = () => void;
 type SessionInvalidationHandler = (event: BridgeSessionInvalidatedFrame) => void;
 
-const BRIDGE_URL = process.env.NEXT_PUBLIC_BRIDGE_URL ?? "ws://127.0.0.1:8787";
 const CALL_TIMEOUT_MS = 30_000;
 
 /** Browser-side JSON-RPC client over the bridge WebSocket. */
@@ -103,9 +105,13 @@ export class HermesClient {
       if (!this.ticketEndpoint) throw new Error("runtime ticket endpoint missing");
       const response = await fetch(this.ticketEndpoint, { method: "POST" });
       if (!response.ok) throw new Error("runtime ticket rejected");
-      const { ticket } = await response.json() as { ticket: string };
+      const { ticket, gatewayUrl } = await response.json() as { ticket: string; gatewayUrl: string };
+      if (!ticket || !gatewayUrl) throw new Error("runtime ticket response invalid");
       if (this.closedByUser || generation !== this.generation) return;
-      const url = new URL(BRIDGE_URL);
+      const url = new URL(gatewayUrl);
+      if (url.protocol !== "ws:" && url.protocol !== "wss:") {
+        throw new Error("runtime gateway URL invalid");
+      }
       url.searchParams.set("ticket", ticket);
       ws = new WebSocket(url);
     } catch {
@@ -358,6 +364,23 @@ export class HermesClient {
   }
   slashExec(sessionId: string, command: string) {
     return this.call(M.slashExec, { session_id: sessionId, command });
+  }
+  handoffRequest(sessionId: string, platform: string) {
+    return this.call(M.handoffRequest, {
+      session_id: sessionId,
+      platform,
+    }) as unknown as Promise<HandoffRequestResult>;
+  }
+  handoffState(sessionId: string) {
+    return this.call(M.handoffState, {
+      session_id: sessionId,
+    }) as unknown as Promise<HandoffStateResult>;
+  }
+  handoffFail(sessionId: string, error: string) {
+    return this.call(M.handoffFail, {
+      session_id: sessionId,
+      error,
+    }) as unknown as Promise<HandoffFailResult>;
   }
   imageAttachBytes(sessionId: string, contentBase64: string, filename: string) {
     return this.call(M.imageAttachBytes, {

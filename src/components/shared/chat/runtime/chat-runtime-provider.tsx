@@ -9,13 +9,20 @@ export function ChatRuntimeProvider({
   threadId,
   sessionsEndpoint,
   inferenceEndpoint,
+  agentsEndpoint,
 }: {
   children: React.ReactNode;
   threadId?: string;
   sessionsEndpoint: string;
   inferenceEndpoint: string;
+  agentsEndpoint: string;
 }) {
-  const { runtime, composer } = useHermesChatRuntime({ threadId, sessionsEndpoint, inferenceEndpoint });
+  const { runtime, composer } = useHermesChatRuntime({
+    threadId,
+    sessionsEndpoint,
+    inferenceEndpoint,
+    agentsEndpoint,
+  });
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <HermesComposerProvider value={composer}>

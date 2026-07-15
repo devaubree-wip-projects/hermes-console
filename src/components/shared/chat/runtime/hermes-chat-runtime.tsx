@@ -15,6 +15,7 @@ import {
   type ThreadMessage,
 } from "@assistant-ui/react";
 import { createAssistantStream } from "assistant-stream";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -22,6 +23,7 @@ import {
   type AgentEvent,
   type BridgeSessionInvalidatedFrame,
   type HermesModelOption,
+  type HandoffLifecycleState,
   type JsonObject,
   type SessionCreated,
   type SessionInfo,
@@ -38,6 +40,11 @@ import { sessionOrigin } from "@/lib/hermes/session-origin";
 import { useSessionMetricsStore } from "@/lib/shared/chat/session-metrics-store";
 import { RequestCoalescer } from "@/lib/shared/chat/request-coalescer";
 import { shouldInvalidateSessionMetrics } from "@/lib/shared/chat/session-invalidation-policy";
+import {
+  AGENT_CREATE_COMMAND,
+  agentCreatePayload,
+  parseAgentCreateCommand,
+} from "@/lib/agents/agent-create-command";
 import {
   getReasoningControlConfig,
   isReasoningControlId,
@@ -60,6 +67,8 @@ import {
 } from "@/components/shared/chat/runtime/hermes-history-messages";
 
 const MAX_TITLE_LENGTH = 50;
+const HANDOFF_POLL_INTERVAL_MS = 800;
+const HANDOFF_TIMEOUT_MS = 60_000;
 
 type SessionListRow = {
   id: string;
@@ -414,6 +423,51 @@ class HermesSessionManager {
     return storedId ? this.resume(storedId) : this.create(threadId);
   }
 
+  async handoff(
+    threadId: string,
+    storedId: string | undefined,
+    platform: "telegram",
+    onProgress?: (state: HandoffLifecycleState) => void,
+  ) {
+    const session = await this.ensure(threadId, storedId);
+    onProgress?.("pending");
+    await this.client.handoffRequest(session.liveId, platform);
+
+    const deadline = Date.now() + HANDOFF_TIMEOUT_MS;
+    let lastState: HandoffLifecycleState = "pending";
+
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, HANDOFF_POLL_INTERVAL_MS));
+
+      let record;
+      try {
+        record = await this.client.handoffState(session.liveId);
+      } catch {
+        continue;
+      }
+
+      const state = record.state || "pending";
+      if (state !== lastState) {
+        lastState = state;
+        onProgress?.(state);
+      }
+      if (state === "completed") return;
+      if (state === "failed") {
+        throw new Error(record.error || "Le transfert vers Telegram a échoué.");
+      }
+    }
+
+    const timeoutMessage = "Le transfert vers Telegram a expiré. Vérifiez que le gateway est actif puis réessayez.";
+    const cleanup = await this.client
+      .handoffFail(session.liveId, timeoutMessage)
+      .catch(() => null);
+    if (cleanup?.state === "completed") {
+      onProgress?.("completed");
+      return;
+    }
+    throw new Error(timeoutMessage);
+  }
+
   subscribe(storedId: string, listener: SessionListener) {
     const group = this.listeners.get(storedId) ?? new Set<SessionListener>();
     group.add(listener);
@@ -546,7 +600,11 @@ class HermesSessionManager {
   }
 }
 
-function useHermesThreadRuntime(manager: HermesSessionManager): AssistantRuntime {
+function useHermesThreadRuntime(
+  manager: HermesSessionManager,
+  agentsEndpoint: string,
+): AssistantRuntime {
+  const router = useRouter();
   const threadId = useAuiState((state) => state.threadListItem.id);
   const remoteId = useAuiState((state) => state.threadListItem.remoteId);
   const source = useAuiState((state) => state.threadListItem.custom?.source);
@@ -718,6 +776,58 @@ function useHermesThreadRuntime(manager: HermesSessionManager): AssistantRuntime
     const text = textFromContent(message);
     const attachments = [...(message.attachments ?? [])];
     if (!text && attachments.length === 0) return;
+    const agentPrompt = parseAgentCreateCommand(text);
+    if (agentPrompt !== null) {
+      if (attachments.length > 0) {
+        toast.error("Création d’agent", {
+          description: "Cette commande n’accepte pas de pièce jointe.",
+        });
+        return;
+      }
+      if (!agentPrompt) {
+        toast.error("Prompt requis", {
+          description: "Utilisez /agent-create :décrivez la mission du nouvel agent.",
+        });
+        return;
+      }
+
+      setIsRunning(true);
+      const toastId = toast.loading("Création du profil Hermes…");
+      try {
+        const response = await fetch(agentsEndpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(agentCreatePayload(agentPrompt)),
+        });
+        const result = await response.json().catch(() => null) as {
+          agent?: { name?: string };
+          error?: string;
+          redirectTo?: string;
+        } | null;
+        if (!response.ok) {
+          throw new Error(result?.error ?? `Agents API ${response.status}`);
+        }
+        if (!result?.redirectTo) {
+          throw new Error("La Console n’a pas retourné le chat du nouvel agent.");
+        }
+        setIsRunning(false);
+        toast.success("Agent créé", {
+          id: toastId,
+          description: result.agent?.name
+            ? `${result.agent.name} est prêt.`
+            : "Le profil Hermes est prêt.",
+        });
+        router.push(result.redirectTo);
+        router.refresh();
+      } catch (error) {
+        setIsRunning(false);
+        toast.error("Création impossible", {
+          id: toastId,
+          description: error instanceof Error ? error.message : String(error),
+        });
+      }
+      return;
+    }
     startedLocally.current = true;
     const visibleText = text || "Pièces jointes";
     setMessages((current) => [
@@ -735,7 +845,7 @@ function useHermesThreadRuntime(manager: HermesSessionManager): AssistantRuntime
       setIsRunning(false);
       setMessages((current) => appendAssistantText(current, `Erreur Hermes : ${String(error)}`, true));
     }
-  }, [manager, remoteId, threadId]);
+  }, [agentsEndpoint, manager, remoteId, router, threadId]);
 
   const onReload = useCallback(async (parentId: string | null) => {
     if (parentId == null) return;
@@ -857,10 +967,12 @@ export function useHermesChatRuntime({
   threadId,
   sessionsEndpoint,
   inferenceEndpoint,
+  agentsEndpoint,
 }: {
   threadId?: string;
   sessionsEndpoint: string;
   inferenceEndpoint: string;
+  agentsEndpoint: string;
 }) {
   const client = useHermes();
   const [composerState, setComposerState] = useState({
@@ -1020,7 +1132,7 @@ export function useHermesChatRuntime({
 
   const runtime = useRemoteThreadListRuntime({
     runtimeHook: function useHermesRuntimeHook() {
-      return useHermesThreadRuntime(manager);
+      return useHermesThreadRuntime(manager, agentsEndpoint);
     },
     adapter,
     threadId,
@@ -1142,7 +1254,28 @@ export function useHermesChatRuntime({
       return completionRows(await client.completePath(query, composerState.info?.cwd));
     },
     async completeSlash(query) {
-      return completionRows(await client.completeSlash(query));
+      const normalized = query.replace(/^\//, "").trim().toLowerCase();
+      const local = "agent-create".startsWith(normalized)
+        ? [{
+            id: "agent-create",
+            label: AGENT_CREATE_COMMAND,
+            value: AGENT_CREATE_COMMAND,
+            description: "Créer un agent : /agent-create :mission",
+          }]
+        : [];
+      const remote = await client.completeSlash(query)
+        .then(completionRows)
+        .catch((error) => {
+          if (local.length > 0) return [];
+          throw error;
+        });
+      return [
+        ...local,
+        ...remote.filter((item) => item.label.replace(/^\//, "") !== "agent-create"),
+      ];
+    },
+    async handoffTelegram(activeThreadId, remoteId, onProgress) {
+      await manager.handoff(activeThreadId, remoteId, "telegram", onProgress);
     },
   }), [client, composerState, inferenceEndpoint, manager, updatePreferences]);
 

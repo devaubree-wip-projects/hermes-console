@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtemp, readFile, rm, writeFile, mkdir } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
@@ -24,15 +24,10 @@ describe("Hermes Console control extension files", () => {
   test("installs only the owned extension files in the selected profile", async () => {
     const root = await mkdtemp(path.join(tmpdir(), "hermes-console-extension-"));
     temporaryRoots.push(root);
-    const sourceRoot = path.join(root, "source");
-    await mkdir(sourceRoot, { recursive: true });
-    await writeFile(path.join(sourceRoot, "plugin.yaml"), "name: hermes-console-control\n");
-    await writeFile(path.join(sourceRoot, "__init__.py"), "VALUE = 1\n");
 
     const result = await syncHermesConsoleControlExtension({
       profile: "tenant-agent",
       hermesRoot: path.join(root, "hermes"),
-      sourceRoot,
     });
 
     expect(result.path).toBe(path.join(
@@ -43,9 +38,10 @@ describe("Hermes Console control extension files", () => {
       "plugins",
       "hermes-console-control",
     ));
-    expect(await readFile(path.join(result.path, "plugin.yaml"), "utf8"))
-      .toBe("name: hermes-console-control\n");
-    expect(await readFile(path.join(result.path, "__init__.py"), "utf8"))
-      .toBe("VALUE = 1\n");
+    for (const filename of ["plugin.yaml", "__init__.py"] as const) {
+      const source = path.join(process.cwd(), "hermes-extensions", "hermes-console-control", filename);
+      expect(await readFile(path.join(result.path, filename), "utf8"))
+        .toBe(await readFile(source, "utf8"));
+    }
   });
 });

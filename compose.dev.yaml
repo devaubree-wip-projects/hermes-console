@@ -1,0 +1,9 @@
+services:
+  hermes:
+    restart: "no"
+
+  edge:
+    restart: "no"
+
+  relay:
+    restart: "no"

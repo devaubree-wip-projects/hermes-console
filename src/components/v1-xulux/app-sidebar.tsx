@@ -36,6 +36,8 @@ import {
   SidebarMenuSubItem,
 } from "@/components/v1-xulux/ui/sidebar"
 import { SessionUsageCard } from "@/components/v1-xulux/session-usage-card"
+import { EventLogsCard } from "@/components/v1-xulux/event-logs-card"
+import { HermesStatusCard } from "@/components/v1-xulux/hermes-status-card"
 import { ThemeToggle } from "@/components/v1-xulux/theme-toggle"
 import { useSearchCommand } from "@/components/v1-xulux/search-command"
 import {
@@ -46,11 +48,13 @@ import {
   FileTextIcon,
   GaugeIcon,
   LibraryIcon,
+  ListTreeIcon,
   Loader2Icon,
   MessageCircleIcon,
   PlugIcon,
   PlusIcon,
   SearchIcon,
+  ServerIcon,
   SettingsIcon,
   SparklesIcon,
 } from "lucide-react"
@@ -72,6 +76,9 @@ export type WorkspaceAgentOption = {
   name: string
   slug: string
   runtimeState: "ready" | "setup_required" | "error"
+  installationName: string | null
+  installationStatus: "pending_enrollment" | "checking" | "ready" | "degraded" | "offline" | "incompatible" | "upgrading" | "rollback_required" | "revoked" | null
+  hermesVersion: string | null
 }
 
 function isActive(pathname: string, url: string) {
@@ -138,7 +145,9 @@ export function AppSidebar({
     {
       label: "Administration",
       items: [
+        { title: "Installations", url: `${workspaceBase}/installations`, icon: <ServerIcon /> },
         { title: "Intégrations", url: `${workspaceBase}/integrations`, icon: <PlugIcon /> },
+        { title: "Event Logs", url: `${workspaceBase}/events`, icon: <ListTreeIcon /> },
         { title: "Paramètres", url: `${workspaceBase}/settings/chat`, icon: <SettingsIcon /> },
       ],
     },
@@ -304,6 +313,11 @@ export function AppSidebar({
       <SidebarFooter>
         <SessionUsageCard
           agentSlug={activeAgent?.slug}
+          workspaceBase={workspaceBase}
+        />
+        <EventLogsCard workspaceBase={workspaceBase} />
+        <HermesStatusCard
+          agent={activeAgent}
           workspaceBase={workspaceBase}
         />
         <SidebarMenu className="mt-2">

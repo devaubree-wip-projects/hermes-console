@@ -1,8 +1,11 @@
+import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { agents, auditEvents } from "@/db/schema";
+import { agents, auditEvents, runtimeCapabilities, runtimeUsageSamples } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { createHermesProfile, HermesRuntimeError } from "@/lib/hermes/server";
+import { ensureEnvironmentRuntimeInstallation } from "@/lib/hermes/installations";
+import { capacityRecommendationFromUsage } from "@/lib/hermes/runtime-policy";
 import { allocateAgentIdentity } from "@/lib/product-model";
 import { canConfigureRuntime, getWorkspaceAccessBySlugs } from "@/lib/workspace";
 
@@ -19,10 +22,25 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
   if (!name || name.length > 80 || description.length > 500) return NextResponse.json({ error: "Nom ou mission invalide." }, { status: 400 });
 
   const identity = await allocateAgentIdentity(access.workspace.id, access.tenant.slug, access.workspace.slug, name);
+  const installation = await ensureEnvironmentRuntimeInstallation(access.tenant.id, user.id);
+  const [[capability], [latestUsage]] = await Promise.all([
+    db.select().from(runtimeCapabilities).where(eq(runtimeCapabilities.installationId, installation.id)).limit(1),
+    db.select().from(runtimeUsageSamples).where(eq(runtimeUsageSamples.installationId, installation.id))
+      .orderBy(desc(runtimeUsageSamples.sampledAt)).limit(1),
+  ]);
+  if (latestUsage && capability?.limits?.maxActiveSessions && (latestUsage.activeSessionCount ?? 0) >= capability.limits.maxActiveSessions) {
+    return NextResponse.json({ error: "Capacité de sessions active atteinte.", code: "active_session_capacity_reached" }, { status: 409 });
+  }
+  if (latestUsage && capacityRecommendationFromUsage(latestUsage, capability?.limits?.headroomPercent ?? 20).saturated) {
+    return NextResponse.json({ error: "Headroom runtime insuffisant pour créer un nouvel agent.", code: "capacity_headroom_exceeded" }, { status: 409 });
+  }
   let runtimeState: "ready" | "setup_required" | "error" = "ready";
   let runtimeError: string | null = null;
   try {
-    await createHermesProfile({ name: identity.profileName, description });
+    await createHermesProfile(
+      { name: identity.profileName, description },
+      { installationId: installation.id, profile: identity.profileName },
+    );
   } catch (error) {
     runtimeState = error instanceof HermesRuntimeError && !error.status ? "setup_required" : "error";
     runtimeError = error instanceof Error ? error.message.slice(0, 500) : "Création du profil Hermes impossible.";
@@ -30,6 +48,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
 
   const [agent] = await db.insert(agents).values({
     workspaceId: access.workspace.id,
+    runtimeInstallationId: installation.id,
     slug: identity.slug,
     name,
     description: description || null,

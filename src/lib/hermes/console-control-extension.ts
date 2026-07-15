@@ -5,6 +5,7 @@ import {
   syncHermesConsoleControlExtension,
 } from "@/lib/hermes/extension-files";
 import { hermesFetch } from "@/lib/hermes/server";
+import { runtimeInstallationForAgent } from "@/lib/hermes/installations";
 
 type HermesPluginConfig = {
   plugins?: {
@@ -19,10 +20,15 @@ function stringList(value: unknown) {
     : [];
 }
 
-export async function ensureHermesConsoleControlExtension(profile: string) {
+export async function ensureHermesConsoleControlExtension(agentId: string, profile: string) {
+  const installation = await runtimeInstallationForAgent(agentId);
+  if (installation.origin !== "local_managed") {
+    return { installed: false, reason: "remote_installation" } as const;
+  }
   const synced = await syncHermesConsoleControlExtension({ profile });
   const encodedProfile = encodeURIComponent(profile);
-  const config = await hermesFetch<HermesPluginConfig>(`/api/config?profile=${encodedProfile}`);
+  const scope = { agentId, profile };
+  const config = await hermesFetch<HermesPluginConfig>(`/api/config?profile=${encodedProfile}`, {}, scope);
   const enabled = [...new Set([
     ...stringList(config.plugins?.enabled),
     HERMES_CONSOLE_CONTROL_PLUGIN,
@@ -36,6 +42,6 @@ export async function ensureHermesConsoleControlExtension(profile: string) {
       profile,
       config: { plugins: { enabled, disabled } },
     }),
-  });
+  }, scope);
   return synced;
 }

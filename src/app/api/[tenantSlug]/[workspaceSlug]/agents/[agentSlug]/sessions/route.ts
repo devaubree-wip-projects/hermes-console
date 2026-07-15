@@ -31,7 +31,7 @@ export async function GET(
   if (!access) return NextResponse.json({ error: "Workspace introuvable." }, { status: 404 });
   if (!agent) return NextResponse.json({ error: "Agent introuvable." }, { status: 404 });
 
-  const result = await listHermesSessions(agent.hermesProfileName, 100);
+  const result = await listHermesSessions(agent.hermesProfileName, 100, { agentId: agent.id });
   return NextResponse.json({
     sessions: result.sessions.map((session) => ({
       id: session.id ?? session.session_id,

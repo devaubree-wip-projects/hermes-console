@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { SessionInfo } from "@/lib/hermes/protocol";
+import type { HandoffLifecycleState, SessionInfo } from "@/lib/hermes/protocol";
 import type { ReasoningControlId } from "@/components/shared/chat/constants/reasoning-config";
 
 export type HermesComposerModel = {
@@ -46,6 +46,11 @@ export type HermesComposerController = HermesComposerState & {
   setWebSearch(value: boolean): void;
   completePath(query: string): Promise<HermesCompletion[]>;
   completeSlash(query: string): Promise<HermesCompletion[]>;
+  handoffTelegram(
+    threadId: string,
+    remoteId: string | undefined,
+    onProgress?: (state: HandoffLifecycleState) => void,
+  ): Promise<void>;
 };
 
 const HermesComposerContext = createContext<HermesComposerController | null>(null);

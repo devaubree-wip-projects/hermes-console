@@ -64,7 +64,7 @@ afterEach(() => {
 
 describe("HermesClient persisted-session subscriptions", () => {
   test("subscribes, dispatches invalidations, and resubscribes after reconnect", async () => {
-    globalThis.fetch = (async () => Response.json({ ticket: "signed-ticket" })) as unknown as typeof fetch;
+    globalThis.fetch = (async () => Response.json({ ticket: "signed-ticket", gatewayUrl: "ws://127.0.0.1:8787/v1/ws" })) as unknown as typeof fetch;
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket;
 
     const client = new HermesClient("/runtime-ticket");
@@ -101,7 +101,7 @@ describe("HermesClient persisted-session subscriptions", () => {
   });
 
   test("unsubscribes only after the final listener is removed", async () => {
-    globalThis.fetch = (async () => Response.json({ ticket: "signed-ticket" })) as unknown as typeof fetch;
+    globalThis.fetch = (async () => Response.json({ ticket: "signed-ticket", gatewayUrl: "ws://127.0.0.1:8787/v1/ws" })) as unknown as typeof fetch;
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket;
     const client = new HermesClient("/runtime-ticket");
     client.connect();

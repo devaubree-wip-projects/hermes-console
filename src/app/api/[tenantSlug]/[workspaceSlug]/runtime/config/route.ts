@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { agents } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { HermesRuntimeError, updateRuntimeAccess, type ApprovalMode } from "@/lib/hermes/server";
 import { canConfigureRuntime, getWorkspaceAccessBySlugs } from "@/lib/workspace";
@@ -25,6 +28,11 @@ export async function PUT(
 
   const profile = typeof body?.profile === "string" ? body.profile.trim() : "";
   if (!profile) return NextResponse.json({ error: "Profil Hermes manquant." }, { status: 400 });
+  const [agent] = await db.select({ id: agents.id }).from(agents).where(and(
+    eq(agents.workspaceId, access.workspace.id),
+    eq(agents.hermesProfileName, profile),
+  )).limit(1);
+  if (!agent) return NextResponse.json({ error: "Profil agent invalide." }, { status: 400 });
 
   const patch: { approvalMode?: ApprovalMode; defaultCwd?: string } = {};
 
@@ -47,7 +55,7 @@ export async function PUT(
   }
 
   try {
-    await updateRuntimeAccess(profile, patch);
+    await updateRuntimeAccess(profile, patch, { agentId: agent.id });
     return NextResponse.json({ ok: true });
   } catch (error) {
     const status = error instanceof HermesRuntimeError && error.status ? error.status : 502;

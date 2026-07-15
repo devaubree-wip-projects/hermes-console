@@ -26,7 +26,7 @@ export async function GET(
   }
 
   const [agent] = await db
-    .select({ hermesProfileName: agents.hermesProfileName })
+    .select({ id: agents.id, hermesProfileName: agents.hermesProfileName })
     .from(agents)
     .where(eq(agents.workspaceId, access.workspace.id))
     .orderBy(asc(agents.createdAt))
@@ -35,7 +35,11 @@ export async function GET(
 
   try {
     const query = new URLSearchParams({ name, profile: agent.hermesProfileName });
-    const result = await hermesFetch<HermesSkillContent>(`/api/skills/content?${query}`);
+    const result = await hermesFetch<HermesSkillContent>(
+      `/api/skills/content?${query}`,
+      {},
+      { agentId: agent.id, profile: agent.hermesProfileName },
+    );
     if (typeof result.content !== "string") {
       return NextResponse.json({ error: "Hermes a renvoyé un contenu de skill invalide." }, { status: 502 });
     }

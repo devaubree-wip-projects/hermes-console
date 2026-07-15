@@ -29,7 +29,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
     .where(eq(agents.workspaceId, access.workspace.id))
     .orderBy(desc(agents.updatedAt));
   const primaryAgent = workspaceAgents[0];
-  const runtime = primaryAgent ? await getHermesDashboardData(primaryAgent.hermesProfileName) : null;
+  const runtime = primaryAgent
+    ? await getHermesDashboardData(primaryAgent.hermesProfileName, { agentId: primaryAgent.id })
+    : null;
   const [[taskCount], [pendingCount], [fileCount]] = await Promise.all([
     db.select({ value: count() }).from(tasks).where(eq(tasks.workspaceId, access.workspace.id)),
     db.select({ value: count() }).from(approvals).where(and(eq(approvals.workspaceId, access.workspace.id), eq(approvals.status, "pending"))),

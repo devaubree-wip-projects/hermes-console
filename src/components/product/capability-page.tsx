@@ -50,7 +50,11 @@ export async function CapabilityPage({
   const [agent] = await db.select().from(agents).where(eq(agents.workspaceId, access.workspace.id)).orderBy(asc(agents.createdAt)).limit(1);
   const separator = endpoint.includes("?") ? "&" : "?";
   const result = agent
-    ? await hermesFetch<unknown>(`${endpoint}${separator}profile=${encodeURIComponent(agent.hermesProfileName)}`).then((data) => ({ data, error: null })).catch((error) => ({ data: null, error: error instanceof Error ? error.message : "Runtime indisponible" }))
+    ? await hermesFetch<unknown>(
+        `${endpoint}${separator}profile=${encodeURIComponent(agent.hermesProfileName)}`,
+        {},
+        { agentId: agent.id, profile: agent.hermesProfileName },
+      ).then((data) => ({ data, error: null })).catch((error) => ({ data: null, error: error instanceof Error ? error.message : "Runtime indisponible" }))
     : { data: null, error: "Créez d’abord un agent." };
   const items = records(result.data);
   const capabilities: CapabilityItem[] = items.map((item, index) => ({

@@ -16,8 +16,13 @@ type RouteParams = Promise<{
   agentSlug: string;
 }>;
 
-const codex = createCodexSubscriptionService(hermesFetch);
 const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]{6,200}$/;
+
+function codexForAgent(agent: typeof agents.$inferSelect) {
+  return createCodexSubscriptionService(<T>(path: string, init?: RequestInit) => (
+    hermesFetch<T>(path, init, { agentId: agent.id, profile: agent.hermesProfileName })
+  ));
+}
 
 async function resolveContext(
   tenantSlug: string,
@@ -99,6 +104,7 @@ export async function POST(
   const context = await resolveContext(tenantSlug, workspaceSlug, agentSlug);
   const invalid = invalidContextResponse(context.access, context.agent);
   if (invalid) return invalid;
+  const codex = codexForAgent(context.agent!);
 
   try {
     const login = await codex.start(context.agent!.hermesProfileName);
@@ -116,6 +122,7 @@ export async function GET(
   const context = await resolveContext(tenantSlug, workspaceSlug, agentSlug);
   const invalid = invalidContextResponse(context.access, context.agent);
   if (invalid) return invalid;
+  const codex = codexForAgent(context.agent!);
   const sessionId = sessionIdFrom(request);
   if (!sessionId) {
     return NextResponse.json({ error: "Session de connexion invalide." }, { status: 400 });
@@ -146,6 +153,7 @@ export async function DELETE(
   const context = await resolveContext(tenantSlug, workspaceSlug, agentSlug);
   const invalid = invalidContextResponse(context.access, context.agent);
   if (invalid) return invalid;
+  const codex = codexForAgent(context.agent!);
   const requestedSessionId = new URL(request.url).searchParams.get("sessionId");
 
   try {
@@ -161,6 +169,8 @@ export async function DELETE(
     const profile = context.agent!.hermesProfileName;
     const modelInfo = await hermesFetch<{ provider?: string; model?: string }>(
       `/api/model/info?${new URLSearchParams({ profile })}`,
+      {},
+      { agentId: context.agent!.id, profile },
     );
     const result = await codex.disconnect(profile);
     const currentProvider = modelInfo.provider === CODEX_SUBSCRIPTION_PROVIDER

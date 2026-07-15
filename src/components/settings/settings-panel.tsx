@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { requireUser } from "@/lib/auth"
 import { getRuntimeAccess, hermesFetch } from "@/lib/hermes/server"
+import { runtimeInstallationForAgent } from "@/lib/hermes/installations"
 import { normalizePermissions } from "@/lib/permissions"
 import { canConfigureRuntime, getWorkspaceAccessBySlugs } from "@/lib/workspace"
 
@@ -199,8 +200,9 @@ export async function SettingsPanel({
   }
 
   if (panel === "runtime") {
+    const installation = firstAgent ? await runtimeInstallationForAgent(firstAgent.id) : null
     const runtimeAccess = firstAgent
-      ? await getRuntimeAccess(firstAgent.hermesProfileName).catch(() => ({
+      ? await getRuntimeAccess(firstAgent.hermesProfileName, { agentId: firstAgent.id }).catch(() => ({
           defaultCwd: null,
           branch: null,
           approvalMode: null,
@@ -222,7 +224,7 @@ export async function SettingsPanel({
             description="Le runtime est partagé par l’installation et chaque requête reste limitée au profil de l’agent actif."
             control={(
               <code className="break-all rounded-md bg-muted px-2 py-1 font-mono text-xs">
-                {process.env.HERMES_RUNTIME_URL ?? "http://127.0.0.1:9119"}
+                {installation?.gatewayHttpUrl ?? "Aucune installation"}
               </code>
             )}
           />
@@ -254,6 +256,8 @@ export async function SettingsPanel({
     const result = firstAgent
       ? await hermesFetch<unknown>(
           `/api/tools/toolsets?profile=${encodeURIComponent(firstAgent.hermesProfileName)}`,
+          {},
+          { agentId: firstAgent.id, profile: firstAgent.hermesProfileName },
         )
           .then((data) => ({ data, error: null as string | null }))
           .catch((error) => ({

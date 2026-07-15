@@ -204,19 +204,21 @@ function clientState(
   };
 }
 
-async function loadRuntimeState(profile: string, refresh = false): Promise<RuntimeState> {
+async function loadRuntimeState(agentId: string, profile: string, refresh = false): Promise<RuntimeState> {
   const encodedProfile = encodeURIComponent(profile);
   const refreshQuery = refresh ? "&refresh=1" : "";
+  const scope = { agentId, profile };
   const [env, info, options, oauth, config] = await Promise.all([
-    hermesFetch<Record<string, HermesEnvRow>>(`/api/env?profile=${encodedProfile}`),
-    hermesFetch<HermesModelInfo>(`/api/model/info?profile=${encodedProfile}`),
+    hermesFetch<Record<string, HermesEnvRow>>(`/api/env?profile=${encodedProfile}`, {}, scope),
+    hermesFetch<HermesModelInfo>(`/api/model/info?profile=${encodedProfile}`, {}, scope),
     hermesFetch<HermesModelOptions>(
       `/api/model/options?profile=${encodedProfile}&include_unconfigured=1${refreshQuery}`,
       { signal: AbortSignal.timeout(refresh ? 30_000 : 15_000) },
+      scope,
     ),
-    hermesFetch<HermesOAuthOptions>(`/api/providers/oauth?profile=${encodedProfile}`)
+    hermesFetch<HermesOAuthOptions>(`/api/providers/oauth?profile=${encodedProfile}`, {}, scope)
       .catch((): HermesOAuthOptions => ({ providers: [] })),
-    hermesFetch<HermesConfig>(`/api/config?profile=${encodedProfile}`),
+    hermesFetch<HermesConfig>(`/api/config?profile=${encodedProfile}`, {}, scope),
   ]);
   return { env, info, options, oauth, config };
 }
@@ -231,7 +233,7 @@ export async function GET(
   if (!agent) return NextResponse.json({ error: "Agent introuvable." }, { status: 404 });
 
   try {
-    const runtime = await loadRuntimeState(agent.hermesProfileName);
+    const runtime = await loadRuntimeState(agent.id, agent.hermesProfileName);
     return NextResponse.json(clientState(agent, canConfigureRuntime(access.role), runtime));
   } catch (error) {
     return runtimeErrorResponse(error);
@@ -278,7 +280,7 @@ export async function PUT(
   }
 
   try {
-    const runtime = await loadRuntimeState(agent.hermesProfileName);
+    const runtime = await loadRuntimeState(agent.id, agent.hermesProfileName);
     if (mode === "reasoning") {
       if (!REASONING_EFFORTS.has(reasoningEffort)) {
         return NextResponse.json({ error: "Effort de raisonnement invalide." }, { status: 400 });
@@ -289,7 +291,7 @@ export async function PUT(
           profile: agent.hermesProfileName,
           config: { agent: { reasoning_effort: reasoningEffort } },
         }),
-      });
+      }, { agentId: agent.id, profile: agent.hermesProfileName });
       await db.insert(auditEvents).values({
         tenantId: access.tenant.id,
         workspaceId: access.workspace.id,
@@ -322,6 +324,7 @@ export async function PUT(
           body: JSON.stringify({ key: credentialKey, value: credential, profile: agent.hermesProfileName }),
           signal: AbortSignal.timeout(15_000),
         },
+        { agentId: agent.id, profile: agent.hermesProfileName },
       );
       if (validation.ok !== true && validation.reachable === true) {
         return NextResponse.json(
@@ -336,8 +339,8 @@ export async function PUT(
           value: credential,
           profile: agent.hermesProfileName,
         }),
-      });
-      const refreshed = await loadRuntimeState(agent.hermesProfileName, true);
+      }, { agentId: agent.id, profile: agent.hermesProfileName });
+      const refreshed = await loadRuntimeState(agent.id, agent.hermesProfileName, true);
       await db.insert(auditEvents).values({
         tenantId: access.tenant.id,
         workspaceId: access.workspace.id,
@@ -369,7 +372,7 @@ export async function PUT(
         confirm_expensive_model: confirmExpensiveModel,
       }),
       signal: AbortSignal.timeout(15_000),
-    });
+    }, { agentId: agent.id, profile: agent.hermesProfileName });
     if (assignment.confirm_required) {
       return NextResponse.json(
         {
@@ -396,7 +399,7 @@ export async function PUT(
           profile: agent.hermesProfileName,
           config: { agent: { reasoning_effort: reasoningEffort } },
         }),
-      });
+      }, { agentId: agent.id, profile: agent.hermesProfileName });
     }
 
     await db
@@ -435,7 +438,7 @@ export async function DELETE(
   if (!provider) return NextResponse.json({ error: "Fournisseur invalide." }, { status: 400 });
 
   try {
-    const runtime = await loadRuntimeState(agent.hermesProfileName);
+    const runtime = await loadRuntimeState(agent.id, agent.hermesProfileName);
     const credentialRow = credentialForProvider(runtime.env, provider);
     if (!credentialRow || credentialRow[1].is_set !== true) {
       return NextResponse.json({ ok: true, state: clientState(agent, true, runtime) });
@@ -443,7 +446,7 @@ export async function DELETE(
     await hermesFetch<{ ok?: boolean }>("/api/env", {
       method: "DELETE",
       body: JSON.stringify({ key: credentialRow[0], profile: agent.hermesProfileName }),
-    });
+    }, { agentId: agent.id, profile: agent.hermesProfileName });
     const currentProvider = resolvedCurrentProvider(
       runtime.info,
       runtime.options.providers ?? [],
@@ -467,7 +470,7 @@ export async function DELETE(
       targetId: agent.id,
       metadata: { provider },
     });
-    const refreshed = await loadRuntimeState(agent.hermesProfileName, true);
+    const refreshed = await loadRuntimeState(agent.id, agent.hermesProfileName, true);
     return NextResponse.json({ ok: true, state: clientState(agent, true, refreshed) });
   } catch (error) {
     if (error instanceof HermesRuntimeError && error.status === 404) {

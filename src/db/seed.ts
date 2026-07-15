@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { agents, memoryItems, tenantMemberships, tenants, users, workspaces } from "@/db/schema";
+import { agents, memoryItems, runtimeInstallations, tenantMemberships, tenants, users, workspaces } from "@/db/schema";
 import { hashPassword } from "@/lib/auth";
 import { DEFAULT_PERMISSIONS } from "@/lib/permissions";
 
@@ -40,13 +40,26 @@ async function seed() {
       tenantId: tenant.id,
       name: "Marketing local",
       slug: "marketing-local",
-      hermesBaseUrl: process.env.HERMES_RUNTIME_URL ?? "http://127.0.0.1:9119",
+      hermesBaseUrl: process.env.HERMES_DEFAULT_GATEWAY_URL ?? "http://127.0.0.1:8787",
       permissions: DEFAULT_PERMISSIONS,
     })
     .returning();
 
+  const [installation] = await db.insert(runtimeInstallations).values({
+    tenantId: tenant.id,
+    name: "Hermes local",
+    installationKey: "local-default",
+    origin: "local_managed",
+    managementLevel: "managed",
+    transport: "direct",
+    gatewayUrl: process.env.HERMES_DEFAULT_GATEWAY_URL ?? "http://127.0.0.1:8787",
+    status: "ready",
+    createdByUserId: user.id,
+  }).returning();
+
   await db.insert(agents).values({
     workspaceId: workspace.id,
+    runtimeInstallationId: installation.id,
     slug: "assistant-principal",
     name: "Assistant principal",
     description: "Agent Hermes principal du Garage Dupont",

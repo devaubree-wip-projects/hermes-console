@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { agents } from "@/db/schema";
+import { agents, runtimeInstallations } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { getWorkspaceAccessBySlugs } from "@/lib/workspace";
 import { AppShell } from "@/components/v1-xulux/app-shell";
@@ -24,8 +24,15 @@ export default async function ProductWorkspaceLayout({
       name: agents.name,
       slug: agents.slug,
       runtimeState: agents.runtimeState,
+      installationName: runtimeInstallations.name,
+      installationStatus: runtimeInstallations.status,
+      hermesVersion: runtimeInstallations.hermesVersion,
     })
     .from(agents)
+    .leftJoin(
+      runtimeInstallations,
+      eq(runtimeInstallations.id, agents.runtimeInstallationId),
+    )
     .where(eq(agents.workspaceId, access.workspace.id))
     .orderBy(asc(agents.createdAt));
 

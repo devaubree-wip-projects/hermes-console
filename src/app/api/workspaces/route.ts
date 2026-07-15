@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { DEFAULT_PERMISSIONS } from "@/lib/permissions";
 import { allocateAgentIdentity, allocateTenantSlug, allocateWorkspaceSlug } from "@/lib/product-model";
 import { createHermesProfile } from "@/lib/hermes/server";
+import { ensureEnvironmentRuntimeInstallation } from "@/lib/hermes/installations";
 import { listWorkspacesForUser } from "@/lib/workspace";
 
 export async function POST(request: Request) {
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
       tenantId: tenant.id,
       name,
       slug: workspaceSlug,
-      hermesBaseUrl: process.env.HERMES_RUNTIME_URL ?? "http://127.0.0.1:9119",
+      hermesBaseUrl: process.env.HERMES_DEFAULT_GATEWAY_URL ?? "http://127.0.0.1:8787",
       permissions: DEFAULT_PERMISSIONS,
     })
     .returning();
@@ -67,10 +68,12 @@ export async function POST(request: Request) {
     workspace.slug,
     "Assistant principal",
   );
+  const installation = await ensureEnvironmentRuntimeInstallation(tenant.id, user.id);
   const [agent] = await db
     .insert(agents)
     .values({
       workspaceId: workspace.id,
+      runtimeInstallationId: installation.id,
       slug: identity.slug,
       name: "Assistant principal",
       description: "Agent principal du workspace",
@@ -79,7 +82,10 @@ export async function POST(request: Request) {
     })
     .returning();
   try {
-    await createHermesProfile({ name: identity.profileName, description: agent.description });
+    await createHermesProfile(
+      { name: identity.profileName, description: agent.description },
+      { agentId: agent.id, profile: identity.profileName },
+    );
     await db.update(agents).set({ runtimeState: "ready", runtimeError: null }).where(eq(agents.id, agent.id));
   } catch (error) {
     await db.update(agents).set({

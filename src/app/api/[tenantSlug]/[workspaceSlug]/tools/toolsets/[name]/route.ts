@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { agents } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { hermesFetch, HermesRuntimeError } from "@/lib/hermes/server";
 import { canConfigureRuntime, getWorkspaceAccessBySlugs } from "@/lib/workspace";
@@ -21,11 +24,17 @@ export async function PUT(
   if (enabled === null || !profile) {
     return NextResponse.json({ error: "Paramètres invalides." }, { status: 400 });
   }
+  const [agent] = await db.select({ id: agents.id, hermesProfileName: agents.hermesProfileName })
+    .from(agents)
+    .where(and(eq(agents.workspaceId, access.workspace.id), eq(agents.hermesProfileName, profile)))
+    .limit(1);
+  if (!agent) return NextResponse.json({ error: "Profil agent invalide." }, { status: 400 });
 
   try {
     const result = await hermesFetch<{ ok: boolean; name: string; enabled: boolean }>(
       `/api/tools/toolsets/${encodeURIComponent(name)}?profile=${encodeURIComponent(profile)}`,
       { method: "PUT", body: JSON.stringify({ enabled, profile }) },
+      { agentId: agent.id, profile },
     );
     return NextResponse.json(result);
   } catch (error) {

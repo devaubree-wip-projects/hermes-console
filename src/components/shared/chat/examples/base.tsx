@@ -15,6 +15,7 @@ import {
   ThreadList,
 } from "@/components/shared/chat/assistant-ui/thread-list";
 import { TooltipIconButton } from "@/components/shared/chat/assistant-ui/tooltip-icon-button";
+import { TelegramHandoffDialog } from "@/components/shared/chat/assistant-ui/telegram-handoff-dialog";
 import {
   Reasoning,
   ReasoningContent,
@@ -44,6 +45,7 @@ import {
   MessagePrimitive,
   ThreadListPrimitive,
   ThreadPrimitive,
+  unstable_defaultDirectiveFormatter,
   unstable_useMentionAdapter,
   unstable_useSlashCommandAdapter,
   unstable_useLiveCompletionAdapter,
@@ -93,6 +95,7 @@ import {
   ShieldAlertIcon,
   ZapIcon,
   WrenchIcon,
+  XIcon,
 } from "lucide-react";
 import {
   LexicalComposerInput,
@@ -553,6 +556,7 @@ const Header: FC<{
       <ThreadTitle />
       <div className="ml-auto flex items-center gap-1.5">
         <AccessChip />
+        <TelegramHandoffDialog />
         {settingsUrl ? (
         <Link
           href={settingsUrl}
@@ -973,6 +977,7 @@ const slashIconMap: Record<string, FC<{ className?: string }>> = {
 
 function DirectiveChip(props: DirectiveChipProps) {
   const { directiveId, directiveType, label } = props;
+  if (directiveType === "command") return null;
   const showWrench = directiveType !== "command";
   return (
     <span
@@ -988,6 +993,52 @@ function DirectiveChip(props: DirectiveChipProps) {
       <span className="aui-directive-chip-label">{label}</span>
     </span>
   );
+}
+
+function ComposerCommandBadges() {
+  const aui = useAui();
+  const composerText = useAuiState((state) => state.composer.text);
+  const commands = unstable_defaultDirectiveFormatter
+    .parse(composerText)
+    .flatMap((segment) => (
+      segment.kind === "mention" && segment.type === "command"
+        ? [segment]
+        : []
+    ));
+
+  const removeCommand = (command: (typeof commands)[number]) => {
+    const serialized = unstable_defaultDirectiveFormatter.serialize({
+      id: command.id,
+      type: command.type,
+      label: command.label,
+    });
+    const index = composerText.indexOf(serialized);
+    if (index < 0) return;
+    const before = composerText.slice(0, index).trimEnd();
+    const after = composerText.slice(index + serialized.length).trimStart();
+    aui.composer().setText([before, after].filter(Boolean).join(" "));
+  };
+
+  if (commands.length === 0) return null;
+
+  return commands.map((command, index) => (
+    <span
+      key={`${command.id}-${index}`}
+      data-slot="aui-command-badge"
+      className="inline-flex h-6 max-w-48 items-center gap-1 rounded-md border bg-muted px-2 text-xs font-medium text-foreground"
+    >
+      <SlashIcon className="size-3 shrink-0 text-muted-foreground" aria-hidden />
+      <span className="truncate">{command.label}</span>
+      <button
+        type="button"
+        aria-label={`Retirer ${command.label}`}
+        className="-mr-1 inline-flex size-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground outline-none hover:bg-background hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+        onClick={() => removeCommand(command)}
+      >
+        <XIcon className="size-3" aria-hidden />
+      </button>
+    </span>
+  ));
 }
 
 const Composer: FC = () => {
@@ -1010,7 +1061,7 @@ const Composer: FC = () => {
     fetcher: async (query) => (await hermes.completeSlash(query)).map((item) => ({
       id: item.id,
       type: "command",
-      label: item.label.replace(/^\//, ""),
+      label: item.id === "agent-create" ? item.label : item.label.replace(/^\//, ""),
       description: item.description,
       metadata: { icon: "Slash" },
     })),
@@ -1170,6 +1221,7 @@ const Composer: FC = () => {
                     </div>
                   </PopoverContent>
                 </Popover>
+                <ComposerCommandBadges />
                 {hermes.webSearch && (
                   <span
                     role="status"

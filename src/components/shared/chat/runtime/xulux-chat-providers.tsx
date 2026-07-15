@@ -25,11 +25,13 @@ function ChatRuntimeLayer({
   threadId,
   sessionsEndpoint,
   inferenceEndpoint,
+  agentsEndpoint,
   children,
 }: {
   threadId?: string
   sessionsEndpoint: string
   inferenceEndpoint: string
+  agentsEndpoint: string
   children: React.ReactNode
 }) {
   return (
@@ -37,6 +39,7 @@ function ChatRuntimeLayer({
       threadId={threadId}
       sessionsEndpoint={sessionsEndpoint}
       inferenceEndpoint={inferenceEndpoint}
+      agentsEndpoint={agentsEndpoint}
     >
       <ChatRunTracker />
       <ChatThreadUrlSync threadId={threadId} />
@@ -80,6 +83,7 @@ export function XuluxChatProviders({
   const ticketEndpoint = `${effectiveApiBase}/agents/${encodeURIComponent(activeAgentSlug)}/runtime-ticket`
   const sessionsEndpoint = `${effectiveApiBase}/agents/${encodeURIComponent(activeAgentSlug)}/sessions`
   const inferenceEndpoint = `${effectiveApiBase}/agents/${encodeURIComponent(activeAgentSlug)}/inference`
+  const agentsEndpoint = `${effectiveApiBase}/agents`
 
   const [warm, setWarm] = useState(isChatRoute)
 
@@ -110,6 +114,7 @@ export function XuluxChatProviders({
             threadId={threadId}
             sessionsEndpoint={sessionsEndpoint}
             inferenceEndpoint={inferenceEndpoint}
+            agentsEndpoint={agentsEndpoint}
           >
             {children}
           </ChatRuntimeLayer>

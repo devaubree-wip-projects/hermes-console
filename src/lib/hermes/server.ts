@@ -1,13 +1,14 @@
 import "server-only";
 
-import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
-import { promisify } from "node:util";
-
-const DEFAULT_RUNTIME_URL = "http://127.0.0.1:9119";
-const execFileAsync = promisify(execFile);
+import { createGatewayServiceHeaders } from "@/lib/hermes/gateway-auth";
+import {
+  environmentRuntimeInstallation,
+  runtimeInstallationById,
+  runtimeInstallationForAgent,
+} from "@/lib/hermes/installations";
 
 export class HermesRuntimeError extends Error {
   constructor(
@@ -20,7 +21,7 @@ export class HermesRuntimeError extends Error {
 }
 
 export function hermesRuntimeUrl() {
-  return (process.env.HERMES_RUNTIME_URL ?? DEFAULT_RUNTIME_URL).replace(/\/$/, "");
+  return environmentRuntimeInstallation().gatewayHttpUrl;
 }
 
 export type HermesGatewayPlatformState = {
@@ -134,60 +135,184 @@ export async function readLocalProfileGatewaySession(
  * operation safely to the profile-owned systemd user service.
  */
 export async function runLocalHermesGatewayCommand(
+  agentId: string,
   profile: string,
-  action: "start" | "restart",
+  action: "start" | "restart" | "stop" | "drain" | "resume",
 ) {
   if (!validHermesProfile(profile)) {
     throw new HermesRuntimeError("Profil Hermes invalide.", 400);
   }
 
-  const binary = process.env.HERMES_CLI_PATH?.trim() || "hermes";
+  const installation = await runtimeInstallationForAgent(agentId);
+	return runHermesInstallationCommand(installation, profile, action);
+}
+
+export async function runHermesInstallationCommand(
+  installation: Awaited<ReturnType<typeof runtimeInstallationById>>,
+  profile: string,
+  action: "start" | "restart" | "stop" | "drain" | "resume",
+) {
+  if (!validHermesProfile(profile)) {
+    throw new HermesRuntimeError("Profil Hermes invalide.", 400);
+  }
+  if (installation.managementLevel === "external") {
+    throw new HermesRuntimeError("Cette installation est externe : le lifecycle Hermes reste sous la responsabilité de son propriétaire.", 403);
+  }
+  const target = new URL(`${installation.gatewayHttpUrl}/v1/control/gateway`);
+  const body = JSON.stringify({ profile, action });
+  const signed = createGatewayServiceHeaders({
+    method: "POST",
+    requestUri: "/v1/control/gateway",
+    profile,
+    installationKey: installation.installationKey,
+    body,
+  });
   try {
-    const { stdout, stderr } = await execFileAsync(
-      binary,
-      ["-p", profile, "gateway", action],
-      { timeout: 30_000, maxBuffer: 1024 * 1024 },
-    );
+    const response = await fetch(target, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...signed },
+      body,
+      cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (!response.ok) {
+      throw new Error((await response.text()).trim() || `Edge ${response.status}`);
+    }
     return {
       ok: true,
-      message: String(stdout || stderr).trim() || `Gateway ${action} demandé.`,
+      message: `Gateway ${action} demandé via l’Edge.`,
     };
   } catch (error) {
-    const detail = error as { stderr?: unknown; stdout?: unknown; message?: unknown };
-    const message = String(detail.stderr || detail.stdout || detail.message || "Commande Hermes impossible.").trim();
+    const message = error instanceof Error ? error.message : "Commande Hermes impossible.";
     throw new HermesRuntimeError(message, 503);
   }
 }
 
-function hermesRuntimeToken() {
-  return (
-    process.env.HERMES_DASHBOARD_SESSION_TOKEN ||
-    process.env.HERMES_RUNTIME_TOKEN ||
-    "hermes-console-local-runtime"
-  );
+export type HermesBackupResult = {
+  backupId: string;
+  storageRef: string;
+  checksumSha256: string;
+  sizeBytes: number;
+  secretsPolicy: "excluded" | "encrypted";
+  verified: boolean;
+};
+
+export async function runHermesBackupCommand(
+  installation: Awaited<ReturnType<typeof runtimeInstallationById>>,
+  input: { action: "create" | "verify" | "restore" | "delete"; profile: string; backupId: string; includeSecrets?: boolean },
+) {
+  if (installation.managementLevel !== "managed") {
+    throw new HermesRuntimeError("Les sauvegardes et restaurations exigent une installation managée.", 403);
+  }
+  if (!validHermesProfile(input.profile) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(input.backupId)) {
+    throw new HermesRuntimeError("Commande de sauvegarde invalide.", 400);
+  }
+  const target = new URL(`${installation.gatewayHttpUrl}/v1/control/backup`);
+  const body = JSON.stringify({
+    action: input.action,
+    profile: input.profile,
+    backupId: input.backupId,
+    includeSecrets: input.includeSecrets === true,
+  });
+  const signed = createGatewayServiceHeaders({
+    method: "POST", requestUri: "/v1/control/backup", profile: input.profile,
+    installationKey: installation.installationKey, body,
+  });
+  try {
+    const response = await fetch(target, {
+      method: "POST", headers: { "Content-Type": "application/json", ...signed }, body,
+      cache: "no-store", signal: AbortSignal.timeout(120_000),
+    });
+    if (!response.ok) throw new Error((await response.text()).trim() || `Edge ${response.status}`);
+    return await response.json() as HermesBackupResult;
+  } catch (error) {
+    throw new HermesRuntimeError(error instanceof Error ? error.message : "Sauvegarde Hermes impossible.", 503);
+  }
 }
 
-export async function hermesFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = hermesRuntimeToken();
+export async function runHermesUpgradeCommand(
+  installation: Awaited<ReturnType<typeof runtimeInstallationById>>,
+  input: { action: "preflight" | "upgrade" | "rollback"; profile: string; targetVersion: string },
+) {
+  if (installation.managementLevel !== "managed") throw new HermesRuntimeError("Upgrade réservé aux installations managées.", 403);
+  if (!validHermesProfile(input.profile) || !/^[a-zA-Z0-9][a-zA-Z0-9._+-]{0,127}$/.test(input.targetVersion)) throw new HermesRuntimeError("Version cible invalide.", 400);
+  const target = new URL(`${installation.gatewayHttpUrl}/v1/control/upgrade`);
+  const body = JSON.stringify(input);
+  const signed = createGatewayServiceHeaders({ method: "POST", requestUri: "/v1/control/upgrade", profile: input.profile, installationKey: installation.installationKey, body });
+  try {
+    const response = await fetch(target, { method: "POST", headers: { "Content-Type": "application/json", ...signed }, body, cache: "no-store", signal: AbortSignal.timeout(10 * 60 * 1000) });
+    if (!response.ok) throw new Error((await response.text()).trim() || `Edge ${response.status}`);
+    return await response.json() as { ok: true; action: string; targetVersion: string };
+  } catch (error) {
+    throw new HermesRuntimeError(error instanceof Error ? error.message : "Upgrade Hermes impossible.", 503);
+  }
+}
+
+function profileFromRequest(pathname: string, body?: BodyInit | null) {
+  const url = new URL(pathname, "http://hermes-console.local");
+  const queryProfile = url.searchParams.get("profile");
+  if (queryProfile && validHermesProfile(queryProfile)) return queryProfile;
+  if (typeof body === "string") {
+    try {
+      const payload = JSON.parse(body) as { profile?: unknown };
+      if (typeof payload.profile === "string" && validHermesProfile(payload.profile)) {
+        return payload.profile;
+      }
+    } catch {
+      // Hermes will return the canonical malformed-body error.
+    }
+  }
+  return "default";
+}
+
+export type HermesRuntimeScope = {
+  agentId?: string;
+  installationId?: string;
+  profile?: string;
+};
+
+export async function hermesFetch<T>(
+  path: string,
+  init: RequestInit = {},
+  scope: HermesRuntimeScope = {},
+): Promise<T> {
+  const method = init.method?.toUpperCase() || "GET";
+  const profile = scope.profile && validHermesProfile(scope.profile)
+    ? scope.profile
+    : profileFromRequest(path, init.body);
+  const installation = scope.agentId
+    ? await runtimeInstallationForAgent(scope.agentId)
+    : scope.installationId
+      ? await runtimeInstallationById(scope.installationId)
+      : environmentRuntimeInstallation();
+  const gatewayUrl = new URL(`${installation.gatewayHttpUrl}/v1/runtime${path}`);
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (init.body) headers.set("Content-Type", "application/json");
-  if (token) {
-    headers.set("X-Hermes-Session-Token", token);
-    headers.set("Authorization", `Bearer ${token}`);
+  const body = typeof init.body === "string" ? init.body : null;
+  const signed = createGatewayServiceHeaders({
+    method,
+    requestUri: `/v1/runtime${path}`,
+    profile,
+    installationKey: installation.installationKey,
+    body,
+  });
+  for (const [name, value] of Object.entries(signed)) {
+    headers.set(name, value);
   }
 
   let response: Response;
   try {
-    response = await fetch(`${hermesRuntimeUrl()}${path}`, {
+    response = await fetch(gatewayUrl, {
       ...init,
+      method,
       headers,
       cache: "no-store",
       signal: init.signal ?? AbortSignal.timeout(5_000),
     });
   } catch (error) {
     throw new HermesRuntimeError(
-      error instanceof Error ? `Runtime Hermes indisponible : ${error.message}` : "Runtime Hermes indisponible.",
+      error instanceof Error ? `Gateway Hermes indisponible : ${error.message}` : "Gateway Hermes indisponible.",
     );
   }
 
@@ -220,17 +345,20 @@ export type HermesSessionRow = {
   archived?: boolean;
 };
 
-export function listHermesSessions(profile: string, limit = 30) {
+export function listHermesSessions(profile: string, limit = 30, scope: HermesRuntimeScope = {}) {
   const query = new URLSearchParams({
     profile,
     limit: String(limit),
     order: "recent",
     archived: "include",
   });
-  return hermesFetch<{ sessions: HermesSessionRow[]; total: number }>(`/api/sessions?${query}`);
+  return hermesFetch<{ sessions: HermesSessionRow[]; total: number }>(`/api/sessions?${query}`, {}, { ...scope, profile });
 }
 
-export function createHermesProfile(input: { name: string; description?: string | null }) {
+export function createHermesProfile(
+  input: { name: string; description?: string | null },
+  scope: HermesRuntimeScope = {},
+) {
   return hermesFetch<{ ok: boolean; name: string }>("/api/profiles", {
     method: "POST",
     body: JSON.stringify({
@@ -238,7 +366,7 @@ export function createHermesProfile(input: { name: string; description?: string 
       description: input.description ?? "",
       clone_from_default: true,
     }),
-  });
+  }, scope);
 }
 
 export type ApprovalMode = "manual" | "smart" | "off";
@@ -308,13 +436,14 @@ function toMcpServers(value: unknown): RuntimeAccess["mcpServers"] {
  * dead endpoint yields nulls/empties, not a thrown panel. `offline` is true only
  * when the runtime is unreachable across the board.
  */
-export async function getRuntimeAccess(profile: string): Promise<RuntimeAccess> {
+export async function getRuntimeAccess(profile: string, scope: HermesRuntimeScope = {}): Promise<RuntimeAccess> {
   const scoped = `profile=${encodeURIComponent(profile)}`;
+  const runtimeScope = { ...scope, profile };
   const [config, defaultCwd, toolsets, mcp] = await Promise.allSettled([
-    hermesFetch<Record<string, unknown>>(`/api/config?${scoped}`),
-    hermesFetch<{ cwd?: string; branch?: string }>(`/api/fs/default-cwd`),
-    hermesFetch<unknown>(`/api/tools/toolsets?${scoped}`),
-    hermesFetch<unknown>(`/api/mcp/servers?${scoped}`),
+    hermesFetch<Record<string, unknown>>(`/api/config?${scoped}`, {}, runtimeScope),
+    hermesFetch<{ cwd?: string; branch?: string }>(`/api/fs/default-cwd`, {}, runtimeScope),
+    hermesFetch<unknown>(`/api/tools/toolsets?${scoped}`, {}, runtimeScope),
+    hermesFetch<unknown>(`/api/mcp/servers?${scoped}`, {}, runtimeScope),
   ]);
 
   const offline = [config, defaultCwd, toolsets, mcp].every((r) => r.status === "rejected");
@@ -340,6 +469,7 @@ export async function getRuntimeAccess(profile: string): Promise<RuntimeAccess> 
 export async function updateRuntimeAccess(
   profile: string,
   patch: { approvalMode?: ApprovalMode; defaultCwd?: string },
+  scope: HermesRuntimeScope = {},
 ) {
   const config: Record<string, unknown> = {};
   if (patch.approvalMode) config.approvals = { mode: patch.approvalMode };
@@ -347,17 +477,20 @@ export async function updateRuntimeAccess(
   return hermesFetch<{ ok: boolean }>(`/api/config`, {
     method: "PUT",
     body: JSON.stringify({ profile, config }),
-  });
+  }, { ...scope, profile });
 }
 
-export function getHermesDashboardData(profile: string) {
+export function getHermesDashboardData(profile: string, scope: HermesRuntimeScope = {}) {
   const scoped = new URLSearchParams({ profile });
+  const runtimeScope = { ...scope, profile };
   return Promise.allSettled([
-    listHermesSessions(profile, 8),
+    listHermesSessions(profile, 8, runtimeScope),
     hermesFetch<{ totals?: Record<string, number>; daily?: unknown[] }>(
       `/api/analytics/usage?${new URLSearchParams({ profile, days: "30" })}`,
+      {},
+      runtimeScope,
     ),
-    hermesFetch<{ jobs?: unknown[] }>(`/api/cron/jobs?${scoped}`),
+    hermesFetch<{ jobs?: unknown[] }>(`/api/cron/jobs?${scoped}`, {}, runtimeScope),
   ]).then(([sessions, usage, cron]) => ({
     sessions: sessions.status === "fulfilled" ? sessions.value : null,
     usage: usage.status === "fulfilled" ? usage.value : null,

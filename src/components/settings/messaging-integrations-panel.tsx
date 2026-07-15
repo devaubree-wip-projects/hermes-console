@@ -414,6 +414,7 @@ export function MessagingIntegrationsPanel({
             }
           : success;
       setFeedback(resultFeedback);
+      window.dispatchEvent(new Event("hermes:event-log"));
       await new Promise((resolve) => window.setTimeout(resolve, 900));
       await load(true);
       return true;
@@ -423,6 +424,7 @@ export function MessagingIntegrationsPanel({
         title: "Action impossible",
         message: error instanceof Error ? error.message : "Le runtime Hermes ne répond pas.",
       });
+      window.dispatchEvent(new Event("hermes:event-log"));
       return false;
     } finally {
       setAction(null);

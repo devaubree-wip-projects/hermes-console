@@ -10,6 +10,7 @@ import {
   readLocalProfileGatewayPlatforms,
   runLocalHermesGatewayCommand,
 } from "@/lib/hermes/server";
+import { isProfileGatewayRunning, resolvedPlatformState } from "@/lib/hermes/messaging-status";
 import { canConfigureRuntime, getWorkspaceAccessBySlugs } from "@/lib/workspace";
 
 const SUPPORTED_PLATFORMS = ["telegram", "discord"] as const;
@@ -102,6 +103,38 @@ function runtimeErrorResponse(error: unknown) {
   return NextResponse.json({ error: message }, { status });
 }
 
+function safeErrorMessage(error: unknown) {
+  const message = error instanceof Error ? error.message : "Runtime Hermes indisponible.";
+  return message
+    .replace(/\b\d{6,12}:[A-Za-z0-9_-]{20,}\b/g, "[credential redacted]")
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]")
+    .replace(/TELEGRAM_BOT_TOKEN=\S+/gi, "TELEGRAM_BOT_TOKEN=[redacted]")
+    .slice(0, 500);
+}
+
+async function recordMessagingEvent(input: {
+  tenantId: string;
+  workspaceId: string;
+  userId: string;
+  agentId: string;
+  action: string;
+  metadata: Record<string, unknown>;
+}) {
+  try {
+    await db.insert(auditEvents).values({
+      tenantId: input.tenantId,
+      workspaceId: input.workspaceId,
+      actorUserId: input.userId,
+      action: input.action,
+      targetType: "agent",
+      targetId: input.agentId,
+      metadata: input.metadata,
+    });
+  } catch {
+    // Observability must never prevent the requested Hermes action from completing.
+  }
+}
+
 async function resolveContext(
   tenantSlug: string,
   workspaceSlug: string,
@@ -123,23 +156,29 @@ function scopedPath(path: string, profile: string) {
   return `${path}${separator}profile=${encodeURIComponent(profile)}`;
 }
 
-async function loadPlatforms(profile: string) {
+async function loadPlatforms(agentId: string, profile: string) {
+  const scope = { agentId, profile };
   const [response, topology, localState] = await Promise.all([
-    hermesFetch<HermesMessagingResponse>(scopedPath("/api/messaging/platforms", profile)),
-    hermesFetch<HermesGatewayTopology>(scopedPath("/api/status", profile)).catch(
+    hermesFetch<HermesMessagingResponse>(scopedPath("/api/messaging/platforms", profile), {}, scope),
+    hermesFetch<HermesGatewayTopology>(scopedPath("/api/status", profile), {}, scope).catch(
       (): HermesGatewayTopology => ({}),
     ),
     readLocalProfileGatewayPlatforms(profile),
   ]);
-  const gatewayRunning = topology.gateway_running === true
-    || localState?.running === true
-    || (
-      topology.gateway_running === undefined
-      && (topology.gateways ?? []).some((gateway) => (
-        (gateway.profile === profile || gateway.served_profiles?.includes(profile))
-        && Object.keys(gateway.ports ?? {}).length > 0
-      ))
-    );
+  const gatewayRunning = isProfileGatewayRunning({
+    profile,
+    topology: {
+      gatewayRunning: topology.gateway_running,
+      gateways: topology.gateways?.map((gateway) => ({
+        profile: gateway.profile,
+        servedProfiles: gateway.served_profiles,
+      })),
+    },
+    localRunning: localState?.running,
+    platformReportedRunning: (response.platforms ?? []).some(
+      (platform) => platform.gateway_running === true,
+    ),
+  });
   return {
     gatewayStartCommand: response.gateway_start_command ?? `hermes -p ${profile} gateway start`,
     platforms: (response.platforms ?? []).filter(
@@ -148,8 +187,8 @@ async function loadPlatforms(profile: string) {
       ),
     ).map((platform) => {
       const topologyState = topology.gateway_platforms?.[platform.id];
-      const platformGatewayRunning = gatewayRunning || platform.gateway_running === true;
-      const fallbackState = localState?.running ? localState.platforms[platform.id] : null;
+      const platformGatewayRunning = gatewayRunning;
+      const fallbackState = gatewayRunning ? localState?.platforms[platform.id] : null;
       const runtimeState = topologyState ?? (fallbackState ? {
         state: fallbackState.state,
         error_code: fallbackState.errorCode,
@@ -159,16 +198,32 @@ async function loadPlatforms(profile: string) {
       return {
         ...platform,
         gateway_running: platformGatewayRunning,
-        state: runtimeState?.state
-          ?? (platformGatewayRunning && platform.enabled && platform.configured
-            ? "pending_restart"
-            : platform.state),
+        state: resolvedPlatformState({
+          topologyState: topologyState?.state,
+          localState: fallbackState?.state,
+          platformState: platform.state,
+          gatewayRunning: platformGatewayRunning,
+          enabled: platform.enabled,
+          configured: platform.configured,
+        }),
         error_code: runtimeState?.error_code ?? platform.error_code,
         error_message: runtimeState?.error_message ?? platform.error_message,
         updated_at: runtimeState?.updated_at ?? platform.updated_at,
       };
     }),
   };
+}
+
+async function waitForMessagingState(agentId: string, profile: string, platformId: SupportedPlatform) {
+  const deadline = Date.now() + 12_000;
+  let latest: Awaited<ReturnType<typeof loadPlatforms>>["platforms"][number] | undefined;
+  do {
+    const current = await loadPlatforms(agentId, profile);
+    latest = current.platforms.find((platform) => platform.id === platformId);
+    if (latest?.state === "connected" || latest?.error_message) return latest;
+    await new Promise((resolve) => setTimeout(resolve, 400));
+  } while (Date.now() < deadline);
+  return latest;
 }
 
 function numericIdList(value: unknown, label: string) {
@@ -202,7 +257,7 @@ export async function GET(
   if (!agent) return NextResponse.json({ error: "Agent introuvable." }, { status: 404 });
 
   try {
-    const messaging = await loadPlatforms(agent.hermesProfileName);
+    const messaging = await loadPlatforms(agent.id, agent.hermesProfileName);
     return NextResponse.json({
       agent: { id: agent.id, name: agent.name, slug: agent.slug },
       canEdit: canConfigureRuntime(access.role),
@@ -256,20 +311,39 @@ export async function PUT(
     return NextResponse.json({ error: "Mode de réponse Discord invalide." }, { status: 400 });
   }
 
+  await recordMessagingEvent({
+    tenantId: access.tenant.id,
+    workspaceId: access.workspace.id,
+    userId: user.id,
+    agentId: agent.id,
+    action: "messaging.connection_requested",
+    metadata: { platform, enabled: body.enabled },
+  });
+
+  let stage = "credential_check";
   try {
     if (body.enabled && !token) {
-      const current = await loadPlatforms(agent.hermesProfileName);
+      const current = await loadPlatforms(agent.id, agent.hermesProfileName);
       const currentPlatform = current.platforms.find((item) => item.id === platform);
       const credentialSet = currentPlatform?.env_vars?.some(
         (entry) => entry.key === tokenKey(platform) && entry.is_set,
       );
       if (!credentialSet) {
+        await recordMessagingEvent({
+          tenantId: access.tenant.id,
+          workspaceId: access.workspace.id,
+          userId: user.id,
+          agentId: agent.id,
+          action: "messaging.failed",
+          metadata: { platform, state: stage, error: "Le token du bot est requis." },
+        });
         return NextResponse.json({ error: "Le token du bot est requis." }, { status: 400 });
       }
     }
 
+    stage = "control_extension";
     if (platform === "telegram" && body.enabled) {
-      await ensureHermesConsoleControlExtension(agent.hermesProfileName);
+      await ensureHermesConsoleControlExtension(agent.id, agent.hermesProfileName);
     }
 
     const env: Record<string, string> = {};
@@ -277,6 +351,7 @@ export async function PUT(
     if (allowedUsers) env[allowedUsersKey(platform)] = allowedUsers;
     if (platform === "discord" && replyMode) env.DISCORD_REPLY_TO_MODE = replyMode;
 
+    stage = "platform_configuration";
     await hermesFetch<{ ok: boolean }>(
       scopedPath(`/api/messaging/platforms/${platform}`, agent.hermesProfileName),
       {
@@ -287,27 +362,66 @@ export async function PUT(
           env,
         }),
       },
+      { agentId: agent.id, profile: agent.hermesProfileName },
     );
 
+    const beforeLifecycle = await loadPlatforms(agent.id, agent.hermesProfileName);
+    const lifecycleAction = beforeLifecycle.platforms.some((item) => item.gateway_running)
+      ? "restart"
+      : "start";
     let restartWarning: string | null = null;
+    stage = "gateway_lifecycle";
     try {
-      await runLocalHermesGatewayCommand(agent.hermesProfileName, "restart");
+      await runLocalHermesGatewayCommand(agent.id, agent.hermesProfileName, lifecycleAction);
     } catch (error) {
       restartWarning = error instanceof Error ? error.message : "Redémarrage du gateway impossible.";
     }
 
-    await db.insert(auditEvents).values({
+    stage = "runtime_verification";
+    const runtimePlatform = restartWarning
+      ? undefined
+      : body.enabled
+        ? await waitForMessagingState(agent.id, agent.hermesProfileName, platform)
+        : (await loadPlatforms(agent.id, agent.hermesProfileName)).platforms.find(
+            (item) => item.id === platform,
+          );
+
+    const eventAction = !body.enabled
+      ? "messaging.disabled"
+      : runtimePlatform?.state === "connected"
+        ? "messaging.connected"
+        : restartWarning
+          ? "messaging.failed"
+          : "messaging.pending";
+    await recordMessagingEvent({
       tenantId: access.tenant.id,
       workspaceId: access.workspace.id,
-      actorUserId: user.id,
-      action: body.enabled ? "messaging.connected" : "messaging.disabled",
-      targetType: "agent",
-      targetId: agent.id,
-      metadata: { platform },
+      userId: user.id,
+      agentId: agent.id,
+      action: eventAction,
+      metadata: {
+        platform,
+        lifecycleAction,
+        runtimeState: runtimePlatform?.state ?? null,
+        restartWarning: restartWarning ? safeErrorMessage(new Error(restartWarning)) : null,
+      },
     });
 
-    return NextResponse.json({ ok: true, platform, restartWarning });
+    return NextResponse.json({
+      ok: runtimePlatform?.state === "connected" || (!body.enabled && restartWarning === null),
+      platform,
+      state: runtimePlatform?.state ?? null,
+      restartWarning,
+    });
   } catch (error) {
+    await recordMessagingEvent({
+      tenantId: access.tenant.id,
+      workspaceId: access.workspace.id,
+      userId: user.id,
+      agentId: agent.id,
+      action: "messaging.failed",
+      metadata: { platform, state: stage, error: safeErrorMessage(error) },
+    });
     return runtimeErrorResponse(error);
   }
 }
@@ -317,7 +431,7 @@ export async function POST(
   { params }: { params: Promise<{ tenantSlug: string; workspaceSlug: string; agentSlug: string }> },
 ) {
   const { tenantSlug, workspaceSlug, agentSlug } = await params;
-  const { access, agent } = await resolveContext(tenantSlug, workspaceSlug, agentSlug);
+  const { user, access, agent } = await resolveContext(tenantSlug, workspaceSlug, agentSlug);
   if (!access) return NextResponse.json({ error: "Workspace introuvable." }, { status: 404 });
   if (!agent) return NextResponse.json({ error: "Agent introuvable." }, { status: 404 });
   if (!canConfigureRuntime(access.role)) {
@@ -343,39 +457,60 @@ export async function POST(
       }>(
         scopedPath(`/api/messaging/platforms/${body.platform}/test`, agent.hermesProfileName),
         { method: "POST" },
+        { agentId: agent.id, profile: agent.hermesProfileName },
       );
-      if (result.state === "gateway_stopped") {
-        const current = await loadPlatforms(agent.hermesProfileName);
-        const platform = current.platforms.find((item) => item.id === body.platform);
+      const current = await loadPlatforms(agent.id, agent.hermesProfileName);
+      const platform = current.platforms.find((item) => item.id === body.platform);
+      let normalizedResult = result;
+      if (platform?.gateway_running && platform.state === "connected" && result.ok !== true) {
+        normalizedResult = {
+          ok: true,
+          state: "connected",
+          message: "Connexion active avec le gateway Hermes.",
+        };
+      } else if (result.state === "gateway_stopped") {
         if (platform?.gateway_running && platform.state === "connected") {
-          return NextResponse.json({
+          normalizedResult = {
             ok: true,
             state: "connected",
             message: "Connexion active avec le gateway Hermes.",
-          });
+          };
+        } else {
+          normalizedResult = {
+            ...result,
+            message: "Le gateway est arrêté. Démarre-le pour connecter ce channel.",
+          };
         }
-        return NextResponse.json({
-          ...result,
-          message: "Le gateway est arrêté. Démarre-le pour connecter ce channel.",
-        });
-      }
-      if (result.state === "disabled") {
-        return NextResponse.json({
+      } else if (result.state === "disabled") {
+        normalizedResult = {
           ...result,
           message: "Ce channel est désactivé. Active-le puis redémarre le gateway.",
-        });
+        };
       }
-      return NextResponse.json(result);
+      await recordMessagingEvent({
+        tenantId: access.tenant.id,
+        workspaceId: access.workspace.id,
+        userId: user.id,
+        agentId: agent.id,
+        action: normalizedResult.ok === true ? "messaging.tested" : "messaging.test_failed",
+        metadata: {
+          platform: body.platform,
+          state: normalizedResult.state ?? platform?.state ?? null,
+          detail: normalizedResult.message ?? null,
+        },
+      });
+      return NextResponse.json(normalizedResult);
     }
 
     if (body?.action === "telegram_onboarding_start") {
       const result = await hermesFetch<TelegramOnboardingStart>(
-        "/api/messaging/telegram/onboarding/start",
+        scopedPath("/api/messaging/telegram/onboarding/start", agent.hermesProfileName),
         {
           method: "POST",
           body: JSON.stringify({ bot_name: activeBotName(agent.name) }),
           signal: AbortSignal.timeout(15_000),
         },
+        { agentId: agent.id, profile: agent.hermesProfileName },
       );
       return NextResponse.json(result);
     }
@@ -386,8 +521,9 @@ export async function POST(
         return NextResponse.json({ error: "Session Telegram invalide." }, { status: 400 });
       }
       const result = await hermesFetch<TelegramOnboardingStatus>(
-        `/api/messaging/telegram/onboarding/${encodeURIComponent(pairingId)}`,
+        scopedPath(`/api/messaging/telegram/onboarding/${encodeURIComponent(pairingId)}`, agent.hermesProfileName),
         { signal: AbortSignal.timeout(15_000) },
+        { agentId: agent.id, profile: agent.hermesProfileName },
       );
       return NextResponse.json(result);
     }
@@ -421,11 +557,12 @@ export async function POST(
           }),
           signal: AbortSignal.timeout(15_000),
         },
+        { agentId: agent.id, profile: agent.hermesProfileName },
       );
-      await ensureHermesConsoleControlExtension(agent.hermesProfileName);
+      await ensureHermesConsoleControlExtension(agent.id, agent.hermesProfileName);
       let restartWarning: string | null = null;
       try {
-        await runLocalHermesGatewayCommand(agent.hermesProfileName, "restart");
+        await runLocalHermesGatewayCommand(agent.id, agent.hermesProfileName, "restart");
       } catch (error) {
         restartWarning = error instanceof Error ? error.message : "Redémarrage du gateway impossible.";
       }
@@ -438,24 +575,45 @@ export async function POST(
         return NextResponse.json({ error: "Session Telegram invalide." }, { status: 400 });
       }
       const result = await hermesFetch<Record<string, unknown>>(
-        `/api/messaging/telegram/onboarding/${encodeURIComponent(pairingId)}`,
+        scopedPath(`/api/messaging/telegram/onboarding/${encodeURIComponent(pairingId)}`, agent.hermesProfileName),
         { method: "DELETE" },
+        { agentId: agent.id, profile: agent.hermesProfileName },
       );
       return NextResponse.json(result);
     }
 
     if (body?.action === "start" || body?.action === "restart") {
-      const current = await loadPlatforms(agent.hermesProfileName);
+      const current = await loadPlatforms(agent.id, agent.hermesProfileName);
       const telegram = current.platforms.find((platform) => platform.id === "telegram");
       if (telegram?.enabled && telegram.configured) {
-        await ensureHermesConsoleControlExtension(agent.hermesProfileName);
+        await ensureHermesConsoleControlExtension(agent.id, agent.hermesProfileName);
       }
-      const result = await runLocalHermesGatewayCommand(agent.hermesProfileName, body.action);
+      const result = await runLocalHermesGatewayCommand(agent.id, agent.hermesProfileName, body.action);
+      await recordMessagingEvent({
+        tenantId: access.tenant.id,
+        workspaceId: access.workspace.id,
+        userId: user.id,
+        agentId: agent.id,
+        action: body.action === "start" ? "messaging.gateway_started" : "messaging.gateway_restarted",
+        metadata: { lifecycleAction: body.action },
+      });
       return NextResponse.json(result);
     }
 
     return NextResponse.json({ error: "Action gateway invalide." }, { status: 400 });
   } catch (error) {
+    await recordMessagingEvent({
+      tenantId: access.tenant.id,
+      workspaceId: access.workspace.id,
+      userId: user.id,
+      agentId: agent.id,
+      action: "messaging.action_failed",
+      metadata: {
+        platform: isSupportedPlatform(body?.platform) ? body.platform : undefined,
+        state: typeof body?.action === "string" ? body.action : "unknown_action",
+        error: safeErrorMessage(error),
+      },
+    });
     return runtimeErrorResponse(error);
   }
 }

@@ -22,6 +22,7 @@ const ROUTE_TITLES: Record<string, string> = {
   approvals: "Validations",
   automations: "Automatisations",
   files: "Fichiers",
+  events: "Event Logs",
   integrations: "Intégrations",
   knowledge: "Connaissances",
   models: "Modèles",

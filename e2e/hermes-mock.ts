@@ -136,6 +136,7 @@ export async function installHermesMock(
     persistedContext?: boolean;
     sessionsDelayMs?: number;
     historyDelayMs?: number;
+    gatewayUrl?: string;
   } = {},
 ) {
   const calls: RpcCall[] = [];
@@ -164,7 +165,7 @@ export async function installHermesMock(
   await page.route("**/runtime-ticket", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ ticket: "e2e-ticket" }),
+    body: JSON.stringify({ ticket: "e2e-ticket", gatewayUrl: options.gatewayUrl ?? "ws://127.0.0.1:8787/v1/ws" }),
   }));
   await page.route("**/agents/*/inference", async (route) => {
     if (route.request().method() === "GET") {
@@ -276,7 +277,9 @@ export async function installHermesMock(
     await route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
   });
 
-  await page.routeWebSocket(/^ws:\/\/127\.0\.0\.1:8787(?:\/|\?)/, (ws) => {
+  await page.routeWebSocket(/^(?:ws:\/\/127\.0\.0\.1:8787|wss:\/\/relay\.example\.test)(?:\/|\?)/, (ws) => {
+    let handoffState = "";
+    let handoffPolls = 0;
     setTimeout(() => {
       ws.send(JSON.stringify({ __bridge__: "status", online: true, pid: 4321 }));
     }, 50);
@@ -290,7 +293,27 @@ export async function installHermesMock(
         ws.send(JSON.stringify({ jsonrpc: "2.0", id: call.id, error: { code: 4007, message: "session not found" } }));
         return;
       }
-      ws.send(JSON.stringify({ jsonrpc: "2.0", id: call.id, result: resultFor(call, activeSessionInfo) }));
+      let result: Record<string, unknown>;
+      if (call.method === "handoff.request") {
+        handoffState = "pending";
+        handoffPolls = 0;
+        result = {
+          queued: true,
+          session_key: "session-e2e",
+          platform: "telegram",
+          home_name: "E2E home",
+        };
+      } else if (call.method === "handoff.state") {
+        handoffPolls += 1;
+        handoffState = handoffPolls === 1 ? "running" : "completed";
+        result = { state: handoffState, platform: "telegram", error: "" };
+      } else if (call.method === "handoff.fail") {
+        if (handoffState !== "completed") handoffState = "failed";
+        result = { failed: handoffState === "failed", state: handoffState };
+      } else {
+        result = resultFor(call, activeSessionInfo);
+      }
+      ws.send(JSON.stringify({ jsonrpc: "2.0", id: call.id, result }));
       if (call.method === "prompt.submit") {
         const text = String(call.params.text ?? "");
         const submitCount = calls.filter((item) => item.method === "prompt.submit").length;

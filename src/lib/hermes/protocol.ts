@@ -99,6 +99,9 @@ export const M = {
   completeSlash: "complete.slash",
   commandDispatch: "command.dispatch",
   slashExec: "slash.exec",
+  handoffRequest: "handoff.request",
+  handoffState: "handoff.state",
+  handoffFail: "handoff.fail",
   imageAttachBytes: "image.attach_bytes",
   pdfAttach: "pdf.attach",
   fileAttach: "file.attach",
@@ -128,6 +131,26 @@ export const E = {
 } as const;
 
 export type ApprovalChoice = "once" | "session" | "always" | "deny";
+
+export type HandoffLifecycleState = "" | "pending" | "running" | "completed" | "failed";
+
+export interface HandoffRequestResult {
+  queued?: boolean;
+  session_key?: string;
+  platform?: string;
+  home_name?: string;
+}
+
+export interface HandoffStateResult {
+  state: HandoffLifecycleState;
+  platform?: string;
+  error?: string;
+}
+
+export interface HandoffFailResult {
+  failed?: boolean;
+  state: HandoffLifecycleState;
+}
 
 export interface SessionSummary {
   id: string;

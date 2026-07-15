@@ -38,6 +38,8 @@ export async function GET(
   const query = new URLSearchParams({ profile: agent.hermesProfileName });
   const result = await hermesFetch<{ messages?: HermesStoredMessage[] }>(
     `/api/sessions/${encodeURIComponent(sessionId)}/messages?${query}`,
+    {},
+    { agentId: agent.id, profile: agent.hermesProfileName },
   );
 
   return NextResponse.json({
@@ -68,7 +70,7 @@ export async function PATCH(
   const result = await hermesFetch<Record<string, unknown>>(`/api/sessions/${encodeURIComponent(sessionId)}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
-  });
+  }, { agentId: agent.id, profile: agent.hermesProfileName });
   return NextResponse.json(result);
 }
 
@@ -86,6 +88,7 @@ export async function DELETE(
   const result = await hermesFetch<Record<string, unknown>>(
     `/api/sessions/${encodeURIComponent(sessionId)}?${query}`,
     { method: "DELETE" },
+    { agentId: agent.id, profile: agent.hermesProfileName },
   );
   await db.delete(agentSessions).where(and(
     eq(agentSessions.agentId, agent.id),
