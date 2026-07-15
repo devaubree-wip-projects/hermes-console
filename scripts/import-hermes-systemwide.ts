@@ -1,6 +1,6 @@
 import { homedir } from "node:os";
 import path from "node:path";
-import { importHermesProfile, rollbackHermesProfileImport, verifyHermesProfileImport } from "../src/lib/hermes/profile-import";
+import { importHermesProfile, rollbackHermesProfileImport, verifyHermesProfileImport } from "../apps/web/src/lib/hermes/profile-import";
 
 function argument(name: string, fallback?: string) {
   const index = process.argv.indexOf(name);

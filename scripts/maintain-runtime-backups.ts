@@ -1,7 +1,7 @@
 import { and, eq, isNull, lt, or } from "drizzle-orm";
 import { createHash, createHmac, randomBytes } from "node:crypto";
-import { db } from "../src/db";
-import { auditEvents, runtimeBackups, runtimeInstallations } from "../src/db/schema";
+import { db } from "../apps/web/src/db";
+import { auditEvents, runtimeBackups, runtimeInstallations } from "../apps/web/src/db/schema";
 
 async function backupCommand(
   installation: typeof runtimeInstallations.$inferSelect,

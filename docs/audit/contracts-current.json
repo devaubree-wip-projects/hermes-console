@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "commit": "998af504d7fc469b4176a70ce9b90b962bcda254",
+  "routes": [
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference/codex"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/messaging"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-status"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-ticket"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId/metrics"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/events"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations"
+    },
+    {
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/backups"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/budget"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/capacity-policy"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/enrollment"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/operations"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/upgrades"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/enroll"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/preflight"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/runtime/config"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/skills/content"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/tools/toolsets/:name"
+    },
+    {
+      "methods": [
+        "PATCH"
+      ],
+      "path": "/api/approvals/:approvalId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/login"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/logout"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/register"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/files"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "path": "/api/files/:fileId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/onboarding/complete"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/onboarding/runtime"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/enroll"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/tasks"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/tasks/:taskId/run"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/workspaces"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/workspaces/:workspaceId"
+    }
+  ],
+  "databaseSchema": {
+    "file": "apps/web/src/db/schema.ts",
+    "sha256": "f037faeebd8950d8759cde7ce82ebb5d2afadbc5b77b559540ba21f3f0164152"
+  }
+}

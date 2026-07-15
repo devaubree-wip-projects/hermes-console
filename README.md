@@ -72,7 +72,11 @@ Hermes. Les scripts restent exécutés exclusivement avec Bun. `make dev` et `ma
 frontend sur `http://localhost:3010`. `make dev-fresh` arrête d'abord la stack, puis supprime uniquement le
 cache généré `.next` avant de la relancer.
 
-En développement, `compose.dev.yaml` force `restart: "no"` pour Hermes, l'Edge et le Relay. `Ctrl+C` sur
+Les logs restent sur les sorties standard, sont lisibles en développement et structurés en JSON en production.
+`make logs`, `make logs-errors` et `make logs-snapshot` couvrent le diagnostic courant ; le contrat de champs,
+la corrélation `X-Request-Id`, la redaction et la rétention sont détaillés dans `docs/operations/logging.md`.
+
+En développement, `infra/dev/compose.override.yaml` force `restart: "no"` pour Hermes, l'Edge et le Relay. `Ctrl+C` sur
 `make dev` arrête Next.js puis exécute `docker compose down`; `make stop` produit le même état final depuis un
 autre terminal. Les volumes de données sont conservés, mais aucun processus ni conteneur de la stack ne reste
 actif.
@@ -141,11 +145,13 @@ puis ouvre un tunnel **sortant** mTLS. Le Relay multiplexe HTTP et WebSocket san
 9119. Les credentials sont liés au certificat et au tenant ; les révocations sont persistées et ferment le
 tunnel actif.
 
-Pour un Hermes **systemwide** distant, l’Edge reste lui-même sous Docker grâce à `compose.edge.yaml`. Ce
+Pour un Hermes **systemwide** distant, l’Edge reste lui-même sous Docker grâce à
+`infra/prod/compose.edge.yaml`. Ce
 fichier exige explicitement le chemin Hermes, l’origine Console, le token local du dashboard et l’UID/GID ;
 il ne monte aucun home global et garde les données Hermes en lecture seule. Exécutez la commande d’enrôlement
-affichée dans la Console avec ce Compose (`docker compose -f compose.edge.yaml run --rm edge enroll …`), puis
-`docker compose -f compose.edge.yaml up -d edge`. La clé privée, le credential Relay et les deux secrets HMAC
+affichée dans la Console avec ce Compose
+(`docker compose --project-directory . -f infra/prod/compose.edge.yaml run --rm edge enroll …`), puis
+`docker compose --project-directory . -f infra/prod/compose.edge.yaml up -d edge`. La clé privée, le credential Relay et les deux secrets HMAC
 dérivés uniquement pour cette installation restent dans `data/edge-identity` en mode `0600`.
 
 Le certificat créé par `make runtime-relay-cert` sert uniquement au développement local. En déploiement,

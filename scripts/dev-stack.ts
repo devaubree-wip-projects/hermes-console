@@ -10,7 +10,16 @@ type DevState = {
 
 const root = process.cwd();
 const stateFile = path.join(root, ".next", "hermes-console-dev.json");
-const compose = ["docker", "compose", "-f", "compose.yaml", "-f", "compose.dev.yaml"];
+const compose = [
+  "docker",
+  "compose",
+  "--project-directory",
+  root,
+  "-f",
+  "infra/dev/compose.yaml",
+  "-f",
+  "infra/dev/compose.override.yaml",
+];
 const commandEnvironment = {
   ...process.env,
   HERMES_UID: String(process.getuid?.() ?? 1000),
@@ -200,7 +209,7 @@ async function start() {
     console.log("Synchronisation des installations et profils Hermes locaux…");
     await run(["bun", "run", "scripts/sync-local-runtime-profiles.ts"]);
     if (stopping) return;
-    await rm(path.join(root, ".next", "dev", "types"), { recursive: true, force: true });
+    await rm(path.join(root, "apps", "web", ".next", "dev", "types"), { recursive: true, force: true });
     console.log("Runtime prêt. Démarrage de Next.js sur http://localhost:3010");
     nextProcess = Bun.spawn(["bun", "run", "dev"], {
       cwd: root,

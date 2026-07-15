@@ -1,0 +1,22 @@
+{
+  "protocolVersion": 1,
+  "paths": {
+    "capabilities": "/v1/capabilities",
+    "preflight": "/v1/preflight",
+    "runtimePrefix": "/v1/runtime",
+    "gatewayControl": "/v1/control/gateway",
+    "profileTest": "/v1/control/profile-test",
+    "backupControl": "/v1/control/backup",
+    "upgradeControl": "/v1/control/upgrade",
+    "revokeControl": "/v1/control/revoke",
+    "websocket": "/v1/ws"
+  },
+  "serviceHeaders": {
+    "timestamp": "X-Hermes-Timestamp",
+    "nonce": "X-Hermes-Nonce",
+    "signature": "X-Hermes-Signature",
+    "profile": "X-Hermes-Profile",
+    "installation": "X-Hermes-Installation-Id",
+    "requestId": "X-Request-Id"
+  }
+}

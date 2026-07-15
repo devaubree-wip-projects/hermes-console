@@ -1,10 +1,10 @@
 .DEFAULT_GOAL := help
 
 HERMES_GATEWAY_URL ?= http://127.0.0.1:8787
-COMPOSE_DEV = HERMES_UID=$(shell id -u) HERMES_GID=$(shell id -g) docker compose -f compose.yaml -f compose.dev.yaml
+COMPOSE_DEV = HERMES_UID=$(shell id -u) HERMES_GID=$(shell id -g) docker compose --project-directory . -f infra/dev/compose.yaml -f infra/dev/compose.override.yaml
 
 .PHONY: help install dev stop dev-stop dev-fresh dev-next dev-gateway dev-system typecheck lint build check \
-	db-migrate db-push db-seed-demo db-reset runtime-setup runtime-up runtime-logs runtime-status runtime-stop runtime-relay-cert runtime-relay-up runtime-relay-logs runtime-backups-maintain runtime-import runtime-import-rollback test-gateway
+	db-migrate db-push db-seed-demo db-reset logs logs-snapshot logs-errors logs-edge logs-hermes runtime-setup runtime-up runtime-logs runtime-status runtime-stop runtime-relay-cert runtime-relay-up runtime-relay-logs runtime-backups-maintain runtime-import runtime-import-rollback test-gateway
 
 help: ## Afficher cette aide
 	@printf '\nHermes Console\n\n'
@@ -33,6 +33,12 @@ help: ## Afficher cette aide
 	@printf '  make runtime-logs     Suivre les logs du runtime local\n'
 	@printf '  make runtime-status   Vérifier Edge et Hermes\n'
 	@printf '  make runtime-stop     Arrêter le runtime Docker local\n\n'
+	@printf 'Logs\n'
+	@printf '  make logs             Suivre Edge et Hermes\n'
+	@printf '  make logs-snapshot    Afficher les 15 dernières minutes horodatées\n'
+	@printf '  make logs-errors      Extraire erreurs, warnings et panics récents\n'
+	@printf '  make logs-edge        Suivre uniquement Edge\n'
+	@printf '  make logs-hermes      Suivre uniquement Hermes\n\n'
 	@printf '  make runtime-relay-up Démarrer le Relay Go TLS local optionnel\n'
 	@printf '  make runtime-relay-logs  Suivre les logs du Relay local\n'
 	@printf '  make runtime-backups-maintain  Vérifier l’intégrité et appliquer la rétention\n'
@@ -51,7 +57,7 @@ stop: ## Arrêter tous les processus et conteneurs de développement du projet
 dev-stop: stop ## Alias historique de make stop
 
 dev-fresh: stop ## Repartir sans processus existant ni cache Next.js
-	rm -rf .next
+	rm -rf .next apps/web/.next apps/web/.next-e2e
 	bun run scripts/dev-stack.ts
 
 dev-next: ## Lancer Next.js uniquement
@@ -103,6 +109,22 @@ runtime-up: ## Démarrer le runtime Docker et Edge Go
 
 runtime-logs: ## Suivre les logs Hermes et Edge
 	$(COMPOSE_DEV) logs -f hermes edge
+
+logs: runtime-logs ## Suivre tous les logs runtime
+
+logs-snapshot: ## Afficher un snapshot horodaté des logs récents
+	$(COMPOSE_DEV) logs --since 15m --timestamps --tail 500 hermes edge
+
+logs-errors: ## Extraire les erreurs et avertissements récents sans suivre le flux
+	@$(COMPOSE_DEV) logs --since 30m --no-color hermes edge 2>&1 \
+		| rg -i 'error|fatal|panic|traceback|warn' \
+		|| true
+
+logs-edge: ## Suivre uniquement les logs Edge
+	$(COMPOSE_DEV) logs --tail 200 -f edge
+
+logs-hermes: ## Suivre uniquement les logs Hermes
+	$(COMPOSE_DEV) logs --tail 200 -f hermes
 
 runtime-status: ## Sonder Edge et son runtime Hermes
 	@curl --fail --silent --show-error --max-time 3 "$(HERMES_GATEWAY_URL)/readyz" \

@@ -1,7 +1,7 @@
 import {
   HERMES_CONSOLE_CONTROL_PLUGIN,
   syncHermesConsoleControlExtension,
-} from "../src/lib/hermes/extension-files";
+} from "../apps/web/src/lib/hermes/extension-files";
 
 function argument(name: string) {
   const index = process.argv.indexOf(name);

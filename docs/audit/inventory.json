@@ -1,0 +1,1198 @@
+{
+  "schemaVersion": 1,
+  "commit": "998af504d7fc469b4176a70ce9b90b962bcda254",
+  "layout": "monorepo",
+  "endpoints": [
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents",
+      "lines": 78,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference",
+      "lines": 22,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/codex/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference/codex",
+      "lines": 29,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/messaging/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/messaging",
+      "lines": 22,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-status/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-status",
+      "lines": 49,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-ticket",
+      "lines": 47,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions",
+      "lines": 77,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId",
+      "lines": 99,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId/metrics",
+      "lines": 77,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/events/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/events",
+      "lines": 49,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations",
+      "lines": 9,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId",
+      "lines": 17,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/backups/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/backups",
+      "lines": 128,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/budget/route.ts",
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/budget",
+      "lines": 66,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/capacity-policy/route.ts",
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/capacity-policy",
+      "lines": 38,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/enrollment/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/enrollment",
+      "lines": 66,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/operations/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/operations",
+      "lines": 128,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/upgrades/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/upgrades",
+      "lines": 107,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/enroll/route.ts",
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/enroll",
+      "lines": 101,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/preflight/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/preflight",
+      "lines": 35,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/runtime/config/route.ts",
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/runtime/config",
+      "lines": 68,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/skills/content/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/skills/content",
+      "lines": 55,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/tools/toolsets/[name]/route.ts",
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/tools/toolsets/:name",
+      "lines": 48,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/approvals/[approvalId]/route.ts",
+      "methods": [
+        "PATCH"
+      ],
+      "path": "/api/approvals/:approvalId",
+      "lines": 64,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/auth/login/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/login",
+      "lines": 20,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/auth/logout/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/logout",
+      "lines": 6,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/auth/register/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/register",
+      "lines": 20,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/files/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/files",
+      "lines": 76,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/files/[fileId]/route.ts",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "path": "/api/files/:fileId",
+      "lines": 83,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/onboarding/complete/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/onboarding/complete",
+      "lines": 138,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/onboarding/runtime/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/onboarding/runtime",
+      "lines": 28,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/enroll/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/enroll",
+      "lines": 125,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/tasks/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/tasks",
+      "lines": 82,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/tasks/[taskId]/run/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/tasks/:taskId/run",
+      "lines": 56,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/workspaces/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/workspaces",
+      "lines": 103,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/workspaces/[workspaceId]/route.ts",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/workspaces/:workspaceId",
+      "lines": 110,
+      "critical": false
+    }
+  ],
+  "pages": [
+    {
+      "file": "apps/web/src/app/page.tsx",
+      "path": "/"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/agents"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/new/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/agents/new"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/approvals"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/automations"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/d/chat/[[...segments]]/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/d/chat/*segments?"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/dashboard"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/events"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/files/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/files"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/installations"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/installations/:installationId"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/integrations"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/knowledge"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/models/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/models"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/settings/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/settings"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/settings/[panel]/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/settings/:panel"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/skills/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/skills"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/tasks"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/tasks/:taskId"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/team/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/team"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tools/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/tools"
+    },
+    {
+      "file": "apps/web/src/app/(auth)/login/page.tsx",
+      "path": "/login"
+    },
+    {
+      "file": "apps/web/src/app/(app)/onboarding/page.tsx",
+      "path": "/onboarding"
+    },
+    {
+      "file": "apps/web/src/app/(auth)/register/page.tsx",
+      "path": "/register"
+    },
+    {
+      "file": "apps/web/src/app/(app)/workspaces/new/page.tsx",
+      "path": "/workspaces/new"
+    }
+  ],
+  "environment": [
+    {
+      "name": "DATABASE_URL",
+      "references": [
+        "apps/web/drizzle.config.ts",
+        "apps/web/src/db/index.ts",
+        "scripts/migrate-product-model.ts",
+        "scripts/migrate-runtime-installations.ts",
+        "scripts/reset-product-data.ts"
+      ]
+    },
+    {
+      "name": "E2E_BASE_URL",
+      "references": [
+        "apps/web/playwright.config.ts"
+      ]
+    },
+    {
+      "name": "HERMES_ALLOWED_ORIGINS",
+      "references": [
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_ALLOWED_VERSIONS",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_BACKUP_DIR",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_BACKUP_ENCRYPTION_KEY",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_BACKUP_RESTORE_ENABLED",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_CLI_PATH",
+      "references": [
+        "scripts/install-hermes-console-control.ts"
+      ]
+    },
+    {
+      "name": "HERMES_CPU_LIMIT",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_DASHBOARD_SESSION_TOKEN",
+      "references": [
+        "scripts/install-hermes-console-control.ts"
+      ]
+    },
+    {
+      "name": "HERMES_DATA_DIR",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_DEFAULT_GATEWAY_URL",
+      "references": [
+        "apps/web/scripts/sync-local-runtime-profiles.ts",
+        "apps/web/src/app/api/onboarding/complete/route.ts",
+        "apps/web/src/app/api/workspaces/route.ts",
+        "apps/web/src/db/seed.ts",
+        "apps/web/src/lib/hermes/installations.ts",
+        "scripts/dev-stack.ts",
+        "scripts/migrate-runtime-installations.ts"
+      ]
+    },
+    {
+      "name": "HERMES_DEFAULT_INSTALLATION_ID",
+      "references": [
+        "apps/web/scripts/sync-local-runtime-profiles.ts",
+        "apps/web/src/lib/hermes/installations.ts",
+        "infra/dev/compose.yaml",
+        "scripts/dev-stack.ts",
+        "scripts/migrate-runtime-installations.ts"
+      ]
+    },
+    {
+      "name": "HERMES_DEFAULT_INSTALLATION_NAME",
+      "references": [
+        "apps/web/src/lib/hermes/installations.ts",
+        "scripts/migrate-runtime-installations.ts"
+      ]
+    },
+    {
+      "name": "HERMES_DEV_LOGIN_EMAIL",
+      "references": [
+        "apps/web/src/app/(auth)/login/page.tsx",
+        "apps/web/src/modules/auth/infrastructure/auth-service.ts"
+      ]
+    },
+    {
+      "name": "HERMES_DEV_LOGIN_PASSWORD",
+      "references": [
+        "apps/web/src/app/(auth)/login/page.tsx",
+        "apps/web/src/modules/auth/infrastructure/auth-service.ts"
+      ]
+    },
+    {
+      "name": "HERMES_EDGE_IDENTITY_DIR",
+      "references": [
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_GATEWAY_ALLOWED_HOSTS",
+      "references": [
+        "apps/web/src/lib/hermes/gateway-url.test.ts",
+        "apps/web/src/lib/hermes/gateway-url.ts"
+      ]
+    },
+    {
+      "name": "HERMES_GATEWAY_DERIVE_SECRETS",
+      "references": [
+        "apps/web/scripts/sync-local-runtime-profiles.ts",
+        "apps/web/src/lib/hermes/gateway-auth.ts",
+        "apps/web/src/lib/hermes/runtime-ticket.ts",
+        "scripts/dev-stack.ts",
+        "scripts/maintain-runtime-backups.ts"
+      ]
+    },
+    {
+      "name": "HERMES_GATEWAY_ENV",
+      "references": [
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_GATEWAY_PORT",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_GATEWAY_SERVICE_SECRET",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "apps/web/scripts/sync-local-runtime-profiles.ts",
+        "apps/web/src/lib/hermes/relay-identity.ts",
+        "infra/dev/compose.yaml",
+        "scripts/dev-stack.ts",
+        "scripts/maintain-runtime-backups.ts"
+      ]
+    },
+    {
+      "name": "HERMES_GATEWAY_TICKET_SECRET",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "apps/web/scripts/sync-local-runtime-profiles.ts",
+        "apps/web/src/lib/hermes/relay-identity.ts",
+        "infra/dev/compose.yaml",
+        "scripts/dev-stack.ts",
+        "scripts/maintain-runtime-backups.ts"
+      ]
+    },
+    {
+      "name": "HERMES_GID",
+      "references": [
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_HOME",
+      "references": [
+        "apps/web/src/lib/hermes/extension-files.ts",
+        "apps/web/src/lib/hermes/server.ts"
+      ]
+    },
+    {
+      "name": "HERMES_IMAGE_TAG",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_INSTALLATION_ID",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_LOG_FORMAT",
+      "references": [
+        "apps/web/src/lib/observability/logger.ts",
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_LOG_HTTP",
+      "references": [
+        "apps/web/src/proxy.ts"
+      ]
+    },
+    {
+      "name": "HERMES_LOG_LEVEL",
+      "references": [
+        "apps/web/src/lib/observability/logger.ts",
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_MEMORY_LIMIT",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_CERT_DIR",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_CLIENT_CERT",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_CLIENT_KEY",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_CREDENTIAL",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_IDENTITY_SECRET",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "apps/web/src/lib/hermes/relay-identity.ts",
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_MAX_CONNECTIONS",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_MAX_CONNECTIONS_PER_TENANT",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_MAX_FRAME_BYTES",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_PORT",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_PUBLIC_URL",
+      "references": [
+        "apps/web/src/app/api/runtime/enroll/route.ts"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_REVOCATION_FILE",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_SERVER_CA",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_SERVER_CERT",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_SERVER_KEY",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_STATE_DIR",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_RELAY_URL",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/enrollment/route.ts",
+        "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/enroll/route.ts",
+        "apps/web/src/app/api/runtime/enroll/route.ts"
+      ]
+    },
+    {
+      "name": "HERMES_RUNTIME_TOKEN",
+      "references": [
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml",
+        "scripts/install-hermes-console-control.ts"
+      ]
+    },
+    {
+      "name": "HERMES_RUNTIME_URL",
+      "references": [
+        "infra/prod/compose.edge.yaml",
+        "scripts/install-hermes-console-control.ts"
+      ]
+    },
+    {
+      "name": "HERMES_RUNTIME_WS",
+      "references": [
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_SESSION_CHANGE_DEBOUNCE_MS",
+      "references": [
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_SESSION_RECONCILE_MS",
+      "references": [
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_SYSTEM_HOME",
+      "references": [
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_UID",
+      "references": [
+        "infra/dev/compose.yaml",
+        "infra/prod/compose.edge.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_UPGRADE_EXECUTABLE",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
+      "name": "HERMES_WORKSPACE_DIR",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_WORKSPACE_READ_ONLY",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "MOCK_HERMES_PORT",
+      "references": [
+        "scripts/mock-hermes.ts"
+      ]
+    },
+    {
+      "name": "NEXT_DIST_DIR",
+      "references": [
+        "apps/web/next.config.ts"
+      ]
+    },
+    {
+      "name": "NEXT_RUNTIME",
+      "references": [
+        "apps/web/src/instrumentation.ts"
+      ]
+    },
+    {
+      "name": "NODE_ENV",
+      "references": [
+        "apps/web/src/app/(auth)/login/page.tsx",
+        "apps/web/src/components/shared/chat/assistant-ui/composer-trigger-popover.tsx",
+        "apps/web/src/db/index.ts",
+        "apps/web/src/lib/auth.ts",
+        "apps/web/src/lib/hermes/gateway-url.ts",
+        "apps/web/src/lib/hermes/relay-identity.ts",
+        "apps/web/src/lib/observability/logger.ts",
+        "apps/web/src/modules/auth/infrastructure/auth-service.ts",
+        "apps/web/src/proxy.ts"
+      ]
+    },
+    {
+      "name": "TAVILY_API_KEY",
+      "references": [
+        "apps/web/src/lib/shared/chat/web-search.ts"
+      ]
+    },
+    {
+      "name": "UPLOAD_DIR",
+      "references": [
+        "apps/web/src/app/api/files/route.ts",
+        "apps/web/src/app/api/workspaces/[workspaceId]/route.ts"
+      ]
+    }
+  ],
+  "scripts": {
+    "apps/gateway/package.json": {
+      "build": "mkdir -p build && go build -trimpath -o build/hermes-gateway ./cmd/hermes-gateway",
+      "dev": "go run ./cmd/hermes-gateway",
+      "test": "go test -race ./..."
+    },
+    "apps/web/package.json": {
+      "build": "next build",
+      "dev": "next dev --port 3010",
+      "lint": "eslint",
+      "start": "next start",
+      "test": "bun test --path-ignore-patterns=e2e/**",
+      "test:e2e": "bun run test:e2e:seed && bunx playwright test",
+      "test:e2e:seed": "bun run ../../scripts/migrate-runtime-installations.ts && bun run e2e/seed.ts",
+      "typecheck": "tsc --noEmit"
+    },
+    "package.json": {
+      "audit:architecture": "bun run tools/audit-architecture.ts",
+      "build": "bun --cwd=apps/web run build",
+      "build:all": "bun run build:shared && bun run build:web && bun run build:gateway",
+      "build:gateway": "bun --cwd=apps/gateway run build",
+      "build:shared": "bun --cwd=packages/shared run build",
+      "build:web": "bun --cwd=apps/web run build",
+      "check": "bun run contracts:verify && bun run typecheck && bun run lint && bun run test && bun run test:gateway && bun run build:all",
+      "contracts:verify": "bun run tools/verify-contracts.ts",
+      "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts",
+      "db:migrate:runtime": "bun run scripts/migrate-runtime-installations.ts",
+      "db:push": "bunx --bun drizzle-kit push --config=apps/web/drizzle.config.ts",
+      "db:reset": "bun run scripts/reset-product-data.ts",
+      "db:seed:demo": "bun run apps/web/src/db/seed.ts",
+      "dev": "bun --cwd=apps/web run dev",
+      "dev:agent": "bunx concurrently -k -n next,gateway -c cyan,magenta \"bun run dev\" \"bun run dev:gateway\"",
+      "dev:bridge": "bun run dev:gateway",
+      "dev:gateway": "bun --cwd=apps/gateway run dev",
+      "lint": "bun run lint:web && bun run lint:shared",
+      "lint:shared": "bun --cwd=packages/shared run lint",
+      "lint:web": "bun --cwd=apps/web run lint",
+      "mock:hermes": "bun run scripts/mock-hermes.ts",
+      "runtime:import-systemwide": "bun run scripts/import-hermes-systemwide.ts",
+      "runtime:maintain-backups": "bun run scripts/maintain-runtime-backups.ts",
+      "start": "bun --cwd=apps/web run start",
+      "telegram-control:install": "bun run scripts/install-hermes-console-control.ts",
+      "test": "bun run test:web && bun run test:shared",
+      "test:e2e": "bun --cwd=apps/web run test:e2e",
+      "test:e2e:seed": "bun --cwd=apps/web run test:e2e:seed",
+      "test:gateway": "bun --cwd=apps/gateway run test",
+      "test:shared": "bun --cwd=packages/shared run test",
+      "test:telegram-control": "python3 -m unittest apps/web/hermes-extensions/hermes-console-control/test_plugin.py",
+      "test:web": "bun --cwd=apps/web run test",
+      "typecheck": "bun run typecheck:web && bun run typecheck:shared",
+      "typecheck:shared": "bun --cwd=packages/shared run typecheck",
+      "typecheck:web": "bun --cwd=apps/web run typecheck"
+    },
+    "packages/shared/package.json": {
+      "build": "tsc --noEmit",
+      "lint": "tsc --noEmit",
+      "test": "bun test",
+      "typecheck": "tsc --noEmit"
+    }
+  },
+  "migrations": [
+    "apps/web/drizzle.config.ts",
+    "scripts/migrate-product-model.ts",
+    "scripts/migrate-runtime-installations.ts"
+  ],
+  "keyConfigFiles": [
+    ".env.example",
+    "Makefile",
+    "apps/gateway/go.mod",
+    "apps/gateway/go.sum",
+    "apps/gateway/package.json",
+    "apps/web/drizzle.config.ts",
+    "apps/web/eslint.config.mjs",
+    "apps/web/next.config.ts",
+    "apps/web/package.json",
+    "apps/web/playwright.config.ts",
+    "apps/web/tsconfig.json",
+    "bun.lock",
+    "infra/dev/compose.override.yaml",
+    "infra/dev/compose.yaml",
+    "infra/prod/compose.edge.yaml",
+    "package.json",
+    "packages/shared/gatewaycontracts/go.mod",
+    "packages/shared/package.json",
+    "packages/shared/tsconfig.json"
+  ],
+  "criticalRoutes": [
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents",
+      "lines": 78,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference",
+      "lines": 22,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/codex/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference/codex",
+      "lines": 29,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/messaging/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/messaging",
+      "lines": 22,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-status/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-status",
+      "lines": 49,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-ticket",
+      "lines": 47,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions",
+      "lines": 77,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId",
+      "lines": 99,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId/metrics",
+      "lines": 77,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations",
+      "lines": 9,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId",
+      "lines": 17,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/backups/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/backups",
+      "lines": 128,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/budget/route.ts",
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/budget",
+      "lines": 66,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/capacity-policy/route.ts",
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/capacity-policy",
+      "lines": 38,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/enrollment/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/enrollment",
+      "lines": 66,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/operations/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/operations",
+      "lines": 128,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/upgrades/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/upgrades",
+      "lines": 107,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/enroll/route.ts",
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/enroll",
+      "lines": 101,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/preflight/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/installations/preflight",
+      "lines": 35,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/auth/login/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/login",
+      "lines": 20,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/auth/logout/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/logout",
+      "lines": 6,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/auth/register/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/register",
+      "lines": 20,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/enroll/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/enroll",
+      "lines": 125,
+      "critical": true
+    }
+  ]
+}

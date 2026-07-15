@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import postgres from "postgres";
-import { hermesProfileName, toSlug } from "../src/lib/slugs";
+import { hermesProfileName, toSlug } from "../apps/web/src/lib/slugs";
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
 

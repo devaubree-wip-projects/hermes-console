@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "commit": "998af504d7fc469b4176a70ce9b90b962bcda254",
+  "modules": [
+    "apps/web/src/components/shared/chat/ui/skeleton.tsx",
+    "apps/web/src/components/ui/breadcrumb.tsx",
+    "apps/web/src/components/ui/checkbox.tsx",
+    "apps/web/src/components/ui/collapsible.tsx",
+    "apps/web/src/components/ui/popover.tsx",
+    "apps/web/src/components/ui/scroll-area.tsx",
+    "apps/web/src/components/ui/sidebar.tsx",
+    "apps/web/src/db/seed.ts",
+    "apps/web/src/instrumentation.ts",
+    "apps/web/src/lib/shared/chat/chat-request-context.ts",
+    "apps/web/src/lib/shared/chat/document-generator.tsx",
+    "apps/web/src/lib/shared/chat/document-store.ts",
+    "apps/web/src/lib/shared/chat/web-search.ts",
+    "apps/web/src/proxy.ts"
+  ]
+}

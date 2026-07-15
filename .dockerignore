@@ -1,5 +1,21 @@
+# One shared Docker build context for infra/dev and infra/prod.
+# Keep the context restricted to the Go gateway and its shared contracts.
 **
-!go.mod
-!go.sum
-!gateway/**
-!cmd/**
+
+!apps/
+!apps/gateway/
+!apps/gateway/go.mod
+!apps/gateway/go.sum
+!apps/gateway/cmd/
+!apps/gateway/cmd/**
+!apps/gateway/gateway/
+!apps/gateway/gateway/**
+
+!packages/
+!packages/shared/
+!packages/shared/gatewaycontracts/
+!packages/shared/gatewaycontracts/**
+
+# Generated binaries and tests are not needed by either image build.
+apps/gateway/build/
+**/*_test.go
