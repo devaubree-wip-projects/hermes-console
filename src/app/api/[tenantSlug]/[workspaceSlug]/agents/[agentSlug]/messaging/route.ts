@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { agents, auditEvents } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
+import { ensureHermesConsoleControlExtension } from "@/lib/hermes/console-control-extension";
 import {
   hermesFetch,
   HermesRuntimeError,
@@ -267,6 +268,10 @@ export async function PUT(
       }
     }
 
+    if (platform === "telegram" && body.enabled) {
+      await ensureHermesConsoleControlExtension(agent.hermesProfileName);
+    }
+
     const env: Record<string, string> = {};
     if (token) env[tokenKey(platform)] = token;
     if (allowedUsers) env[allowedUsersKey(platform)] = allowedUsers;
@@ -417,6 +422,7 @@ export async function POST(
           signal: AbortSignal.timeout(15_000),
         },
       );
+      await ensureHermesConsoleControlExtension(agent.hermesProfileName);
       let restartWarning: string | null = null;
       try {
         await runLocalHermesGatewayCommand(agent.hermesProfileName, "restart");
@@ -439,6 +445,11 @@ export async function POST(
     }
 
     if (body?.action === "start" || body?.action === "restart") {
+      const current = await loadPlatforms(agent.hermesProfileName);
+      const telegram = current.platforms.find((platform) => platform.id === "telegram");
+      if (telegram?.enabled && telegram.configured) {
+        await ensureHermesConsoleControlExtension(agent.hermesProfileName);
+      }
       const result = await runLocalHermesGatewayCommand(agent.hermesProfileName, body.action);
       return NextResponse.json(result);
     }

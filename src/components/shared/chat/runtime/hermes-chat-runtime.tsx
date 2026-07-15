@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import {
   E,
   type AgentEvent,
+  type BridgeSessionInvalidatedFrame,
   type HermesModelOption,
   type JsonObject,
   type SessionCreated,
@@ -35,6 +36,8 @@ import type {
 import { useChatRoutes } from "@/components/shared/chat/chat-routes-context";
 import { sessionOrigin } from "@/lib/hermes/session-origin";
 import { useSessionMetricsStore } from "@/lib/shared/chat/session-metrics-store";
+import { RequestCoalescer } from "@/lib/shared/chat/request-coalescer";
+import { shouldInvalidateSessionMetrics } from "@/lib/shared/chat/session-invalidation-policy";
 import {
   getReasoningControlConfig,
   isReasoningControlId,
@@ -297,6 +300,8 @@ function completionRows(value: JsonObject): { id: string; label: string; descrip
 class HermesSessionManager {
   private readonly liveByStored = new Map<string, LiveSession>();
   private readonly sessionByThread = new Map<string, Promise<LiveSession>>();
+  private readonly listRequests = new RequestCoalescer<string, SessionListRow[]>();
+  private readonly historyRequests = new RequestCoalescer<string, JsonObject[]>();
   private readonly listeners = new Map<string, Set<SessionListener>>();
   private readonly bufferedEvents = new Map<string, AgentEvent[]>();
   private readonly deletedStoredIds = new Set<string>();
@@ -332,24 +337,31 @@ class HermesSessionManager {
   }
 
   async list(): Promise<SessionListRow[]> {
-    await this.client.waitUntilOpen();
-    const response = await fetch(this.sessionsEndpoint, { cache: "no-store" });
-    if (!response.ok) throw new Error(`Hermes sessions API ${response.status}`);
-    const body = await response.json() as { sessions?: SessionListRow[] };
-    return body.sessions ?? [];
+    return this.listRequests.run(this.sessionsEndpoint, async () => {
+      await this.client.waitUntilOpen();
+      const response = await fetch(this.sessionsEndpoint, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Hermes sessions API ${response.status}`);
+      const body = await response.json() as { sessions?: SessionListRow[] };
+      return body.sessions ?? [];
+    });
   }
 
   async loadPersistedHistory(storedId: string): Promise<JsonObject[]> {
-    const response = await fetch(
-      `${this.sessionsEndpoint}/${encodeURIComponent(storedId)}`,
-      { cache: "no-store" },
-    );
-    if (!response.ok) throw new Error(`Hermes session history API ${response.status}`);
-    const body = await response.json() as { messages?: JsonObject[] };
-    return body.messages ?? [];
+    return this.historyRequests.run(storedId, async () => {
+      const response = await fetch(
+        `${this.sessionsEndpoint}/${encodeURIComponent(storedId)}`,
+        { cache: "no-store" },
+      );
+      if (!response.ok) throw new Error(`Hermes session history API ${response.status}`);
+      const body = await response.json() as { messages?: JsonObject[] };
+      return body.messages ?? [];
+    });
   }
 
-  subscribePersistedHistory(storedId: string, listener: () => void) {
+  subscribePersistedHistory(
+    storedId: string,
+    listener: (event: BridgeSessionInvalidatedFrame) => void,
+  ) {
     return this.client.onSessionInvalidated(storedId, listener);
   }
 
@@ -617,8 +629,10 @@ function useHermesThreadRuntime(manager: HermesSessionManager): AssistantRuntime
     const handleVisibility = () => {
       if (document.visibilityState === "visible") void refresh();
     };
-    const unsubscribe = manager.subscribePersistedHistory(remoteId, () => {
-      useSessionMetricsStore.getState().invalidate(remoteId);
+    const unsubscribe = manager.subscribePersistedHistory(remoteId, (event) => {
+      if (shouldInvalidateSessionMetrics(event)) {
+        useSessionMetricsStore.getState().invalidate(remoteId);
+      }
       void refresh();
     });
     window.addEventListener("focus", refresh);

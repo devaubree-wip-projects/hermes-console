@@ -100,6 +100,7 @@ export function XuluxChatProviders({
       settingsUrl={settingsUrl}
       activeAgentId={activeAgentId}
       activeAgentName={activeAgentName}
+      currentThreadId={threadId}
       urlAgentId={urlAgentId}
     >
       <Toaster position={isChatRoute ? "top-center" : "bottom-right"} />

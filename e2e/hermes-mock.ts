@@ -131,7 +131,12 @@ function event(ws: WebSocketRoute, type: string, payload: Record<string, unknown
 
 export async function installHermesMock(
   page: Page,
-  options: { liveContext?: boolean; persistedContext?: boolean } = {},
+  options: {
+    liveContext?: boolean;
+    persistedContext?: boolean;
+    sessionsDelayMs?: number;
+    historyDelayMs?: number;
+  } = {},
 ) {
   const calls: RpcCall[] = [];
   const activeSessionInfo = options.liveContext === false
@@ -243,6 +248,9 @@ export async function installHermesMock(
       return;
     }
     if (method === "GET" && sessionId) {
+      if (options.historyDelayMs) {
+        await new Promise((resolve) => setTimeout(resolve, options.historyDelayMs));
+      }
       const messages = sessionId === "tools-history-e2e" ? toolsHistoryMessages : [];
       await route.fulfill({
         status: 200,
@@ -252,6 +260,9 @@ export async function installHermesMock(
       return;
     }
     if (method === "GET") {
+      if (options.sessionsDelayMs) {
+        await new Promise((resolve) => setTimeout(resolve, options.sessionsDelayMs));
+      }
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sessions: sessionRows }) });
       return;
     }

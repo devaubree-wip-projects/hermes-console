@@ -21,7 +21,7 @@ const HERMES_COMMAND = process.env.HERMES_CLI_COMMAND || "hermes";
 const RUNTIME_AUTOSTART = process.env.HERMES_RUNTIME_AUTOSTART !== "false";
 const BRIDGE_SECRET = process.env.HERMES_BRIDGE_SECRET ?? "hermes-console-local-development";
 const ALLOWED_ORIGINS = new Set(
-  (process.env.HERMES_ALLOWED_ORIGINS ?? "http://127.0.0.1:3000,http://localhost:3000")
+  (process.env.HERMES_ALLOWED_ORIGINS ?? "http://127.0.0.1:3010,http://localhost:3010")
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean),

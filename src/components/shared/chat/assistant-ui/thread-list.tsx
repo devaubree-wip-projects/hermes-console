@@ -1,5 +1,5 @@
 import { Button } from "@/components/shared/chat/ui/button";
-import { Skeleton } from "@/components/shared/chat/ui/skeleton";
+import { SpinnerCustom } from "@/components/ui/spinner";
 import {
   AuiIf,
   ThreadListItemMorePrimitive,
@@ -15,7 +15,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "lucide-react";
-import { Fragment, useEffect, useMemo, useState, type FC } from "react";
+import { Fragment, useMemo, useState, type FC } from "react";
 import { useChatRunStore } from "@/lib/shared/chat/chat-run-store";
 import { sessionOrigin } from "@/lib/hermes/session-origin";
 import { useChatRoutes } from "@/components/shared/chat/chat-routes-context";
@@ -43,27 +43,15 @@ import {
 } from "@/components/shared/chat/ui/alert-dialog";
 
 export const ThreadList: FC = () => {
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
-
   return (
     <ThreadListPrimitive.Root className="aui-root aui-thread-list-root flex flex-col gap-0.5">
       <ThreadListNew />
-      {!hydrated ? (
-        <ThreadListSkeleton />
-      ) : (
-        <>
-          <AuiIf condition={(s) => s.threads.isLoading}>
-            <ThreadListSkeleton />
-          </AuiIf>
-          <AuiIf condition={(s) => !s.threads.isLoading}>
-            <ThreadListItems />
-          </AuiIf>
-        </>
-      )}
+      <AuiIf condition={(s) => s.threads.isLoading}>
+        <ThreadListLoading />
+      </AuiIf>
+      <AuiIf condition={(s) => !s.threads.isLoading}>
+        <ThreadListItems />
+      </AuiIf>
     </ThreadListPrimitive.Root>
   );
 };
@@ -259,38 +247,21 @@ const ThreadListNew: FC = () => {
   );
 };
 
-const ThreadListSkeleton: FC = () => {
+const ThreadListLoading: FC = () => {
   return (
-    <div className="flex flex-col gap-0.5">
-      {Array.from({ length: 5 }, (_, i) => (
-        <div
-          key={i}
-          role="status"
-          aria-label="Loading threads"
-          className="aui-thread-list-skeleton-wrapper flex h-8 items-center px-2.5"
-        >
-          <Skeleton className="aui-thread-list-skeleton h-3.5 w-full" />
-        </div>
-      ))}
+    <div className="flex h-20 items-center justify-center text-muted-foreground">
+      <SpinnerCustom />
     </div>
   );
 };
 
 const ThreadListItemTitle: FC = () => {
-  const title = useAuiState((s) => s.threadListItem.title);
-  const status = useAuiState((s) => s.threadListItem.status);
-
-  if (!title && status === "regular") {
-    return (
-      <Skeleton className="aui-thread-list-title-skeleton h-3.5 w-[65%] max-w-48" />
-    );
-  }
-
   return <ThreadListItemPrimitive.Title fallback="Nouvelle session" />;
 };
 
 const ThreadListItem: FC = () => {
   const threadId = useAuiState((s) => s.threadListItem.id);
+  const isMain = useAuiState((s) => s.threads.mainThreadId === threadId);
   const remoteId = useAuiState((s) => s.threadListItem.remoteId);
   const source = useAuiState((s) => s.threadListItem.custom?.source);
   const origin = sessionOrigin(source);
@@ -299,17 +270,18 @@ const ThreadListItem: FC = () => {
 
   return (
     <ThreadListItemPrimitive.Root
-      className="aui-thread-list-item group hover:bg-muted focus-visible:bg-muted data-active:bg-muted relative flex h-8 items-center rounded-md transition-colors focus-visible:outline-none"
+      className="aui-thread-list-item group hover:bg-muted data-active:bg-primary/10 data-active:hover:bg-primary/15 data-active:text-foreground relative flex h-8 items-center rounded-md transition-colors"
       aria-busy={isRunning}
     >
       <button
         type="button"
+        aria-current={isMain ? "page" : undefined}
         className="aui-thread-list-item-trigger flex h-full min-w-0 flex-1 cursor-pointer items-center px-2.5 text-start text-sm group-hover:pe-9 group-has-data-[state=open]:pe-9 group-data-active:pe-9"
         onClick={() => {
           window.history.pushState(null, "", v1ChatThreadUrl(remoteId ?? threadId));
         }}
       >
-        <span className="aui-thread-list-item-title min-w-0 flex-1 truncate">
+        <span className="aui-thread-list-item-title min-w-0 flex-1 truncate group-data-active:font-medium">
           <ThreadListItemTitle />
         </span>
         {origin ? (

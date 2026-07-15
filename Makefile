@@ -8,7 +8,7 @@ HERMES_RUNTIME_URL ?= http://127.0.0.1:9119
 help: ## Afficher cette aide
 	@printf '\nHermes Console\n\n'
 	@printf 'Développement\n'
-	@printf '  make dev              Next.js + broker + autostart Hermes\n'
+	@printf '  make dev              Next.js :3010 + broker + autostart Hermes\n'
 	@printf '  make dev-stop         Arrêter la stack locale sur les ports du projet\n'
 	@printf '  make dev-fresh        Arrêter la stack, vider le cache puis la relancer\n'
 	@printf '  make dev-next         Next.js uniquement\n'
@@ -39,7 +39,33 @@ dev-stop: ## Arrêter les processus qui occupent les ports de la stack locale
 		printf 'La commande fuser est requise pour libérer les ports de développement.\n'; \
 		exit 1; \
 	}
-	@ports="3000 8787 9119"; \
+	@repo="$(CURDIR)"; \
+	legacy_pids=""; \
+	for pid in $$(fuser "3000/tcp" 2>/dev/null || true); do \
+		cwd="$$(readlink "/proc/$$pid/cwd" 2>/dev/null || true)"; \
+		if [ "$$cwd" = "$$repo" ]; then \
+			printf 'Arrêt de l’ancien frontend :3000 (PID :%s)...\n' "$$pid"; \
+			kill -TERM "$$pid" 2>/dev/null || true; \
+			legacy_pids="$$legacy_pids $$pid"; \
+		fi; \
+	done; \
+	attempt=0; \
+	while [ "$$attempt" -lt 20 ]; do \
+		busy=0; \
+		for pid in $$legacy_pids; do \
+			if kill -0 "$$pid" 2>/dev/null; then busy=1; fi; \
+		done; \
+		[ "$$busy" -eq 0 ] && break; \
+		sleep 0.1; \
+		attempt=$$((attempt + 1)); \
+	done; \
+	for pid in $$legacy_pids; do \
+		if kill -0 "$$pid" 2>/dev/null; then \
+			printf 'Arrêt forcé de l’ancien frontend :3000 (PID :%s)...\n' "$$pid"; \
+			kill -KILL "$$pid" 2>/dev/null || true; \
+		fi; \
+	done
+	@ports="3010 8787 9119"; \
 	for port in $$ports; do \
 		pids="$$(fuser "$$port/tcp" 2>/dev/null || true)"; \
 		if [ -n "$$pids" ]; then \

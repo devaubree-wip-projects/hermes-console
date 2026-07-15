@@ -19,7 +19,7 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : {
-        command: "NEXT_DIST_DIR=.next-e2e bun run dev -- -p 3198",
+        command: "NEXT_DIST_DIR=.next-e2e bunx next dev --port 3198",
         url: "http://127.0.0.1:3198/login",
         reuseExistingServer: true,
         timeout: 120_000,

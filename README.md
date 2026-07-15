@@ -8,7 +8,7 @@ tâches, fichiers, connaissances, validations et capacités.
 ```text
 ╔══════════════════════════ Produit web ══════════════════════════╗
 ║ ┌──────────────┐  HTTPS / RBAC  ┌────────────────────────────┐ ║
-║ │ Navigateur   │ ──────────────▶ │ Next.js + PostgreSQL       │ ║
+║ │ Navigateur   │ ──────────────▶ │ Next.js :3010 + PostgreSQL │ ║
 ║ │ Xulux UI     │ ◀────────────── │ tenants / agents / audit   │ ║
 ║ └──────┬───────┘  pages / data   └──────────────┬─────────────┘ ║
 ╚════════│═════════════════════════════════════════│═══════════════╝
@@ -68,8 +68,9 @@ make dev
 ```
 
 `make help` affiche toutes les commandes, classées par développement, qualité, base de données et runtime
-Hermes. Les scripts restent exécutés exclusivement avec Bun. `make dev-fresh` supprime uniquement le cache
-généré `.next` avant de relancer la stack.
+Hermes. Les scripts restent exécutés exclusivement avec Bun. `make dev` et `make dev-fresh` exposent le
+frontend sur `http://localhost:3010`. `make dev-fresh` supprime uniquement le cache généré `.next` avant de
+relancer la stack.
 
 Pour retrouver volontairement une base vide :
 
@@ -139,6 +140,17 @@ active le channel dans son `config.yaml`, puis redémarre le gateway de ce profi
 Telegram accepte le token fourni par BotFather et une liste optionnelle d'identifiants utilisateurs numériques.
 Sans allowlist, un premier message privé déclenche le pairing sécurisé Hermes. Discord nécessite un Bot Token ;
 activez également le **Message Content Intent** dans le Developer Portal avant d'inviter le bot sur un serveur.
+
+Quand Telegram est activé, Hermes Console synchronise également l’extension utilisateur
+`hermes-console-control` dans le profil et l’active avant de redémarrer le gateway. Cette extension reste
+entièrement versionnée dans ce dépôt — aucun fichier de l’installation Hermes Agent n’est modifié. Dans Telegram,
+`/model` conserve le picker natif provider/modèle puis demande l’effort compatible avant d’appliquer les deux
+choix avec la même portée (`global` par défaut, session courante avec `/model --session`). Pour resynchroniser un
+profil manuellement :
+
+```bash
+bun run telegram-control:install --profile <profil> --restart
+```
 
 Le broker doit rester sur loopback. Il réutilise un runtime Hermes déjà actif ; sinon il lance `hermes serve`
 et ne stoppe à sa fermeture que ce processus enfant. Le port `8787` empêche plusieurs brokers, et un verrou

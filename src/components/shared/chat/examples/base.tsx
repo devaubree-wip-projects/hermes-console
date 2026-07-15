@@ -101,13 +101,12 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { useChatRoutes } from "@/components/shared/chat/chat-routes-context";
-import { useEffect, useState, type FC, type ReactNode } from "react";
+import { useState, type FC, type ReactNode } from "react";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/shared/chat/ui/sheet";
-import { Skeleton } from "@/components/shared/chat/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -579,43 +578,17 @@ const Header: FC<{
   );
 };
 
-// Startup exposes a loading placeholder thread; treat it as a new chat so
-// the composer mounts centered. Loads after startup keep the docked layout.
+// The runtime alone cannot distinguish a new chat from a deep link while the
+// session list is loading. Route intent keeps existing threads docked from the
+// first client render instead of briefly centering the composer.
 const isNewChatView = (s: AssistantState) =>
   s.thread.messages.length === 0 &&
   (!s.thread.isLoading || s.threads.isLoading);
 
-const isThreadResolvingView = (s: AssistantState) =>
-  s.thread.messages.length === 0 &&
-  s.thread.isLoading &&
-  !s.threads.isLoading;
-
-const ThreadLoadingMessages: FC = () => {
-  return (
-    <div
-      role="status"
-      aria-label="Loading thread"
-      className="mx-auto flex w-full max-w-(--thread-max-width) flex-col gap-5 px-2 pt-6"
-    >
-      <span className="sr-only">Loading thread</span>
-      {Array.from({ length: 3 }, (_, index) => (
-        <div key={index} className="flex flex-col gap-2">
-          <Skeleton
-            className="h-4"
-            style={{ width: `${index === 1 ? 88 : 72}%` }}
-          />
-          <Skeleton
-            className="h-4"
-            style={{ width: `${index === 0 ? 56 : 64}%` }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const Thread: FC = () => {
-  const isEmpty = useAuiState(isNewChatView);
+  const runtimeShowsNewChat = useAuiState(isNewChatView);
+  const { currentThreadId } = useChatRoutes();
+  const isNewConversation = !currentThreadId && runtimeShowsNewChat;
   const autoScroll = useChatToolsStore((s) => s.autoScroll);
   const compactMessages = useChatToolsStore((s) => s.compactMessages);
   const wrapCode = useChatToolsStore((s) => s.wrapCode);
@@ -634,19 +607,15 @@ const Thread: FC = () => {
       <ThreadPrimitive.Viewport
         turnAnchor="top"
         autoScroll={autoScroll}
+        scrollToBottomOnInitialize
+        scrollToBottomOnThreadSwitch
         data-slot="aui_thread-viewport"
         className={cn(
           "relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-4 pt-4",
-          isEmpty && "justify-center",
+          isNewConversation && "justify-center",
         )}
       >
-        <AuiIf condition={isNewChatView}>
-          <ThreadWelcome />
-        </AuiIf>
-
-        <AuiIf condition={isThreadResolvingView}>
-          <ThreadLoadingMessages />
-        </AuiIf>
+        {isNewConversation ? <ThreadWelcome /> : null}
 
         <div
           data-slot="aui_message-group"
@@ -668,18 +637,18 @@ const Thread: FC = () => {
         <ThreadPrimitive.ViewportFooter
           className={cn(
             "aui-thread-viewport-footer bg-background mx-auto flex w-full max-w-3xl flex-col gap-4 overflow-visible pb-0 md:pb-2",
-            !isEmpty && "sticky bottom-0 mt-auto rounded-t-(--composer-radius)",
+            !isNewConversation && "sticky bottom-0 mt-auto rounded-t-(--composer-radius)",
           )}
         >
           <ThreadScrollToBottom />
           <Composer />
-          <AuiIf condition={isNewChatView}>
+          {isNewConversation ? (
             <div className="aui-thread-welcome-suggestions-shell min-h-19">
               <AuiIf condition={(s) => s.composer.isEmpty}>
                 <ThreadSuggestions />
               </AuiIf>
             </div>
-          </AuiIf>
+          ) : null}
         </ThreadPrimitive.ViewportFooter>
       </ThreadPrimitive.Viewport>
 

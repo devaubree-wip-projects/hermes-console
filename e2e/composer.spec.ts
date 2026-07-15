@@ -51,6 +51,43 @@ test("matches the HonoUI composer structure across responsive widths", async ({ 
   }
 });
 
+test("keeps an existing thread composer docked while delayed history loads", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await installHermesMock(page, { sessionsDelayMs: 1_000, historyDelayMs: 1_000 });
+  await loginE2E(page);
+  await page.goto(`${chatUrl}/c/tools-history-e2e`);
+
+  const composer = page.locator(".aui-composer-root");
+  const viewport = page.locator('[data-slot="aui_thread-viewport"]');
+  await expect(composer).toBeVisible();
+  await expect(page.getByText("How can I help you today?", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".aui-thread-welcome-suggestions-shell")).toHaveCount(0);
+
+  const loadingBox = await composer.boundingBox();
+  expect(loadingBox).not.toBeNull();
+  expect(900 - (loadingBox!.y + loadingBox!.height)).toBeLessThanOrEqual(24);
+
+  await expect(page.getByText("Réponse historique.")).toBeVisible();
+  const loadedBox = await composer.boundingBox();
+  expect(loadedBox).not.toBeNull();
+  expect(Math.abs(loadedBox!.y - loadingBox!.y)).toBeLessThanOrEqual(2);
+
+  await expect.poll(async () => viewport.evaluate((element) => (
+    Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight)
+  ))).toBeLessThanOrEqual(2);
+});
+
+test("keeps the welcome composer centered on a new conversation", async ({ page }) => {
+  await installHermesMock(page, { sessionsDelayMs: 1_000 });
+  await loginE2E(page);
+  await page.goto(chatUrl);
+
+  await expect(page.getByText("How can I help you today?", { exact: true })).toBeVisible();
+  await expect(page.locator(".aui-thread-welcome-suggestions-shell")).toBeVisible();
+  await expect(page.locator('[data-slot="aui_thread-viewport"]')).toHaveClass(/justify-center/);
+  await expect(page.locator(".aui-thread-viewport-footer")).not.toHaveClass(/sticky/);
+});
+
 test("sends selected model, effort and speed in the first session.create", async ({ page }) => {
   const calls = await openComposer(page);
 
@@ -277,6 +314,24 @@ test("groups persisted tool history into collapsible tool-name groups", async ({
 
   await page.locator("[data-slot=tool-call-detail]").first().click();
   await expect(page.getByText("Skill content for automate.")).toBeVisible();
+});
+
+test("marks the active conversation with a persistent sidebar background", async ({ page }) => {
+  await installHermesMock(page);
+  await loginE2E(page);
+  await page.goto(`${chatUrl}/c/tools-history-e2e`);
+
+  const activeItem = page.locator(".aui-thread-list-item[data-active]");
+  const inactiveItem = page.locator(".aui-thread-list-item:not([data-active])").first();
+  await expect(activeItem).toBeVisible();
+  await expect(activeItem.locator(".aui-thread-list-item-trigger")).toHaveAttribute("aria-current", "page");
+  await expect(inactiveItem).toBeVisible();
+
+  const [activeBackground, inactiveBackground] = await Promise.all([
+    activeItem.evaluate((element) => getComputedStyle(element).backgroundColor),
+    inactiveItem.evaluate((element) => getComputedStyle(element).backgroundColor),
+  ]);
+  expect(activeBackground).not.toBe(inactiveBackground);
 });
 
 test("uses the resumed session provider instead of the Settings default", async ({ page }) => {
