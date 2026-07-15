@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { approvals, tasks } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { getWorkspaceForUser } from "@/lib/workspace";
+import { canApprove, getWorkspaceAccessForUserById } from "@/lib/workspace";
 
 export async function PATCH(
   request: Request,
@@ -31,10 +31,11 @@ export async function PATCH(
     return Response.json({ error: "Validation introuvable." }, { status: 404 });
   }
 
-  const workspace = await getWorkspaceForUser(approval.workspaceId, user.id);
-  if (!workspace) {
+  const access = await getWorkspaceAccessForUserById(approval.workspaceId, user.id);
+  if (!access) {
     return Response.json({ error: "Validation introuvable." }, { status: 404 });
   }
+  if (!canApprove(access.role)) return Response.json({ error: "Droits de validation insuffisants." }, { status: 403 });
 
   if (approval.status !== "pending") {
     return Response.json({ error: "Cette validation a déjà été traitée." }, { status: 409 });
@@ -42,7 +43,7 @@ export async function PATCH(
 
   await db
     .update(approvals)
-    .set({ status: decision, decidedAt: new Date() })
+    .set({ status: decision, decidedAt: new Date(), decidedByUserId: user.id })
     .where(eq(approvals.id, approvalId));
 
   let taskStatus: string | null = null;

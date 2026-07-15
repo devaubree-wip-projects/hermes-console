@@ -3,7 +3,7 @@ import { approvals, tasks } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { normalizePermissions } from "@/lib/permissions";
 import { TASK_KINDS, TASK_TEMPLATES, type TaskKind } from "@/lib/task-templates";
-import { getWorkspaceForUser } from "@/lib/workspace";
+import { canAtLeast, getWorkspaceAccessForUserById } from "@/lib/workspace";
 
 function isTaskKind(value: string): value is TaskKind {
   return (TASK_KINDS as readonly string[]).includes(value);
@@ -32,10 +32,12 @@ export async function POST(request: Request) {
     return Response.json({ error: "Workspace invalide." }, { status: 400 });
   }
 
-  const workspace = await getWorkspaceForUser(workspaceId, user.id);
-  if (!workspace) {
+  const access = await getWorkspaceAccessForUserById(workspaceId, user.id);
+  if (!access) {
     return Response.json({ error: "Workspace introuvable." }, { status: 404 });
   }
+  if (!canAtLeast(access.role, "member")) return Response.json({ error: "Accès en lecture seule." }, { status: 403 });
+  const workspace = access.workspace;
 
   if (typeof kind !== "string" || !isTaskKind(kind)) {
     return Response.json({ error: "Type de tâche inconnu." }, { status: 400 });

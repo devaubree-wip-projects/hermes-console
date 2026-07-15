@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { listWorkspacesForUser } from "@/lib/workspace";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { NewWorkspaceForm } from "@/components/workspaces/new-workspace-form";
 
 export default async function NewWorkspacePage() {
-  await requireUser();
+  const user = await requireUser();
+  const workspaces = await listWorkspacesForUser(user.id);
+  if (workspaces.length === 0) redirect("/onboarding");
 
   return (
     <div className="flex min-h-dvh items-center justify-center px-4 py-10">

@@ -3,42 +3,57 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { FlaskConical, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
+type DevCredentials = { email: string; password: string };
+
+export function LoginForm({ devCredentials }: { devCredentials: DevCredentials | null }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function login(loginEmail: string, loginPassword: string) {
     setError(null);
     setPending(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Une erreur est survenue. Réessayez.");
         return;
       }
-      router.push("/");
+      router.push(
+        typeof data.redirectTo === "string" ? data.redirectTo : "/onboarding",
+      );
       router.refresh();
     } catch {
       setError("Impossible de contacter le serveur. Réessayez.");
     } finally {
       setPending(false);
     }
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await login(email, password);
+  }
+
+  async function handleDevelopmentLogin() {
+    if (!devCredentials) return;
+    setEmail(devCredentials.email);
+    setPassword(devCredentials.password);
+    await login(devCredentials.email, devCredentials.password);
   }
 
   return (
@@ -90,11 +105,23 @@ export function LoginForm() {
               Créer un compte
             </Link>
           </p>
-        </CardContent>
-      </Card>
-      <Card size="sm" className="bg-muted/50">
-        <CardContent className="text-center text-xs text-muted-foreground">
-          Compte démo : demo@hermes.local / demo-password
+          {devCredentials ? (
+            <div className="mt-5 border-t pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 w-full"
+                disabled={pending}
+                onClick={handleDevelopmentLogin}
+              >
+                {pending ? <Loader2 className="size-4 animate-spin" /> : <FlaskConical />}
+                Remplir et se connecter en mode dev
+              </Button>
+              <p className="mt-2 text-center font-mono text-[11px] text-muted-foreground">
+                {devCredentials.email}
+              </p>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </div>

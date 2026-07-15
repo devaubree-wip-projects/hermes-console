@@ -1,12 +1,12 @@
-import { redirect } from "next/navigation";
+import { Landing } from "@/components/landing/landing";
 import { getCurrentUser } from "@/lib/auth";
-import { listWorkspacesForUser } from "@/lib/workspace";
+import { getConsoleDestinationForUser } from "@/lib/workspace";
 
 export default async function Home() {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  const consoleHref = user
+    ? await getConsoleDestinationForUser(user.id)
+    : "/login";
 
-  const workspaces = await listWorkspacesForUser(user.id);
-  if (workspaces.length === 0) redirect("/workspaces/new");
-  redirect(`/w/${workspaces[0].id}`);
+  return <Landing consoleHref={consoleHref} isAuthenticated={Boolean(user)} />;
 }

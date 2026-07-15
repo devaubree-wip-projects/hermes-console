@@ -54,9 +54,9 @@ export async function POST(request: Request) {
   }
 
   const safeName = sanitizeFileName(file.name);
-  const dir = path.join(UPLOAD_DIR, workspaceId);
+  const dir = path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, workspaceId);
   await mkdir(dir, { recursive: true });
-  const storedPath = path.join(dir, `${randomUUID()}-${safeName}`);
+  const storedPath = path.join(/*turbopackIgnore: true*/ dir, `${randomUUID()}-${safeName}`);
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(storedPath, buffer);
 

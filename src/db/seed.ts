@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { memoryItems, tenants, users, workspaces } from "@/db/schema";
+import { agents, memoryItems, tenantMemberships, tenants, users, workspaces } from "@/db/schema";
 import { hashPassword } from "@/lib/auth";
 import { DEFAULT_PERMISSIONS } from "@/lib/permissions";
 
@@ -19,24 +19,41 @@ async function seed() {
       email: DEMO_EMAIL,
       passwordHash: hashPassword("demo-password"),
       name: "Client démo",
+      onboardedAt: new Date(),
+      onboardingData: {
+        organizationName: "Garage Dupont",
+        workspaceName: "Marketing local",
+        agentTemplate: "general",
+      },
     })
     .returning();
 
   const [tenant] = await db
     .insert(tenants)
-    .values({ name: "Garage Dupont", ownerUserId: user.id })
+    .values({ name: "Garage Dupont", slug: "garage-dupont", ownerUserId: user.id })
     .returning();
+  await db.insert(tenantMemberships).values({ tenantId: tenant.id, userId: user.id, role: "owner" });
 
   const [workspace] = await db
     .insert(workspaces)
     .values({
       tenantId: tenant.id,
-      name: "Assistant Garage Dupont",
-      hermesBaseUrl: process.env.HERMES_DEFAULT_BASE_URL ?? "http://localhost:8645/v1",
-      hermesApiKey: process.env.HERMES_DEFAULT_API_KEY ?? null,
+      name: "Marketing local",
+      slug: "marketing-local",
+      hermesBaseUrl: process.env.HERMES_RUNTIME_URL ?? "http://127.0.0.1:9119",
       permissions: DEFAULT_PERMISSIONS,
     })
     .returning();
+
+  await db.insert(agents).values({
+    workspaceId: workspace.id,
+    slug: "assistant-principal",
+    name: "Assistant principal",
+    description: "Agent Hermes principal du Garage Dupont",
+    hermesProfileName: "default",
+    runtimeState: "ready",
+    createdByUserId: user.id,
+  });
 
   await db.insert(memoryItems).values(
     [

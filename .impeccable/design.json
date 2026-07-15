@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-13T00:00:00+02:00",
+  "title": "Design System: Hermes Console",
+  "extensions": {
+    "colorMeta": {
+      "canvas": { "role": "neutral", "displayName": "Clear Canvas", "canonical": "oklch(1 0 0)" },
+      "ink": { "role": "primary", "displayName": "Operational Ink", "canonical": "oklch(0.145 0 0)" },
+      "surface-muted": { "role": "neutral", "displayName": "Quiet Surface", "canonical": "oklch(0.97 0 0)" }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "Title", "purpose": "Page and pane headings." },
+      "body": { "displayName": "Body", "purpose": "Product copy and conversation text." },
+      "label": { "displayName": "Label", "purpose": "Controls and metadata." }
+    },
+    "shadows": [
+      { "name": "low-ambient", "value": "0 1px 2px #0000000d", "purpose": "Small overlays." },
+      { "name": "elevated-overlay", "value": "0 1px 12px #0000000f, 0 0 1px #00000052", "purpose": "Dialogs and command surfaces." }
+    ],
+    "motion": [
+      { "name": "state", "value": "180ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "State transitions only." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Compact primary action used once per decision group.",
+      "html": "<button class=\"hc-primary\">Continue</button>",
+      "css": ".hc-primary { background: oklch(0.145 0 0); color: oklch(1 0 0); border-radius: 8px; padding: 8px 12px; font: 500 14px/1.4 Inter, sans-serif; }"
+    }
+  ]
+}

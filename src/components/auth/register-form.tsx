@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 export function RegisterForm() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [organization, setOrganization] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,14 +26,14 @@ export function RegisterForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, organization, email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Une erreur est survenue. Réessayez.");
         return;
       }
-      router.push(`/w/${data.workspaceId}`);
+      router.push(data.redirectTo ?? "/");
       router.refresh();
     } catch {
       setError("Impossible de contacter le serveur. Réessayez.");
@@ -47,7 +46,7 @@ export function RegisterForm() {
     <Card>
       <CardHeader>
         <CardTitle>Créer un compte</CardTitle>
-        <CardDescription>Créez votre espace client et votre premier assistant Hermes.</CardDescription>
+        <CardDescription>Créez votre compte. Nous configurerons ensuite votre premier agent.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -66,18 +65,6 @@ export function RegisterForm() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="organization">Nom de votre entreprise</Label>
-            <Input
-              id="organization"
-              name="organization"
-              type="text"
-              autoComplete="organization"
-              required
-              value={organization}
-              onChange={(e) => setOrganization(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-1.5">

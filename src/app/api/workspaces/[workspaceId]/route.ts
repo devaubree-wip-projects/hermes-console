@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { workspaces } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
-import { getWorkspaceForUser } from "@/lib/workspace";
+import { canConfigureRuntime, getWorkspaceAccessForUserById } from "@/lib/workspace";
 import { normalizePermissions } from "@/lib/permissions";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./data/uploads";
@@ -29,10 +29,11 @@ export async function PATCH(
     return NextResponse.json({ error: "Authentification requise." }, { status: 401 });
   }
 
-  const workspace = await getWorkspaceForUser(workspaceId, user.id);
-  if (!workspace) {
+  const access = await getWorkspaceAccessForUserById(workspaceId, user.id);
+  if (!access) {
     return NextResponse.json({ error: "Workspace introuvable." }, { status: 404 });
   }
+  if (!canConfigureRuntime(access.role)) return NextResponse.json({ error: "Seul un Owner peut modifier le workspace." }, { status: 403 });
 
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {
@@ -92,13 +93,17 @@ export async function DELETE(
     return NextResponse.json({ error: "Authentification requise." }, { status: 401 });
   }
 
-  const workspace = await getWorkspaceForUser(workspaceId, user.id);
-  if (!workspace) {
+  const access = await getWorkspaceAccessForUserById(workspaceId, user.id);
+  if (!access) {
     return NextResponse.json({ error: "Workspace introuvable." }, { status: 404 });
   }
+  if (!canConfigureRuntime(access.role)) return NextResponse.json({ error: "Seul un Owner peut supprimer le workspace." }, { status: 403 });
 
   await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
-  await rm(path.join(UPLOAD_DIR, workspaceId), { recursive: true, force: true }).catch(() => {});
+  await rm(path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, workspaceId), {
+    recursive: true,
+    force: true,
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

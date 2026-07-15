@@ -9,9 +9,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // BoardUI signature: vertical blue gradient + inset highlight + 1px ring
+        // BoardUI primary buttons have no border and use a compact ambient shadow.
         default:
-          "text-white bg-[image:var(--gradient-primary)] shadow-[var(--shadow-btn-primary)] hover:bg-[image:var(--gradient-primary-hover)] active:bg-[image:var(--gradient-primary-active)]",
+          "border-0 text-white bg-[image:var(--gradient-primary)] shadow-xs hover:bg-[image:var(--gradient-primary-hover)] active:bg-[image:var(--gradient-primary-active)]",
         outline:
           "border-border bg-background shadow-xs hover:bg-muted hover:text-foreground hover:border-neutral-300 aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:

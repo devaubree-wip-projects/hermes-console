@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 
 export function TaskRunButton({
   taskId,
-  workspaceId,
+  chatBase,
 }: {
   taskId: string;
-  workspaceId: string;
+  chatBase?: string;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const effectiveChatBase = chatBase ?? "/d/chat";
 
   async function run() {
     setLoading(true);
@@ -26,7 +27,7 @@ export function TaskRunButton({
         setLoading(false);
         return;
       }
-      router.push(`/w/${workspaceId}/chat/${data.sessionId}?autostart=1`);
+      router.push(`${effectiveChatBase}/${data.sessionId}?autostart=1`);
     } catch {
       toast.error("Erreur réseau — réessayez.");
       setLoading(false);
@@ -34,7 +35,7 @@ export function TaskRunButton({
   }
 
   return (
-    <Button type="button" className="h-11" disabled={loading} onClick={run}>
+      <Button type="button" className="h-11" disabled={loading} onClick={run}>
       {loading && <Loader2 className="size-4 animate-spin" />}
       Exécuter
     </Button>

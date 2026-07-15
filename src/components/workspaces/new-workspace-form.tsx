@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 export function NewWorkspaceForm() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [hermesBaseUrl, setHermesBaseUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,16 +25,13 @@ export function NewWorkspaceForm() {
       const res = await fetch("/api/workspaces", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          ...(hermesBaseUrl.trim() ? { hermesBaseUrl: hermesBaseUrl.trim() } : {}),
-        }),
+        body: JSON.stringify({ name: name.trim() }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         throw new Error(data?.error ?? "Échec de la création du workspace.");
       }
-      router.push(`/w/${data.workspaceId}`);
+      router.push(data.redirectTo ?? "/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Échec de la création du workspace.");
       setIsSubmitting(false);
@@ -50,19 +46,9 @@ export function NewWorkspaceForm() {
           id="new-workspace-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Ex. : Assistant Garage Dupont"
+          placeholder="Ex. : Équipe principale"
           maxLength={100}
           required
-        />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="new-workspace-url">URL du gateway (optionnel)</Label>
-        <Input
-          id="new-workspace-url"
-          type="url"
-          value={hermesBaseUrl}
-          onChange={(e) => setHermesBaseUrl(e.target.value)}
-          placeholder="http://localhost:8645/v1"
         />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}

@@ -1,0 +1,2 @@
+import { CapabilityPage } from "@/components/product/capability-page";
+export default function AutomationsPage({ params }: { params: Promise<{ tenantSlug: string; workspaceSlug: string }> }) { return <CapabilityPage params={params} title="Automatisations" description="Les tâches planifiées exécutées par Hermes sans ouvrir une conversation." endpoint="/api/cron/jobs" empty="Aucune automatisation planifiée." />; }

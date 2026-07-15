@@ -22,14 +22,23 @@ import { TASK_TEMPLATES, type TaskKind } from "@/lib/task-templates";
 export function TaskTemplateGrid({
   workspaceId,
   permissions,
+  taskBase,
+  chatBase,
+  runImmediately = true,
 }: {
   workspaceId: string;
   permissions: WorkspacePermissions;
+  taskBase?: string;
+  chatBase?: string;
+  runImmediately?: boolean;
 }) {
   const router = useRouter();
   const [openKind, setOpenKind] = useState<TaskKind | null>(null);
   const [input, setInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const effectiveTaskBase = taskBase ?? `/tasks`;
+  const effectiveChatBase = chatBase ?? `/d/chat`;
 
   const template = openKind ? TASK_TEMPLATES[openKind] : null;
 
@@ -62,21 +71,29 @@ export function TaskTemplateGrid({
       if (data.status === "waiting_approval") {
         toast.info("Tâche créée — validation requise avant exécution.");
         setOpenKind(null);
-        router.push(`/w/${workspaceId}/tasks/${data.taskId}`);
+        if (runImmediately) router.push(`${effectiveTaskBase}/${data.taskId}`);
+        else router.refresh();
+        return;
+      }
+
+      if (!runImmediately) {
+        setOpenKind(null);
+        toast.success("Tâche créée.");
+        router.refresh();
         return;
       }
 
       const runRes = await fetch(`/api/tasks/${data.taskId}/run`, { method: "POST" });
       const runData = await runRes.json();
       if (!runRes.ok) {
-        toast.error(runData.error ?? "Impossible de lancer la tâche.");
+          toast.error(runData.error ?? "Impossible de lancer la tâche.");
         setOpenKind(null);
-        router.push(`/w/${workspaceId}/tasks/${data.taskId}`);
+        router.push(`${effectiveTaskBase}/${data.taskId}`);
         return;
       }
 
       setOpenKind(null);
-      router.push(`/w/${workspaceId}/chat/${runData.sessionId}?autostart=1`);
+      router.push(`${effectiveChatBase}/${runData.sessionId}?autostart=1`);
     } catch {
       toast.error("Erreur réseau — réessayez.");
     } finally {

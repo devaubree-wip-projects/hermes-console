@@ -1,72 +1,159 @@
-# Hermes Client Console
+# Hermes Console
 
-POC — a client-facing web cockpit for a [Hermes Agent](https://hermes-agent.nousresearch.com) instance.
-Hermes stays the engine; this console is the business surface a non-technical client uses to
-drive their agent: chat, structured tasks, files, knowledge, permissions, and approvals.
-
-## Stack
-
-- Next.js 16 (App Router) + React 19 + TypeScript strict
-- Tailwind CSS v4 + shadcn/ui (radix-nova)
-- Drizzle ORM + PostgreSQL (shared dev container `infra-postgres`, database `hermes_console`)
-- Bun as package manager / runtime for scripts
-- Hermes gateway consumed through its OpenAI-compatible `/v1` API (streaming SSE)
-
-## Getting started (dev)
-
-```bash
-bun install
-cp .env.example .env        # fill DATABASE_URL (infra-postgres) — see below
-bun run db:push             # apply schema
-bun run db:seed             # demo user: demo@hermes.local / demo-password
-bun run mock:hermes         # terminal 1 — offline OpenAI-compatible mock on :8645
-bun run dev                 # terminal 2 — http://localhost:3000
-```
-
-`DATABASE_URL` targets the shared dev-infra Postgres (`localhost:5432`, database
-`hermes_console`). In containers, the hostname would be `infra-postgres` on `dev-shared-net`.
-
-## Hermes integration
-
-Hermes is installed **natively** on this machine (`~/.local/bin/hermes`), not as a Docker
-container. Each workspace stores the OpenAI-compatible base URL it talks to (Réglages →
-Connexion à l'agent); the API key is **optional**. Two ways to run the upstream:
-
-- **Real Hermes proxy**: `hermes proxy start` runs a local OpenAI-compatible server on
-  **`http://127.0.0.1:8645/v1`** that forwards `/v1/chat/completions` to an OAuth provider
-  (`--provider nous` by default, or `xai`). It attaches your real credentials, so the client
-  bearer token can be anything. Pick the model with `hermes model`.
-- **Offline mock**: `bun run mock:hermes` → `http://localhost:8645/v1`. Canned streamed replies;
-  lets you exercise the whole product with no network / no OAuth.
-
-> The proxy is a **pass-through LLM** — it does not expose Hermes' tools/skills/memory. The full
-> agent runtime lives behind `hermes serve` (JSON-RPC/WebSocket on `:9119`, used by the desktop
-> app). Driving that from the console — so permissions actually gate real tools — is a later
-> milestone; today permissions/approvals shape the system prompt and gate task execution only.
+Cockpit web métier pour piloter une installation locale Hermes : organisations, workspaces, agents, sessions,
+tâches, fichiers, connaissances, validations et capacités.
 
 ## Architecture
 
+```text
+╔══════════════════════════ Produit web ══════════════════════════╗
+║ ┌──────────────┐  HTTPS / RBAC  ┌────────────────────────────┐ ║
+║ │ Navigateur   │ ──────────────▶ │ Next.js + PostgreSQL       │ ║
+║ │ Xulux UI     │ ◀────────────── │ tenants / agents / audit   │ ║
+║ └──────┬───────┘  pages / data   └──────────────┬─────────────┘ ║
+╚════════│═════════════════════════════════════════│═══════════════╝
+         │ WebSocket + ticket signé               │ REST + token local
+         ▼                                        ▼
+╔══════════════════════ Runtime local Hermes ═════════════════════╗
+║ ┌──────────────────┐ JSON-RPC profil forcé ┌─────────────────┐ ║
+║ │ Broker Bun :8787 │ ─────────────────────▶ │ hermes serve    │ ║
+║ └──────────────────┘ événements isolés      │ :9119 /api/ws   │ ║
+║                                             └────────┬────────┘ ║
+║                                                      │ profil    ║
+║                                ┌─────────────────────▼─────────┐ ║
+║                                │ tools / skills / mémoire     │ ║
+║                                │ sessions / cron / MCP        │ ║
+║                                └───────────────────────────────┘ ║
+╚══════════════════════════════════════════════════════════════════╝
 ```
-Next.js (app router)
-  ├── pages: dashboard / chat / tasks / files / knowledge / approvals / settings
-  ├── API routes: auth, chat (SSE proxy), chat-sessions, tasks, approvals, files, workspaces
-  ├── Drizzle → infra-postgres (hermes_console)
-  └── streamHermesChat() → Hermes gateway /v1/chat/completions (SSE)
+
+Légende : HTTPS transporte les données produit ; REST sert les vues agrégées ; le WebSocket porte le flux
+JSON-RPC Hermes. Le broker ne possède aucun agent et ne diffuse aucun événement entre clients.
+
+Composants : Next.js est l’autorité d’auth/RBAC ; PostgreSQL conserve le modèle produit ; un profil Hermes
+correspond à un Agent ; Hermes reste l’autorité des conversations et de leur transcript.
+
+## Modèle et routes
+
+```text
+Tenant
+└── Workspace
+    ├── Agent (1 profil Hermes)
+    │   └── Sessions (N conversations Hermes)
+    ├── Tasks
+    ├── Files / Knowledge
+    └── Approvals / Audit events
 ```
 
-Model: `Tenant → Workspace → { ChatSessions → Messages, Tasks, Files, MemoryItems, Approvals }`.
-Every workspace-scoped access goes through `getWorkspaceForUser()` (ownership guard).
+La home redirige vers `/:tenantSlug/:workspaceSlug/dashboard`. Les anciennes URLs `/w/:id` sont uniquement
+des redirections de migration.
 
-Task flow: template → task (`draft`, or `waiting_approval` when the mapped permission is
-disabled) → approval (client validates) → run = seeded chat session (`?autostart=1`) → the
-chat stream completion marks the task `done` and stores the deliverable.
+Un compte neuf ne reçoit aucune donnée fictive. Après l'inscription, `/onboarding` collecte l'organisation,
+le nom de l'espace et la mission du premier agent, vérifie le runtime Hermes, crée les objets réels puis ouvre
+la première conversation. Un compte possédant déjà un workspace est envoyé directement vers son dashboard.
 
-## POC limits (assumed, on purpose)
+Rôles : `owner`, `member`, `viewer`. Le rôle tenant est hérité par le workspace, avec override ou refus local.
+Owners et Members peuvent valider ; seul un Owner peut modifier la configuration technique.
 
-- Permissions/approvals are **advisory**: they shape the system prompt and gate task
-  execution in the console, but nothing is enforced inside the Hermes runtime itself.
-  Real enforcement needs gateway-side tool policies.
-- File contents are **not** injected into the model context (names only). No RAG.
-- Knowledge/memory is read-only, seeded in DB — not yet synced with Hermes memory.
-- Gateway API keys are stored plaintext in DB — encrypt before anything multi-client-real.
-- Auth is minimal (scrypt + DB session cookie). No rate limiting, no email verification.
+## Démarrage local
+
+Prérequis : Bun, PostgreSQL et Hermes installé localement.
+
+```bash
+bun install
+bun run db:migrate:product
+
+# Next.js + broker local ; le broker démarre Hermes si nécessaire
+make dev
+```
+
+`make help` affiche toutes les commandes, classées par développement, qualité, base de données et runtime
+Hermes. Les scripts restent exécutés exclusivement avec Bun. `make dev-fresh` supprime uniquement le cache
+généré `.next` avant de relancer la stack.
+
+Pour retrouver volontairement une base vide :
+
+```bash
+make db-reset CONFIRM=reset
+```
+
+Cette commande supprime les comptes, leurs données produit et les profils Hermes associés (sauf `default`).
+Les données « Garage Dupont » ne sont plus implicites ; elles ne sont créées qu'avec `make db-seed-demo`.
+
+Variables importantes :
+
+- `DATABASE_URL`
+- `HERMES_RUNTIME_URL` (défaut `http://127.0.0.1:9119`)
+- `HERMES_RUNTIME_WS` (défaut `ws://127.0.0.1:9119/api/ws`)
+- `HERMES_RUNTIME_AUTOSTART` (`true` par défaut)
+- `HERMES_CLI_COMMAND` (`hermes` par défaut)
+- `HERMES_SESSION_CHANGE_DEBOUNCE_MS` (`200` par défaut)
+- `HERMES_SESSION_RECONCILE_MS` (`0` par défaut ; intervalle opt-in pour un stockage sans watcher fiable)
+- `HERMES_DASHBOARD_SESSION_TOKEN` (optionnel en loopback local)
+- `HERMES_BRIDGE_SECRET` (même valeur côté Next et broker)
+- `HERMES_ALLOWED_ORIGINS`
+- `NEXT_PUBLIC_BRIDGE_URL`
+
+Le broker observe `state.db` et `state.db-wal` une seule fois par profil actif. Une modification déclenche une
+invalidation ciblée sur le WebSocket déjà ouvert ; le navigateur recharge alors l'historique canonique. Il n'y
+a donc aucun polling périodique de l'API Next par onglet. La réconciliation périodique est désactivée par
+défaut ; `HERMES_SESSION_RECONCILE_MS` permet de l'activer explicitement lorsque le stockage ne fournit pas
+de notifications filesystem fiables.
+
+### Clé d'inférence Hermes
+
+`hermes-console/.env.local` ne contient pas la clé OpenAI. Le chat `/d/chat` parle au runtime Hermes et le
+broker force le profil de l'agent à chaque appel. Hermes charge donc la clé depuis le `.env` de ce profil :
+
+```text
+~/.hermes/profiles/<nom-du-profil>/.env
+```
+
+Pour l'agent local actuel `test-test-assistant-principal`, le chemin exact est :
+
+```text
+/home/kev/.hermes/profiles/test-test-assistant-principal/.env
+```
+
+Ajoutez-y sans guillemets :
+
+```dotenv
+OPENAI_API_KEY=sk-...
+```
+
+Puis configurez le même profil avec le provider OpenAI direct et le modèle voulu :
+
+```bash
+hermes -p test-test-assistant-principal model
+```
+
+Choisissez `OpenAI API` (`openai-api`) dans l'assistant. La clé seule ne sélectionne pas le provider. Le profil
+`default`, lui, lit `~/.hermes/.env`. Aucun fichier ou secret d'un autre projet n'est recherché ou copié.
+
+### Channels Telegram et Discord
+
+La page `Paramètres → Intégrations` configure les channels natifs Hermes agent par agent. Les tokens ne sont
+ni stockés en base ni renvoyés au navigateur après sauvegarde : Hermes les écrit dans le `.env` du profil ciblé,
+active le channel dans son `config.yaml`, puis redémarre le gateway de ce profil.
+
+Telegram accepte le token fourni par BotFather et une liste optionnelle d'identifiants utilisateurs numériques.
+Sans allowlist, un premier message privé déclenche le pairing sécurisé Hermes. Discord nécessite un Bot Token ;
+activez également le **Message Content Intent** dans le Developer Portal avant d'inviter le bot sur un serveur.
+
+Le broker doit rester sur loopback. Il réutilise un runtime Hermes déjà actif ; sinon il lance `hermes serve`
+et ne stoppe à sa fermeture que ce processus enfant. Le port `8787` empêche plusieurs brokers, et un verrou
+de démarrage interne garantit qu’un afflux de clients ne crée qu’un seul runtime.
+
+Ne l’exposez jamais directement : Hermes peut exécuter des commandes et accéder aux fichiers autorisés de la
+machine. Pour gérer Hermes manuellement, utilisez `HERMES_RUNTIME_AUTOSTART=false`.
+
+## Validation
+
+```bash
+bun run typecheck
+bun run lint
+bun run build
+bun build bridge/agent-bridge.ts --target bun --outfile /tmp/hermes-console-bridge.js
+```
+
+Le chat affiche fidèlement l’erreur Hermes quand aucun provider d’inférence n’est configuré.

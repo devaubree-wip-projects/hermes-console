@@ -1,13 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "tw-shimmer";
 
 @custom-variant dark (&:is(.dark *));
 
 /*
-  BoardUI design tokens (extracted from boardui.com production CSS)
-  Fonts: Inter / JetBrains Mono · Accent: blue · Neutrals: zinc-like
-  Signature: vertical-gradient primary button (180deg blue-500 -> blue-600)
+  Merged token set:
+  - shadcn semantic tokens use the xulux chat's neutral oklch values (chat is pixel-iso)
+  - BoardUI extras (brand/viz scales, gradients, elevation, navbar-h) are kept for the
+    remaining pages (login/register/workspaces) that still use them
+  Fonts: Inter / JetBrains Mono via next/font
 */
 @theme inline {
   --color-background: var(--background);
@@ -82,8 +85,11 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-foreground-soft: var(--foreground-soft);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-secondary-hover: var(--secondary-hover);
 
-  /* radius: BoardUI 2lg = 10px is the dominant container radius */
+  /* radius: 10px dominant container radius */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -100,97 +106,97 @@
 }
 
 :root {
-  --radius: 0.625rem; /* 10px — BoardUI 2lg */
+  --radius: 0.625rem; /* 10px */
 
-  --background: #ffffff;
-  --foreground: #0a0a0a; /* neutral-950 */
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
+  /* agent-pilot status accents */
+  --ok: oklch(0.62 0.17 145);
+  --warn: oklch(0.75 0.16 70);
 
-  --primary: #155dfc; /* brand-600 */
-  --primary-foreground: #ffffff;
-  --secondary: #f7f7f7; /* neutral-100 */
-  --secondary-foreground: #262626; /* neutral-800 */
-  --muted: #f7f7f7;
-  --muted-foreground: #737373; /* neutral-500 */
-  --accent: #f7f7f7;
-  --accent-foreground: #171717;
-  --destructive: #fb2c36; /* red-500 */
-
-  --border: #ebebeb; /* neutral-200 */
-  --input: #ebebeb;
-  --ring: #3080ff; /* brand-500 focus ring */
-
-  --chart-1: #3080ff; /* brand-500 */
-  --chart-2: #90c5ff; /* brand-300 */
-  --chart-3: #1447e6; /* brand-700 */
-  --chart-4: #a1a1a1; /* neutral-400 */
-  --chart-5: #d4d4d4; /* neutral-300 */
-
-  /* inset frame: gray sidebar area, white floating content */
-  --sidebar: #f7f7f7; /* neutral-100 */
-  --sidebar-foreground: #0a0a0a;
-  --sidebar-primary: #155dfc;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ebebeb; /* neutral-200 hover */
-  --sidebar-accent-foreground: #0a0a0a;
-  --sidebar-border: #ebebeb;
-  --sidebar-ring: #3080ff;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --foreground-soft: oklch(0.556 0 0);
+  --foreground-muted: oklch(0.439 0 0);
+  --secondary-hover: oklch(0.955 0 0);
 
   --navbar-h: 3.5rem; /* fixed header height for sticky offsets */
 
-  /* signature primary-button gradients */
+  /* signature primary-button gradients (auth/workspaces pages) */
   --gradient-primary: linear-gradient(180deg, #3080ff 0%, #155dfc 100%);
   --gradient-primary-hover: linear-gradient(180deg, #3392ff 0%, #3080ff 100%);
   --gradient-primary-active: linear-gradient(180deg, #155dfc 0%, #1447e6 100%);
-  --shadow-btn-primary: inset 0 1px 0 0 #ffffff40, 0 0 0 1px #155dfc,
-    0 1px 2px 0 #0000001a;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #171717;
-  --card-foreground: #fafafa;
-  --popover: #171717;
-  --popover-foreground: #fafafa;
+  --ok: oklch(0.7 0.16 145);
+  --warn: oklch(0.8 0.16 70);
 
-  --primary: #3080ff;
-  --primary-foreground: #ffffff;
-  --secondary: #262626;
-  --secondary-foreground: #fafafa;
-  --muted: #262626;
-  --muted-foreground: #a1a1a1;
-  --accent: #262626;
-  --accent-foreground: #fafafa;
-  --destructive: #ff6568;
-
-  --border: #ffffff1a;
-  --input: #ffffff26;
-  --ring: #3080ff;
-
-  --chart-1: #3080ff;
-  --chart-2: #90c5ff;
-  --chart-3: #1447e6;
-  --chart-4: #737373;
-  --chart-5: #404040;
-
-  --sidebar: #171717;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #3080ff;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #262626;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #ffffff1a;
-  --sidebar-ring: #3080ff;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --foreground-soft: oklch(0.708 0 0);
+  --foreground-muted: oklch(0.556 0 0);
+  --secondary-hover: oklch(0.32 0 0);
 
   --gradient-primary: linear-gradient(180deg, #3392ff 0%, #155dfc 100%);
   --gradient-primary-hover: linear-gradient(180deg, #3392ff 0%, #3080ff 100%);
   --gradient-primary-active: linear-gradient(180deg, #155dfc 0%, #1447e6 100%);
-  --shadow-btn-primary: inset 0 1px 0 0 #ffffff33, 0 0 0 1px #155dfc,
-    0 1px 2px 0 #00000040;
 }
 
 @layer base {
@@ -201,7 +207,7 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans antialiased;
   }
 }
 
@@ -256,4 +262,57 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/*
+ * Chat setting `wrapCode` (store `v1-xulux-chat-tools`): when the message group
+ * carries `data-wrap-code="true"`, wrap long code lines instead of forcing a
+ * horizontal scroll. `white-space` is inherited by the shiki <code>/<span>
+ * children, so no change is needed in the memoized markdown components.
+ * When "false", no rule applies → default `overflow-x-auto` scroll is kept.
+ */
+[data-wrap-code="true"] .aui-md-pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+}
+
+/* agent-pilot markdown output (react-markdown) — compact, readable defaults */
+.md :where(p, ul, ol, pre, blockquote, table) {
+  margin-block: 0.5rem;
+}
+.md :where(ul, ol) {
+  padding-inline-start: 1.25rem;
+}
+.md ul {
+  list-style: disc;
+}
+.md ol {
+  list-style: decimal;
+}
+.md :where(code):not(pre code) {
+  background: var(--muted);
+  padding: 0.1em 0.35em;
+  border-radius: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.md pre {
+  background: var(--muted);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+.md a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md h1,
+.md h2,
+.md h3 {
+  font-weight: 600;
+  margin-block: 0.75rem 0.35rem;
 }

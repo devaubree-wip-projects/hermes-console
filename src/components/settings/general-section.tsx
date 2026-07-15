@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { SettingsRow, SettingsSection } from "@/components/settings/settings-row";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -39,25 +39,25 @@ export function GeneralSection({ workspaceId, name }: { workspaceId: string; nam
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Général</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="workspace-name">Nom du workspace</Label>
-          <Input
-            id="workspace-name"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            maxLength={100}
-          />
-        </div>
-        <Button type="button" className="h-11" disabled={!dirty || isSaving} onClick={handleSave}>
-          {isSaving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          Enregistrer
-        </Button>
-      </CardContent>
-    </Card>
+    <SettingsSection title="Espace de travail">
+      <SettingsRow
+        label={<Label htmlFor="workspace-name">Nom du workspace</Label>}
+        description="Ce nom apparaît dans la navigation et les écrans partagés avec votre équipe."
+        control={(
+          <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-72 sm:items-end">
+            <Input
+              id="workspace-name"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              maxLength={100}
+            />
+            <Button type="button" disabled={!dirty || isSaving} onClick={handleSave}>
+              {isSaving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              Enregistrer
+            </Button>
+          </div>
+        )}
+      />
+    </SettingsSection>
   );
 }

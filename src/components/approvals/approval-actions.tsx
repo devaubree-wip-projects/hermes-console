@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 export function ApprovalActions({
   approvalId,
   taskId,
-  workspaceId,
+  chatBase,
 }: {
   approvalId: string;
   taskId: string | null;
-  workspaceId: string;
+  chatBase?: string;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState<"approved" | "rejected" | null>(null);
@@ -44,7 +44,8 @@ export function ApprovalActions({
                     toast.error(runData.error ?? "Impossible d’exécuter la tâche.");
                     return;
                   }
-                  router.push(`/w/${workspaceId}/chat/${runData.sessionId}?autostart=1`);
+                  const base = chatBase ?? "/d/chat";
+                  router.push(`${base}/${runData.sessionId}?autostart=1`);
                 },
               }
             : undefined,
