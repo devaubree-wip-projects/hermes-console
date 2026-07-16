@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "hermes-console",
+      "dependencies": {
+        "postgres": "^3.4.9",
+      },
       "devDependencies": {
         "typescript": "^5",
       },

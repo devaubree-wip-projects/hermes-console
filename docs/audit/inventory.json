@@ -1,8 +1,18 @@
 {
   "schemaVersion": 1,
-  "commit": "998af504d7fc469b4176a70ce9b90b962bcda254",
+  "commit": "599668e0e968385eaba878a9e1e4695a6da8c4ab",
   "layout": "monorepo",
   "endpoints": [
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agent-teams/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agent-teams",
+      "lines": 63,
+      "critical": false
+    },
     {
       "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/route.ts",
       "methods": [
@@ -94,12 +104,41 @@
       "critical": true
     },
     {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/automations",
+      "lines": 59,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/[automationId]/run/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/automations/:automationId/run",
+      "lines": 20,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/events/route.ts",
       "methods": [
         "GET"
       ],
       "path": "/api/:tenantSlug/:workspaceSlug/events",
       "lines": 49,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/inbox/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/inbox",
+      "lines": 29,
       "critical": false
     },
     {
@@ -196,6 +235,52 @@
       "critical": true
     },
     {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/interventions",
+      "lines": 12,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/[interventionId]/route.ts",
+      "methods": [
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/interventions/:interventionId",
+      "lines": 16,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/projects",
+      "lines": 24,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/[projectId]/resources/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/projects/:projectId/resources",
+      "lines": 21,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/resources/[resourceId]/route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/resources/:resourceId",
+      "lines": 12,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/runtime/config/route.ts",
       "methods": [
         "PUT"
@@ -220,6 +305,150 @@
       ],
       "path": "/api/:tenantSlug/:workspaceSlug/tools/toolsets/:name",
       "lines": 48,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items",
+      "lines": 70,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId",
+      "lines": 84,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/assign/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/assign",
+      "lines": 23,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/cancel/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/cancel",
+      "lines": 14,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/comments/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/comments",
+      "lines": 29,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/dependencies/route.ts",
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/dependencies",
+      "lines": 31,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/labels/route.ts",
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/labels",
+      "lines": 20,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/resources/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/resources",
+      "lines": 21,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/runs/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/runs",
+      "lines": 31,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/timeline/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/timeline",
+      "lines": 18,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-labels/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-labels",
+      "lines": 23,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/cancel/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/cancel",
+      "lines": 14,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/plan-steps/:stepId/promote",
+      "lines": 14,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-stream/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-stream",
+      "lines": 77,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-views/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-views",
+      "lines": 33,
       "critical": false
     },
     {
@@ -278,6 +507,15 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/internal/work/automations/cron/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/internal/work/automations/cron",
+      "lines": 54,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/onboarding/complete/route.ts",
       "methods": [
         "POST"
@@ -301,8 +539,71 @@
         "POST"
       ],
       "path": "/api/runtime/enroll",
-      "lines": 125,
+      "lines": 126,
       "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/work/claim/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/claim",
+      "lines": 25,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/work/runs/[runId]/complete/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/complete",
+      "lines": 24,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/work/runs/[runId]/events/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/events",
+      "lines": 23,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/work/runs/[runId]/heartbeat/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/heartbeat",
+      "lines": 16,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/work/runs/[runId]/interventions/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/interventions",
+      "lines": 33,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/work/runs/[runId]/release/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/release",
+      "lines": 16,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/runtime/work/runs/[runId]/start/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/start",
+      "lines": 16,
+      "critical": false
     },
     {
       "file": "apps/web/src/app/api/tasks/route.ts",
@@ -320,6 +621,15 @@
       ],
       "path": "/api/tasks/:taskId/run",
       "lines": 56,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/work-hooks/[automationId]/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/work-hooks/:automationId",
+      "lines": 51,
       "critical": false
     },
     {
@@ -380,6 +690,10 @@
       "path": "/:tenantSlug/:workspaceSlug/files"
     },
     {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/inbox"
+    },
+    {
       "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
       "path": "/:tenantSlug/:workspaceSlug/installations"
     },
@@ -398,6 +712,14 @@
     {
       "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/models/page.tsx",
       "path": "/:tenantSlug/:workspaceSlug/models"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/projects"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
+      "path": "/:tenantSlug/:workspaceSlug/projects/:projectId"
     },
     {
       "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/settings/page.tsx",
@@ -449,9 +771,12 @@
       "name": "DATABASE_URL",
       "references": [
         "apps/web/drizzle.config.ts",
+        "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-stream/route.ts",
         "apps/web/src/db/index.ts",
+        "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
         "scripts/migrate-product-model.ts",
         "scripts/migrate-runtime-installations.ts",
+        "scripts/migrate-work-control-plane.ts",
         "scripts/reset-product-data.ts"
       ]
     },
@@ -459,6 +784,14 @@
       "name": "E2E_BASE_URL",
       "references": [
         "apps/web/playwright.config.ts"
+      ]
+    },
+    {
+      "name": "E2E_REAL_WORK",
+      "references": [
+        "apps/web/e2e/seed.ts",
+        "apps/web/e2e/work-real.spec.ts",
+        "apps/web/e2e/work.spec.ts"
       ]
     },
     {
@@ -499,6 +832,13 @@
       "name": "HERMES_CLI_PATH",
       "references": [
         "scripts/install-hermes-console-control.ts"
+      ]
+    },
+    {
+      "name": "HERMES_CONSOLE_URL",
+      "references": [
+        "apps/gateway/gateway/config.go",
+        "infra/dev/compose.yaml"
       ]
     },
     {
@@ -578,9 +918,11 @@
     {
       "name": "HERMES_GATEWAY_DERIVE_SECRETS",
       "references": [
+        "apps/web/e2e/work.spec.ts",
         "apps/web/scripts/sync-local-runtime-profiles.ts",
         "apps/web/src/lib/hermes/gateway-auth.ts",
         "apps/web/src/lib/hermes/runtime-ticket.ts",
+        "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
         "scripts/dev-stack.ts",
         "scripts/maintain-runtime-backups.ts"
       ]
@@ -602,8 +944,10 @@
       "name": "HERMES_GATEWAY_SERVICE_SECRET",
       "references": [
         "apps/gateway/gateway/config.go",
+        "apps/web/e2e/work.spec.ts",
         "apps/web/scripts/sync-local-runtime-profiles.ts",
         "apps/web/src/lib/hermes/relay-identity.ts",
+        "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
         "infra/dev/compose.yaml",
         "scripts/dev-stack.ts",
         "scripts/maintain-runtime-backups.ts"
@@ -613,8 +957,10 @@
       "name": "HERMES_GATEWAY_TICKET_SECRET",
       "references": [
         "apps/gateway/gateway/config.go",
+        "apps/web/e2e/work.spec.ts",
         "apps/web/scripts/sync-local-runtime-profiles.ts",
         "apps/web/src/lib/hermes/relay-identity.ts",
+        "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
         "infra/dev/compose.yaml",
         "scripts/dev-stack.ts",
         "scripts/maintain-runtime-backups.ts"
@@ -831,6 +1177,30 @@
       ]
     },
     {
+      "name": "HERMES_WORK_CAPACITY",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_WORK_DIR",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_WORK_ENABLED",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_WORK_INSTALLATION_ID",
+      "references": [
+        "apps/gateway/gateway/config.go"
+      ]
+    },
+    {
       "name": "HERMES_WORKSPACE_DIR",
       "references": [
         "infra/dev/compose.yaml"
@@ -871,6 +1241,7 @@
         "apps/web/src/lib/hermes/relay-identity.ts",
         "apps/web/src/lib/observability/logger.ts",
         "apps/web/src/modules/auth/infrastructure/auth-service.ts",
+        "apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts",
         "apps/web/src/proxy.ts"
       ]
     },
@@ -886,6 +1257,12 @@
         "apps/web/src/app/api/files/route.ts",
         "apps/web/src/app/api/workspaces/[workspaceId]/route.ts"
       ]
+    },
+    {
+      "name": "WORK_AUTOMATION_CRON_SECRET",
+      "references": [
+        "apps/web/src/app/api/internal/work/automations/cron/route.ts"
+      ]
     }
   ],
   "scripts": {
@@ -897,11 +1274,12 @@
     "apps/web/package.json": {
       "build": "next build",
       "dev": "next dev --port 3010",
+      "dev:e2e": "NEXT_DIST_DIR=.next-e2e next dev --port 3198",
       "lint": "eslint",
       "start": "next start",
       "test": "bun test --path-ignore-patterns=e2e/**",
-      "test:e2e": "bun run test:e2e:seed && bunx playwright test",
-      "test:e2e:seed": "bun run ../../scripts/migrate-runtime-installations.ts && bun run e2e/seed.ts",
+      "test:e2e": "bun run test:e2e:seed && bun --env-file=../../.env x playwright test",
+      "test:e2e:seed": "bun --env-file=../../.env run ../../scripts/migrate-runtime-installations.ts && bun --env-file=../../.env run ../../scripts/migrate-work-control-plane.ts && bun --env-file=../../.env run e2e/seed.ts",
       "typecheck": "tsc --noEmit"
     },
     "package.json": {
@@ -913,8 +1291,9 @@
       "build:web": "bun --cwd=apps/web run build",
       "check": "bun run contracts:verify && bun run typecheck && bun run lint && bun run test && bun run test:gateway && bun run build:all",
       "contracts:verify": "bun run tools/verify-contracts.ts",
-      "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts",
+      "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts && bun run scripts/migrate-work-control-plane.ts",
       "db:migrate:runtime": "bun run scripts/migrate-runtime-installations.ts",
+      "db:migrate:work": "bun run scripts/migrate-work-control-plane.ts",
       "db:push": "bunx --bun drizzle-kit push --config=apps/web/drizzle.config.ts",
       "db:reset": "bun run scripts/reset-product-data.ts",
       "db:seed:demo": "bun run apps/web/src/db/seed.ts",
@@ -951,7 +1330,8 @@
   "migrations": [
     "apps/web/drizzle.config.ts",
     "scripts/migrate-product-model.ts",
-    "scripts/migrate-runtime-installations.ts"
+    "scripts/migrate-runtime-installations.ts",
+    "scripts/migrate-work-control-plane.ts"
   ],
   "keyConfigFiles": [
     ".env.example",
@@ -1191,7 +1571,7 @@
         "POST"
       ],
       "path": "/api/runtime/enroll",
-      "lines": 125,
+      "lines": 126,
       "critical": true
     }
   ]

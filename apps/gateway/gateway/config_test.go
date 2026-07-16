@@ -5,6 +5,21 @@ import (
 	"testing"
 )
 
+func TestDevelopmentWorkExecutorCanDiscoverInstallationFromConsole(t *testing.T) {
+	t.Setenv("HERMES_GATEWAY_ENV", "development")
+	t.Setenv("HERMES_GATEWAY_MODE", "edge")
+	t.Setenv("HERMES_IDENTITY_DIR", t.TempDir())
+	t.Setenv("HERMES_CONSOLE_URL", "http://127.0.0.1:3010")
+	t.Setenv("HERMES_WORK_INSTALLATION_ID", "")
+	config, err := LoadConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !config.WorkEnabled || config.WorkControlPlaneURL == nil {
+		t.Fatalf("Work executor was not enabled: %#v", config)
+	}
+}
+
 func TestProductionConfigRejectsDevelopmentSecrets(t *testing.T) {
 	t.Setenv("HERMES_GATEWAY_ENV", "production")
 	t.Setenv("HERMES_GATEWAY_MODE", "edge")

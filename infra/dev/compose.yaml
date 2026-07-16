@@ -12,6 +12,8 @@ services:
     command: ["gateway", "run"]
     restart: unless-stopped
     logging: *dev-logging
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     shm_size: 1gb
     ports:
       # The Edge shares this network namespace and is the only published listener.
@@ -24,6 +26,9 @@ services:
         source: ${HERMES_WORKSPACE_DIR:-./data/workspace}
         target: /workspace
         read_only: ${HERMES_WORKSPACE_READ_ONLY:-true}
+      - type: bind
+        source: ${HERMES_WORK_DIR:-./data/work}
+        target: /work
     environment:
       HERMES_UID: ${HERMES_UID:-1000}
       HERMES_GID: ${HERMES_GID:-1000}
@@ -78,6 +83,9 @@ services:
         source: ${HERMES_WORKSPACE_DIR:-./data/workspace}
         target: /workspace
         read_only: true
+      - type: bind
+        source: ${HERMES_WORK_DIR:-./data/work}
+        target: /work
     environment:
       HERMES_GATEWAY_ENV: ${HERMES_GATEWAY_ENV:-development}
       HERMES_LOG_LEVEL: ${HERMES_LOG_LEVEL:-info}
@@ -87,6 +95,10 @@ services:
       HERMES_RUNTIME_WS: ws://127.0.0.1:9119/api/ws
       HERMES_RUNTIME_TOKEN: ${HERMES_RUNTIME_TOKEN:-hermes-console-local-runtime}
       HERMES_INSTALLATION_ID: ${HERMES_DEFAULT_INSTALLATION_ID:-local-default}
+      HERMES_CONSOLE_URL: ${HERMES_CONSOLE_URL:-http://host.docker.internal:3010}
+      HERMES_WORK_ENABLED: ${HERMES_WORK_ENABLED:-true}
+      HERMES_WORK_CAPACITY: ${HERMES_WORK_CAPACITY:-1}
+      HERMES_WORK_ROOT: /work
       HERMES_RUNTIME_KIND: docker
       HERMES_GATEWAY_TICKET_SECRET: ${HERMES_GATEWAY_TICKET_SECRET:-hermes-console-local-development-ticket}
       HERMES_GATEWAY_SERVICE_SECRET: ${HERMES_GATEWAY_SERVICE_SECRET:-hermes-console-local-development-service}

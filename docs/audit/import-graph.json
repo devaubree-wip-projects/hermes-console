@@ -36,6 +36,10 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
     "incoming": []
   },
@@ -57,6 +61,14 @@
   },
   {
     "module": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/models/page.tsx",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx",
     "incoming": []
   },
   {
@@ -112,6 +124,10 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agent-teams/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/codex/route.ts",
     "incoming": []
   },
@@ -148,7 +164,19 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/[automationId]/run/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/events/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/inbox/route.ts",
     "incoming": []
   },
   {
@@ -192,6 +220,26 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/[interventionId]/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/[projectId]/resources/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/resources/[resourceId]/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/runtime/config/route.ts",
     "incoming": []
   },
@@ -201,6 +249,66 @@
   },
   {
     "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/tools/toolsets/[name]/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/assign/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/cancel/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/comments/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/dependencies/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/labels/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/resources/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/runs/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/timeline/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-labels/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/cancel/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-stream/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-views/route.ts",
     "incoming": []
   },
   {
@@ -228,6 +336,10 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/internal/work/automations/cron/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/onboarding/complete/route.ts",
     "incoming": []
   },
@@ -240,11 +352,43 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/runtime/work/claim/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/runtime/work/runs/[runId]/complete/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/runtime/work/runs/[runId]/events/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/runtime/work/runs/[runId]/heartbeat/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/runtime/work/runs/[runId]/interventions/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/runtime/work/runs/[runId]/release/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/runtime/work/runs/[runId]/start/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/tasks/[taskId]/run/route.ts",
     "incoming": []
   },
   {
     "module": "apps/web/src/app/api/tasks/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/work-hooks/[automationId]/route.ts",
     "incoming": []
   },
   {
@@ -277,9 +421,7 @@
   },
   {
     "module": "apps/web/src/components/approvals/approval-actions.tsx",
-    "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx"
-    ]
+    "incoming": []
   },
   {
     "module": "apps/web/src/components/auth/login-form.tsx",
@@ -374,7 +516,6 @@
   {
     "module": "apps/web/src/components/product/capability-page.tsx",
     "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/skills/page.tsx"
     ]
   },
@@ -383,12 +524,10 @@
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/new/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/components/product/capability-page.tsx"
     ]
   },
@@ -851,22 +990,15 @@
   },
   {
     "module": "apps/web/src/components/tasks/task-run-button.tsx",
-    "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx"
-    ]
+    "incoming": []
   },
   {
     "module": "apps/web/src/components/tasks/task-status-badge.tsx",
-    "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx"
-    ]
+    "incoming": []
   },
   {
     "module": "apps/web/src/components/tasks/task-template-grid.tsx",
-    "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx"
-    ]
+    "incoming": []
   },
   {
     "module": "apps/web/src/components/theme-provider.tsx",
@@ -881,7 +1013,6 @@
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
       "apps/web/src/components/agents/inference-settings.tsx",
       "apps/web/src/components/auth/login-form.tsx",
       "apps/web/src/components/auth/register-form.tsx",
@@ -904,11 +1035,14 @@
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx",
       "apps/web/src/components/agents/inference-settings.tsx",
       "apps/web/src/components/events/event-logs-data-table.tsx",
       "apps/web/src/components/product/capability-grid.tsx",
@@ -919,7 +1053,8 @@
       "apps/web/src/components/settings/tools-settings-panel.tsx",
       "apps/web/src/components/tasks/task-status-badge.tsx",
       "apps/web/src/components/tasks/task-template-grid.tsx",
-      "apps/web/src/components/v1-xulux/session-usage-card.tsx"
+      "apps/web/src/components/v1-xulux/session-usage-card.tsx",
+      "apps/web/src/components/work/work-status-badge.tsx"
     ]
   },
   {
@@ -932,10 +1067,11 @@
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/files/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/components/agents/inference-settings.tsx",
       "apps/web/src/components/agents/new-agent-form.tsx",
       "apps/web/src/components/approvals/approval-actions.tsx",
@@ -959,6 +1095,16 @@
       "apps/web/src/components/ui/sheet.tsx",
       "apps/web/src/components/ui/sidebar.tsx",
       "apps/web/src/components/v1-xulux/site-header.tsx",
+      "apps/web/src/components/work/automation-controls.tsx",
+      "apps/web/src/components/work/create-agent-team-form.tsx",
+      "apps/web/src/components/work/create-project-form.tsx",
+      "apps/web/src/components/work/create-work-item-form.tsx",
+      "apps/web/src/components/work/inbox-actions.tsx",
+      "apps/web/src/components/work/intervention-actions.tsx",
+      "apps/web/src/components/work/work-collaboration.tsx",
+      "apps/web/src/components/work/work-list-toolbar.tsx",
+      "apps/web/src/components/work/work-run-actions.tsx",
+      "apps/web/src/components/work/work-saved-views.tsx",
       "apps/web/src/components/workspaces/new-workspace-form.tsx"
     ]
   },
@@ -967,12 +1113,10 @@
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/new/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
       "apps/web/src/app/(app)/workspaces/new/page.tsx",
       "apps/web/src/components/auth/login-form.tsx",
       "apps/web/src/components/auth/register-form.tsx",
@@ -982,7 +1126,9 @@
   },
   {
     "module": "apps/web/src/components/ui/checkbox.tsx",
-    "incoming": []
+    "incoming": [
+      "apps/web/src/components/work/create-agent-team-form.tsx"
+    ]
   },
   {
     "module": "apps/web/src/components/ui/collapsible.tsx",
@@ -1021,6 +1167,13 @@
       "apps/web/src/components/settings/messaging-integrations-panel.tsx",
       "apps/web/src/components/settings/runtime-access-section.tsx",
       "apps/web/src/components/ui/sidebar.tsx",
+      "apps/web/src/components/work/automation-controls.tsx",
+      "apps/web/src/components/work/create-agent-team-form.tsx",
+      "apps/web/src/components/work/create-project-form.tsx",
+      "apps/web/src/components/work/create-work-item-form.tsx",
+      "apps/web/src/components/work/intervention-actions.tsx",
+      "apps/web/src/components/work/work-list-toolbar.tsx",
+      "apps/web/src/components/work/work-saved-views.tsx",
       "apps/web/src/components/workspaces/new-workspace-form.tsx"
     ]
   },
@@ -1041,6 +1194,10 @@
       "apps/web/src/components/settings/permissions-section.tsx",
       "apps/web/src/components/settings/runtime-access-section.tsx",
       "apps/web/src/components/tasks/task-template-grid.tsx",
+      "apps/web/src/components/work/automation-controls.tsx",
+      "apps/web/src/components/work/create-agent-team-form.tsx",
+      "apps/web/src/components/work/create-project-form.tsx",
+      "apps/web/src/components/work/create-work-item-form.tsx",
       "apps/web/src/components/workspaces/new-workspace-form.tsx"
     ]
   },
@@ -1062,7 +1219,12 @@
       "apps/web/src/components/installations/installation-control-panel.tsx",
       "apps/web/src/components/settings/messaging-integrations-panel.tsx",
       "apps/web/src/components/settings/runtime-access-section.tsx",
-      "apps/web/src/components/v1-xulux/app-sidebar.tsx"
+      "apps/web/src/components/v1-xulux/app-sidebar.tsx",
+      "apps/web/src/components/work/automation-controls.tsx",
+      "apps/web/src/components/work/create-agent-team-form.tsx",
+      "apps/web/src/components/work/create-work-item-form.tsx",
+      "apps/web/src/components/work/work-list-toolbar.tsx",
+      "apps/web/src/components/work/work-saved-views.tsx"
     ]
   },
   {
@@ -1128,7 +1290,9 @@
     "incoming": [
       "apps/web/src/components/agents/new-agent-form.tsx",
       "apps/web/src/components/onboarding/onboarding-flow.tsx",
-      "apps/web/src/components/tasks/task-template-grid.tsx"
+      "apps/web/src/components/tasks/task-template-grid.tsx",
+      "apps/web/src/components/work/create-work-item-form.tsx",
+      "apps/web/src/components/work/work-collaboration.tsx"
     ]
   },
   {
@@ -1272,6 +1436,91 @@
     ]
   },
   {
+    "module": "apps/web/src/components/work/automation-controls.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/create-agent-team-form.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/create-project-form.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/create-work-item-form.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/inbox-actions.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/intervention-actions.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/work-board.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/work-collaboration.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/work-list-toolbar.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/work-live-refresh.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/work-run-actions.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/work-saved-views.tsx",
+    "incoming": [
+      "apps/web/src/components/work/work-list-toolbar.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/work/work-status-badge.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
+      "apps/web/src/components/work/work-board.tsx"
+    ]
+  },
+  {
     "module": "apps/web/src/components/workspaces/new-workspace-form.tsx",
     "incoming": [
       "apps/web/src/app/(app)/workspaces/new/page.tsx"
@@ -1281,7 +1530,7 @@
     "module": "apps/web/src/db/index.ts",
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/d/chat/[[...segments]]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
@@ -1291,7 +1540,6 @@
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/layout.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
@@ -1310,13 +1558,17 @@
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/runtime/config/route.ts",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/skills/content/route.ts",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/tools/toolsets/[name]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-stream/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
       "apps/web/src/app/api/files/route.ts",
+      "apps/web/src/app/api/internal/work/automations/cron/route.ts",
       "apps/web/src/app/api/onboarding/complete/route.ts",
       "apps/web/src/app/api/runtime/enroll/route.ts",
       "apps/web/src/app/api/tasks/[taskId]/run/route.ts",
       "apps/web/src/app/api/tasks/route.ts",
+      "apps/web/src/app/api/work-hooks/[automationId]/route.ts",
       "apps/web/src/app/api/workspaces/[workspaceId]/route.ts",
       "apps/web/src/app/api/workspaces/route.ts",
       "apps/web/src/components/product/capability-page.tsx",
@@ -1333,14 +1585,18 @@
       "apps/web/src/modules/agents/infrastructure/drizzle-messaging-audit.ts",
       "apps/web/src/modules/auth/infrastructure/auth-adapters.ts",
       "apps/web/src/modules/installations/infrastructure/drizzle-installation-repository.ts",
-      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts"
+      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts",
+      "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
+      "apps/web/src/modules/work/infrastructure/work-service.ts"
     ]
   },
   {
     "module": "apps/web/src/db/schema.ts",
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/d/chat/[[...segments]]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
@@ -1350,7 +1606,6 @@
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/layout.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
@@ -1369,17 +1624,22 @@
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/runtime/config/route.ts",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/skills/content/route.ts",
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/tools/toolsets/[name]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
       "apps/web/src/app/api/files/route.ts",
+      "apps/web/src/app/api/internal/work/automations/cron/route.ts",
       "apps/web/src/app/api/onboarding/complete/route.ts",
       "apps/web/src/app/api/runtime/enroll/route.ts",
       "apps/web/src/app/api/tasks/[taskId]/run/route.ts",
       "apps/web/src/app/api/tasks/route.ts",
+      "apps/web/src/app/api/work-hooks/[automationId]/route.ts",
       "apps/web/src/app/api/workspaces/[workspaceId]/route.ts",
       "apps/web/src/app/api/workspaces/route.ts",
       "apps/web/src/components/product/capability-page.tsx",
       "apps/web/src/components/settings/settings-panel.tsx",
+      "apps/web/src/components/work/work-board.tsx",
+      "apps/web/src/components/work/work-status-badge.tsx",
       "apps/web/src/db/index.ts",
       "apps/web/src/db/seed.ts",
       "apps/web/src/lib/auth.ts",
@@ -1396,7 +1656,13 @@
       "apps/web/src/modules/agents/infrastructure/drizzle-messaging-audit.ts",
       "apps/web/src/modules/auth/infrastructure/auth-adapters.ts",
       "apps/web/src/modules/installations/infrastructure/drizzle-installation-repository.ts",
-      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts"
+      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts",
+      "apps/web/src/modules/work/domain/work.ts",
+      "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
+      "apps/web/src/modules/work/infrastructure/work-service.ts",
+      "apps/web/src/modules/work/presentation/http.ts"
     ]
   },
   {
@@ -1431,15 +1697,19 @@
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/new/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/d/chat/[[...segments]]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/files/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/layout.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/app/(app)/layout.tsx",
@@ -1481,7 +1751,8 @@
       "apps/web/src/modules/agents/infrastructure/agent-context-repository.ts",
       "apps/web/src/modules/auth/infrastructure/auth-adapters.ts",
       "apps/web/src/modules/installations/infrastructure/installation-context-repository.ts",
-      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts"
+      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts",
+      "apps/web/src/modules/work/presentation/http.ts"
     ]
   },
   {
@@ -1516,7 +1787,9 @@
     "module": "apps/web/src/lib/format.ts",
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/files/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx"
@@ -1668,7 +1941,8 @@
       "apps/web/src/app/api/runtime/enroll/route.ts",
       "apps/web/src/lib/hermes/gateway-auth.ts",
       "apps/web/src/lib/hermes/relay-identity.test.ts",
-      "apps/web/src/lib/hermes/runtime-ticket.ts"
+      "apps/web/src/lib/hermes/runtime-ticket.ts",
+      "apps/web/src/modules/work/infrastructure/runtime-auth.ts"
     ]
   },
   {
@@ -1683,7 +1957,8 @@
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/operations/route.ts",
       "apps/web/src/lib/hermes/runtime-policy.test.ts",
       "apps/web/src/modules/installations/infrastructure/gateway-installation-adapter.ts",
-      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts"
+      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts",
+      "apps/web/src/modules/work/infrastructure/work-service.ts"
     ]
   },
   {
@@ -1778,7 +2053,6 @@
   {
     "module": "apps/web/src/lib/permissions.ts",
     "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/app/api/onboarding/complete/route.ts",
       "apps/web/src/app/api/tasks/route.ts",
       "apps/web/src/app/api/workspaces/[workspaceId]/route.ts",
@@ -1909,8 +2183,6 @@
   {
     "module": "apps/web/src/lib/task-templates.ts",
     "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/app/api/tasks/[taskId]/run/route.ts",
       "apps/web/src/app/api/tasks/route.ts",
       "apps/web/src/components/tasks/task-status-badge.tsx",
@@ -1998,15 +2270,19 @@
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/new/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/d/chat/[[...segments]]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/files/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/layout.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
       "apps/web/src/app/(app)/onboarding/page.tsx",
@@ -2043,7 +2319,8 @@
       "apps/web/src/components/settings/settings-panel.tsx",
       "apps/web/src/modules/auth/infrastructure/auth-adapters.ts",
       "apps/web/src/modules/auth/infrastructure/workspace-access-adapter.ts",
-      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts"
+      "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts",
+      "apps/web/src/modules/work/presentation/http.ts"
     ]
   },
   {
@@ -2303,6 +2580,153 @@
     "module": "apps/web/src/modules/installations/infrastructure/installation-service.ts",
     "incoming": [
       "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/route.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/domain/runtime-signature.ts",
+    "incoming": [
+      "apps/web/src/modules/work/infrastructure/runtime-auth.test.ts",
+      "apps/web/src/modules/work/infrastructure/runtime-auth.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/domain/work-flags.ts",
+    "incoming": [
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
+      "apps/web/src/modules/work/infrastructure/work-service.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/domain/work.test.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/modules/work/domain/work.ts",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
+      "apps/web/src/modules/work/domain/work.test.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
+      "apps/web/src/modules/work/infrastructure/work-service.ts",
+      "apps/web/src/modules/work/presentation/http.ts",
+      "apps/web/src/modules/work/presentation/runtime-http.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts",
+    "incoming": [
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
+      "apps/web/src/modules/work/infrastructure/work-service.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/infrastructure/runtime-auth.test.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
+    "incoming": [
+      "apps/web/src/modules/work/presentation/runtime-http.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
+    "incoming": [
+      "apps/web/src/app/api/runtime/work/claim/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/complete/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/events/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/heartbeat/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/interventions/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/release/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/start/route.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/modules/work/infrastructure/work-service.ts",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
+      "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agent-teams/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/[automationId]/run/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/inbox/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/[interventionId]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/[projectId]/resources/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/resources/[resourceId]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/assign/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/cancel/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/comments/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/dependencies/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/labels/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/resources/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/runs/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/timeline/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-labels/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/cancel/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-views/route.ts",
+      "apps/web/src/app/api/internal/work/automations/cron/route.ts",
+      "apps/web/src/app/api/work-hooks/[automationId]/route.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
+      "apps/web/src/modules/work/presentation/http.ts",
+      "apps/web/src/modules/work/presentation/runtime-http.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/presentation/http.ts",
+    "incoming": [
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agent-teams/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/[automationId]/run/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/inbox/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/[interventionId]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/[projectId]/resources/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/resources/[resourceId]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/assign/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/cancel/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/comments/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/dependencies/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/labels/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/resources/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/runs/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/timeline/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-labels/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/cancel/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-stream/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-views/route.ts",
+      "apps/web/src/app/api/work-hooks/[automationId]/route.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/modules/work/presentation/runtime-http.ts",
+    "incoming": [
+      "apps/web/src/app/api/runtime/work/claim/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/complete/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/events/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/heartbeat/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/interventions/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/release/route.ts",
+      "apps/web/src/app/api/runtime/work/runs/[runId]/start/route.ts"
     ]
   },
   {

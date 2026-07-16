@@ -1,10 +1,13 @@
 {
   "schemaVersion": 1,
-  "commit": "998af504d7fc469b4176a70ce9b90b962bcda254",
+  "commit": "599668e0e968385eaba878a9e1e4695a6da8c4ab",
   "modules": [
+    "apps/web/src/components/approvals/approval-actions.tsx",
     "apps/web/src/components/shared/chat/ui/skeleton.tsx",
+    "apps/web/src/components/tasks/task-run-button.tsx",
+    "apps/web/src/components/tasks/task-status-badge.tsx",
+    "apps/web/src/components/tasks/task-template-grid.tsx",
     "apps/web/src/components/ui/breadcrumb.tsx",
-    "apps/web/src/components/ui/checkbox.tsx",
     "apps/web/src/components/ui/collapsible.tsx",
     "apps/web/src/components/ui/popover.tsx",
     "apps/web/src/components/ui/scroll-area.tsx",

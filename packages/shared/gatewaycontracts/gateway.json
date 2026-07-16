@@ -18,5 +18,17 @@
     "profile": "X-Hermes-Profile",
     "installation": "X-Hermes-Installation-Id",
     "requestId": "X-Request-Id"
+  },
+  "work": {
+    "protocolVersion": 1,
+    "paths": {
+      "claim": "/api/runtime/work/claim",
+      "runStart": "/api/runtime/work/runs/{runId}/start",
+      "runHeartbeat": "/api/runtime/work/runs/{runId}/heartbeat",
+      "runEvents": "/api/runtime/work/runs/{runId}/events",
+      "runInterventions": "/api/runtime/work/runs/{runId}/interventions",
+      "runComplete": "/api/runtime/work/runs/{runId}/complete",
+      "runRelease": "/api/runtime/work/runs/{runId}/release"
+    }
   }
 }

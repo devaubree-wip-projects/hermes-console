@@ -359,3 +359,10 @@ export async function loginE2E(page: Page) {
   });
   if (!response.ok()) throw new Error(`E2E login failed: ${response.status()}`);
 }
+
+export async function loginViewerE2E(page: Page) {
+  const response = await page.request.post("/api/auth/login", {
+    data: { email: "viewer-e2e@hermes.local", password: "viewer-e2e-password" },
+  });
+  if (!response.ok()) throw new Error(`Viewer E2E login failed: ${response.status()}`);
+}

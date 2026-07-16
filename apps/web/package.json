@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3010",
+    "dev:e2e": "NEXT_DIST_DIR=.next-e2e next dev --port 3198",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "bun test --path-ignore-patterns=e2e/**",
-    "test:e2e:seed": "bun run ../../scripts/migrate-runtime-installations.ts && bun run e2e/seed.ts",
-    "test:e2e": "bun run test:e2e:seed && bunx playwright test",
+    "test:e2e:seed": "bun --env-file=../../.env run ../../scripts/migrate-runtime-installations.ts && bun --env-file=../../.env run ../../scripts/migrate-work-control-plane.ts && bun --env-file=../../.env run e2e/seed.ts",
+    "test:e2e": "bun run test:e2e:seed && bun --env-file=../../.env x playwright test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -24,8 +24,10 @@ const ROUTE_TITLES: Record<string, string> = {
   files: "Fichiers",
   events: "Event Logs",
   integrations: "Intégrations",
+  inbox: "Inbox",
   knowledge: "Connaissances",
   models: "Modèles",
+  projects: "Projets",
   settings: "Paramètres",
   skills: "Skills",
   tasks: "Tâches",
@@ -38,6 +40,7 @@ function routeTitle(pathname: string, workspaceBase: string) {
   const [section, detail] = path.split("/");
   if (section === "agents" && detail === "new") return "Créer un agent";
   if (section === "tasks" && detail) return "Détail de la tâche";
+  if (section === "projects" && detail) return "Détail du projet";
   return ROUTE_TITLES[section] ?? "Hermes Console";
 }
 

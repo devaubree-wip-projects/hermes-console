@@ -92,6 +92,10 @@ func main() {
 			}
 		}()
 	}
+	if config.Mode == "edge" && config.WorkEnabled {
+		executor := gateway.NewWorkExecutor(config, logger)
+		go executor.Run(ctx)
+	}
 
 	logger.Info("Hermes gateway listening", "mode", config.Mode, "address", config.ListenAddress, "runtime", config.RuntimeHTTPURL.Redacted(), "installationId", config.InstallationID)
 	if config.Mode == "relay" {

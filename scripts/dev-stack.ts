@@ -202,6 +202,7 @@ async function start() {
   try {
     await mkdir(path.join(root, "data", "hermes"), { recursive: true });
     await mkdir(path.join(root, "data", "workspace"), { recursive: true });
+    await mkdir(path.join(root, "data", "work"), { recursive: true });
     await mkdir(path.join(root, "data", "backups"), { recursive: true });
     console.log("Démarrage de Hermes et Edge sans restart automatique…");
     await run([...compose, "up", "-d", "--wait", "hermes", "edge"]);

@@ -103,6 +103,9 @@ Variables importantes :
 - `HERMES_GATEWAY_TICKET_SECRET` (tickets navigateur à durée de vie courte)
 - `HERMES_GATEWAY_SERVICE_SECRET` (signature des appels serveur Next vers Edge)
 - `HERMES_GATEWAY_ALLOWED_HOSTS` (hôtes distants explicitement autorisés à la connexion)
+- `HERMES_CONSOLE_URL` (origine HTTPS de la Console utilisée par l’Edge Work Executor ; fournie automatiquement lors de l’enrôlement)
+- `HERMES_WORK_ENABLED`, `HERMES_WORK_CAPACITY`, `HERMES_WORK_POLL_INTERVAL_MS` et `HERMES_WORK_ROOT` (activation, concurrence, délai de claim et racine isolée du moteur Travail)
+- `WORK_CONTROL_PLANE_ENABLED`, `WORK_EDGE_EXECUTOR_ENABLED`, `WORK_RUN_PLANS_ENABLED`, `WORK_INTERVENTIONS_ENABLED`, `WORK_AUTOMATIONS_ENABLED` et `WORK_AGENT_TEAMS_ENABLED` (rollout produit ; `false` suspend les nouveaux traitements concernés sans supprimer l’historique)
 - `HERMES_RUNTIME_TOKEN` (secret interne Edge → dashboard Hermes)
 - `HERMES_SESSION_CHANGE_DEBOUNCE_MS` (`200` par défaut)
 - `HERMES_SESSION_RECONCILE_MS` (`30000` dans la stack Docker)
@@ -123,6 +126,8 @@ Hermes systemwide.
 Le seul workspace monté par défaut est `./data/workspace` vers `/workspace`, en lecture seule. Pour autoriser un
 autre répertoire, définissez explicitement `HERMES_WORKSPACE_DIR`; le passage en écriture exige également
 `HERMES_WORKSPACE_READ_ONLY=false`. Aucun répertoire global de l’utilisateur n’est monté implicitement.
+Les runs Travail écrivent uniquement dans `HERMES_WORK_DIR` (monté sur `/work`) avec un répertoire par tâche,
+un sous-répertoire par run et un manifeste de permissions. L’Edge refuse tout segment invalide ou lien symbolique.
 
 ### Import contrôlé d’un Hermes systemwide
 

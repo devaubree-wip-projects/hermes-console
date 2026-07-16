@@ -100,11 +100,11 @@ db-reset: ## Supprimer les comptes, espaces et profils créés par la console
 	bun run db:reset
 
 runtime-setup: ## Configurer le volume Hermes de la stack Docker
-	@mkdir -p data/hermes data/workspace data/backups
+	@mkdir -p data/hermes data/workspace data/work data/backups
 	$(COMPOSE_DEV) run --rm --no-deps hermes setup
 
 runtime-up: ## Démarrer le runtime Docker et Edge Go
-	@mkdir -p data/hermes data/workspace data/backups
+	@mkdir -p data/hermes data/workspace data/work data/backups
 	$(COMPOSE_DEV) up -d --build --wait hermes edge
 
 runtime-logs: ## Suivre les logs Hermes et Edge

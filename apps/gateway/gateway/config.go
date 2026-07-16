@@ -21,6 +21,13 @@ type Config struct {
 	ServiceSecret                string
 	DeriveSecrets                bool
 	InstallationID               string
+	WorkInstallationID           string
+	WorkControlPlaneURL          *url.URL
+	WorkEnabled                  bool
+	WorkCapacity                 int
+	WorkPollInterval             time.Duration
+	WorkHeartbeatInterval        time.Duration
+	WorkRoot                     string
 	RuntimeKind                  string
 	AllowedOrigins               map[string]struct{}
 	HermesHome                   string
@@ -99,6 +106,12 @@ func LoadConfig() (Config, error) {
 	relayURLRaw := strings.TrimSpace(os.Getenv("HERMES_RELAY_URL"))
 	relayCredential := strings.TrimSpace(os.Getenv("HERMES_RELAY_CREDENTIAL"))
 	installationID := env("HERMES_INSTALLATION_ID", "local-default")
+	workInstallationID := strings.TrimSpace(os.Getenv("HERMES_WORK_INSTALLATION_ID"))
+	workControlPlaneRaw := strings.TrimSpace(os.Getenv("HERMES_CONSOLE_URL"))
+	workRoot := env("HERMES_WORK_ROOT", filepath.Join(home, ".hermes-console", "work"))
+	if !filepath.IsAbs(workRoot) {
+		return Config{}, fmt.Errorf("HERMES_WORK_ROOT must be an absolute path")
+	}
 	clientCertificate := strings.TrimSpace(os.Getenv("HERMES_RELAY_CLIENT_CERT"))
 	clientKey := strings.TrimSpace(os.Getenv("HERMES_RELAY_CLIENT_KEY"))
 	enrolledIdentity := false
@@ -112,6 +125,12 @@ func LoadConfig() (Config, error) {
 		}
 		if os.Getenv("HERMES_INSTALLATION_ID") == "" {
 			installationID = bundle.InstallationKey
+		}
+		if workInstallationID == "" {
+			workInstallationID = bundle.InstallationID
+		}
+		if workControlPlaneRaw == "" {
+			workControlPlaneRaw = bundle.ControlPlaneURL
 		}
 		if clientCertificate == "" {
 			clientCertificate = filepath.Join(identityDir, identityCertificateFile)
@@ -146,6 +165,10 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("HERMES_EDGE_LOCAL_URL: %w", err)
 	}
+	workControlPlaneURL, err := parseOptionalAbsoluteURL(workControlPlaneRaw, "http", "https")
+	if err != nil {
+		return Config{}, fmt.Errorf("HERMES_CONSOLE_URL: %w", err)
+	}
 
 	deriveSecrets := mode == "edge" && !enrolledIdentity && strings.EqualFold(env("HERMES_GATEWAY_DERIVE_SECRETS", "true"), "true")
 	if deriveSecrets {
@@ -162,6 +185,13 @@ func LoadConfig() (Config, error) {
 		ServiceSecret:                serviceSecret,
 		DeriveSecrets:                deriveSecrets,
 		InstallationID:               installationID,
+		WorkInstallationID:           workInstallationID,
+		WorkControlPlaneURL:          workControlPlaneURL,
+		WorkEnabled:                  mode == "edge" && workControlPlaneURL != nil && !strings.EqualFold(env("HERMES_WORK_ENABLED", "true"), "false"),
+		WorkCapacity:                 int(int64Value("HERMES_WORK_CAPACITY", 1)),
+		WorkPollInterval:             durationMS("HERMES_WORK_POLL_INTERVAL_MS", 2_000),
+		WorkHeartbeatInterval:        durationMS("HERMES_WORK_HEARTBEAT_INTERVAL_MS", 10_000),
+		WorkRoot:                     filepath.Clean(workRoot),
 		RuntimeKind:                  runtimeKind(env("HERMES_RUNTIME_KIND", "unknown")),
 		AllowedOrigins:               csvSet(env("HERMES_ALLOWED_ORIGINS", "http://127.0.0.1:3010,http://localhost:3010")),
 		HermesHome:                   env("HERMES_HOME", filepath.Join(home, ".hermes")),

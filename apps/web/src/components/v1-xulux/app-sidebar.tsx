@@ -47,6 +47,8 @@ import {
   Clock3Icon,
   FileTextIcon,
   GaugeIcon,
+  FolderKanbanIcon,
+  InboxIcon,
   LibraryIcon,
   ListTreeIcon,
   Loader2Icon,
@@ -57,6 +59,8 @@ import {
   ServerIcon,
   SettingsIcon,
   SparklesIcon,
+  UsersRoundIcon,
+  WorkflowIcon,
 } from "lucide-react"
 
 export type SidebarNavItem = {
@@ -129,8 +133,16 @@ export function AppSidebar({
     {
       label: "Travail",
       items: [
+        { title: "Inbox", url: `${workspaceBase}/inbox`, icon: <InboxIcon /> },
         { title: "Tâches", url: `${workspaceBase}/tasks`, icon: <Clock3Icon /> },
+        { title: "Projets", url: `${workspaceBase}/projects`, icon: <FolderKanbanIcon /> },
+        { title: "Automatisations", url: `${workspaceBase}/automations`, icon: <WorkflowIcon /> },
         { title: "Validations", url: `${workspaceBase}/approvals`, icon: <CheckCircle2Icon /> },
+      ],
+    },
+    {
+      label: "Ressources",
+      items: [
         { title: "Fichiers", url: `${workspaceBase}/files`, icon: <FileTextIcon /> },
         { title: "Connaissances", url: `${workspaceBase}/knowledge`, icon: <LibraryIcon /> },
       ],
@@ -139,7 +151,7 @@ export function AppSidebar({
       label: "Capacités",
       items: [
         { title: "Skills", url: `${workspaceBase}/skills`, icon: <SparklesIcon /> },
-        { title: "Automatisations", url: `${workspaceBase}/automations`, icon: <BotIcon /> },
+        { title: "Agents et équipes", url: `${workspaceBase}/agents`, icon: <UsersRoundIcon /> },
       ],
     },
     {

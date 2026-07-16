@@ -27,8 +27,9 @@ func TestEnrollEdgePersistsPrivateIdentityWithRestrictivePermissions(t *testing.
 		writeJSON(w, http.StatusOK, enrollmentResponse{
 			InstallationID: "installation-a", TenantID: "tenant-a", InstallationKey: "edge-a",
 			Credential: "opaque.signed", CredentialExpiresAt: "2026-08-15T00:00:00Z",
-			RelayURL:      "wss://relay.example.test/v1/relay/connect",
-			ServiceSecret: "installation-service-secret-at-least-24", TicketSecret: "installation-ticket-secret-at-least-24",
+			RelayURL:        "wss://relay.example.test/v1/relay/connect",
+			ControlPlaneURL: "https://console.example.test",
+			ServiceSecret:   "installation-service-secret-at-least-24", TicketSecret: "installation-ticket-secret-at-least-24",
 		})
 	}))
 	defer server.Close()
@@ -40,7 +41,7 @@ func TestEnrollEdgePersistsPrivateIdentityWithRestrictivePermissions(t *testing.
 	if received.Token != "one-time-secret" || received.CertificatePEM == "" {
 		t.Fatalf("invalid exchange payload: %#v", received)
 	}
-	if bundle.InstallationKey != "edge-a" || bundle.Credential != "opaque.signed" {
+	if bundle.InstallationKey != "edge-a" || bundle.Credential != "opaque.signed" || bundle.ControlPlaneURL != "https://console.example.test" {
 		t.Fatalf("invalid bundle: %#v", bundle)
 	}
 	for _, name := range []string{identityCertificateFile, identityPrivateKeyFile, identityCredentialFile, identityMetadataFile, identityServiceSecretFile, identityTicketSecretFile} {
@@ -56,7 +57,7 @@ func TestEnrollEdgePersistsPrivateIdentityWithRestrictivePermissions(t *testing.
 	if err != nil {
 		t.Fatal(err)
 	}
-	if loaded.Credential != "opaque.signed" || loaded.RelayURL != "wss://relay.example.test/v1/relay/connect" {
+	if loaded.Credential != "opaque.signed" || loaded.RelayURL != "wss://relay.example.test/v1/relay/connect" || loaded.ControlPlaneURL != "https://console.example.test" {
 		t.Fatalf("invalid loaded identity: %#v", loaded)
 	}
 	if loaded.ServiceSecret != "installation-service-secret-at-least-24" || loaded.TicketSecret != "installation-ticket-secret-at-least-24" {

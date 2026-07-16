@@ -1,7 +1,14 @@
 {
   "schemaVersion": 1,
-  "commit": "998af504d7fc469b4176a70ce9b90b962bcda254",
+  "commit": "599668e0e968385eaba878a9e1e4695a6da8c4ab",
   "routes": [
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/agent-teams"
+    },
     {
       "methods": [
         "POST"
@@ -67,9 +74,29 @@
     },
     {
       "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/automations"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/automations/:automationId/run"
+    },
+    {
+      "methods": [
         "GET"
       ],
       "path": "/api/:tenantSlug/:workspaceSlug/events"
+    },
+    {
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/inbox"
     },
     {
       "methods": [
@@ -136,6 +163,37 @@
     },
     {
       "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/interventions"
+    },
+    {
+      "methods": [
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/interventions/:interventionId"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/projects"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/projects/:projectId/resources"
+    },
+    {
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/resources/:resourceId"
+    },
+    {
+      "methods": [
         "PUT"
       ],
       "path": "/api/:tenantSlug/:workspaceSlug/runtime/config"
@@ -151,6 +209,105 @@
         "PUT"
       ],
       "path": "/api/:tenantSlug/:workspaceSlug/tools/toolsets/:name"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/assign"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/cancel"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/comments"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/dependencies"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/labels"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/resources"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/runs"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/timeline"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-labels"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/cancel"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/plan-steps/:stepId/promote"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-stream"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/:workspaceSlug/work-views"
     },
     {
       "methods": [
@@ -193,6 +350,12 @@
       "methods": [
         "POST"
       ],
+      "path": "/api/internal/work/automations/cron"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
       "path": "/api/onboarding/complete"
     },
     {
@@ -211,6 +374,48 @@
       "methods": [
         "POST"
       ],
+      "path": "/api/runtime/work/claim"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/complete"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/events"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/heartbeat"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/interventions"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/release"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/start"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
       "path": "/api/tasks"
     },
     {
@@ -218,6 +423,12 @@
         "POST"
       ],
       "path": "/api/tasks/:taskId/run"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/work-hooks/:automationId"
     },
     {
       "methods": [
@@ -235,6 +446,6 @@
   ],
   "databaseSchema": {
     "file": "apps/web/src/db/schema.ts",
-    "sha256": "f037faeebd8950d8759cde7ce82ebb5d2afadbc5b77b559540ba21f3f0164152"
+    "sha256": "d266c5ad3b2d631bd7b7f6f796f7d8115a748ae93e8d61cccb82bfc6cabf16c9"
   }
 }

@@ -110,6 +110,7 @@ export async function POST(request: Request) {
       }),
       credentialExpiresAt: expiresAt.toISOString(),
       relayUrl: process.env.HERMES_RELAY_URL ?? "wss://127.0.0.1:8790/v1/relay/connect",
+      controlPlaneUrl: new URL(request.url).origin,
       previousIdentityRevocationPropagated: previousRevocation.propagated,
       serviceSecret: deriveInstallationSecret("service", result.installation.installationKey),
       ticketSecret: deriveInstallationSecret("ticket", result.installation.installationKey),

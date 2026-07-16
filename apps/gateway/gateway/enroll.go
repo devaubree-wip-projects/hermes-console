@@ -36,6 +36,7 @@ type EnrollmentBundle struct {
 	TenantID        string `json:"tenantId"`
 	InstallationKey string `json:"installationKey,omitempty"`
 	RelayURL        string `json:"relayUrl"`
+	ControlPlaneURL string `json:"controlPlaneUrl,omitempty"`
 	Credential      string `json:"-"`
 	ServiceSecret   string `json:"-"`
 	TicketSecret    string `json:"-"`
@@ -48,6 +49,7 @@ type enrollmentResponse struct {
 	Credential          string `json:"credential"`
 	CredentialExpiresAt string `json:"credentialExpiresAt"`
 	RelayURL            string `json:"relayUrl"`
+	ControlPlaneURL     string `json:"controlPlaneUrl"`
 	ServiceSecret       string `json:"serviceSecret"`
 	TicketSecret        string `json:"ticketSecret"`
 }
@@ -134,7 +136,14 @@ func EnrollEdge(ctx context.Context, endpoint, token, identityDir string, client
 	if err != nil {
 		return EnrollmentBundle{}, errors.New("enrollment returned an invalid secure Relay URL")
 	}
+	controlPlaneURL, err := parseOptionalAbsoluteURL(result.ControlPlaneURL, "http", "https")
+	if err != nil {
+		return EnrollmentBundle{}, errors.New("enrollment returned an invalid control plane URL")
+	}
 	metadata := EnrollmentBundle{InstallationID: result.InstallationID, TenantID: result.TenantID, InstallationKey: result.InstallationKey, RelayURL: relayURL.String()}
+	if controlPlaneURL != nil {
+		metadata.ControlPlaneURL = controlPlaneURL.String()
+	}
 	metadataJSON, _ := json.MarshalIndent(metadata, "", "  ")
 	temporary := identityDir + fmt.Sprintf(".enrolling-%d", os.Getpid())
 	if err := os.Mkdir(temporary, 0o700); err != nil {
