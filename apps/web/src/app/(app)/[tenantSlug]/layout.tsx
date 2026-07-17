@@ -37,7 +37,7 @@ export default async function ProductWorkspaceLayout({
     .orderBy(asc(agents.createdAt));
 
   return (
-    <div className="h-screen text-foreground antialiased">
+    <div className="h-dvh text-foreground antialiased">
       <AppShell
         agents={workspaceAgents}
         workspaceBase={workspaceBase}
