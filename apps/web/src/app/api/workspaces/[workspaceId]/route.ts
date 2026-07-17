@@ -7,6 +7,7 @@ import { workspaces } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { canConfigureRuntime, getWorkspaceAccessForUserById } from "@/lib/workspace";
 import { normalizePermissions } from "@/lib/permissions";
+import { deleteTenantAndData } from "@/lib/tenant-deletion";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./data/uploads";
 
@@ -88,7 +89,10 @@ export async function DELETE(
   }
   if (!canConfigureRuntime(access.role)) return NextResponse.json({ error: "Seul un Owner peut supprimer le workspace." }, { status: 403 });
 
-  await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
+  // 1:1 tenant/workspace model: delete the whole organization and its data. This
+  // also removes the runtime graph (runs, teams, agents, installations) that holds
+  // restrict references a bare `delete(workspaces)` would trip over.
+  await deleteTenantAndData(access.tenant.id);
   await rm(path.join(/*turbopackIgnore: true*/ UPLOAD_DIR, workspaceId), {
     recursive: true,
     force: true,

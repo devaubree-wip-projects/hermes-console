@@ -1,6 +1,6 @@
 # Architecture inventory
 
-Generated from commit `426a1b8fddf8b07c3d841f3ce0a9b474a237daa7` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
+Generated from commit `8e416cd5cf308420bb41b7b822caa2c21da1f6b5` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
 
 ## Public API endpoints
 
@@ -60,6 +60,7 @@ Generated from commit `426a1b8fddf8b07c3d841f3ce0a9b474a237daa7` with `bun run a
 | POST | `/api/:tenantSlug/work-runs/:runId/plan-steps/:stepId/promote` | `apps/web/src/app/api/[tenantSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts` | no |
 | GET | `/api/:tenantSlug/work-stream` | `apps/web/src/app/api/[tenantSlug]/work-stream/route.ts` | no |
 | DELETE, GET, POST | `/api/:tenantSlug/work-views` | `apps/web/src/app/api/[tenantSlug]/work-views/route.ts` | no |
+| DELETE | `/api/account` | `apps/web/src/app/api/account/route.ts` | no |
 | GET | `/api/account/export` | `apps/web/src/app/api/account/export/route.ts` | no |
 | PATCH | `/api/approvals/:approvalId` | `apps/web/src/app/api/approvals/[approvalId]/route.ts` | no |
 | POST | `/api/auth/forgot-password` | `apps/web/src/app/api/auth/forgot-password/route.ts` | yes |
@@ -132,7 +133,8 @@ Generated from commit `426a1b8fddf8b07c3d841f3ce0a9b474a237daa7` with `bun run a
 
 | Variable | Tracked references |
 |---|---|
-| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-db.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
+| `ANTHROPIC_API_KEY` | `infra/dev/compose.yaml` |
+| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.integration.test.ts`<br>`apps/web/src/lib/tenant-deletion.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-db.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
 | `E2E_BASE_URL` | `apps/web/playwright.config.ts` |
 | `E2E_REAL_WORK` | `apps/web/e2e/seed.ts`<br>`apps/web/e2e/work-real.spec.ts`<br>`apps/web/e2e/work.spec.ts` |
 | `HERMES_ALLOWED_ORIGINS` | `infra/dev/compose.yaml`<br>`infra/prod/compose.edge.yaml` |
@@ -204,6 +206,8 @@ Generated from commit `426a1b8fddf8b07c3d841f3ce0a9b474a237daa7` with `bun run a
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | `apps/web/src/lib/support.ts` |
 | `NEXT_RUNTIME` | `apps/web/src/instrumentation.ts` |
 | `NODE_ENV` | `apps/web/next.config.ts`<br>`apps/web/src/app/(auth)/login/page.tsx`<br>`apps/web/src/components/shared/chat/assistant-ui/composer-trigger-popover.tsx`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.ts`<br>`apps/web/src/lib/hermes/gateway-url.ts`<br>`apps/web/src/lib/hermes/relay-identity.ts`<br>`apps/web/src/lib/observability/logger.ts`<br>`apps/web/src/modules/auth/infrastructure/auth-service.ts`<br>`apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts`<br>`apps/web/src/proxy.ts` |
+| `OPENAI_API_KEY` | `infra/dev/compose.yaml` |
+| `OPENROUTER_API_KEY` | `infra/dev/compose.yaml` |
 | `POSTGRES_DB` | `infra/prod/compose.console.yaml` |
 | `POSTGRES_PASSWORD` | `infra/prod/compose.console.yaml` |
 | `POSTGRES_USER` | `infra/prod/compose.console.yaml` |

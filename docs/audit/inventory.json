@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "426a1b8fddf8b07c3d841f3ce0a9b474a237daa7",
+  "commit": "8e416cd5cf308420bb41b7b822caa2c21da1f6b5",
   "layout": "monorepo",
   "endpoints": [
     {
@@ -518,6 +518,15 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/account/route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/account",
+      "lines": 15,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/account/export/route.ts",
       "methods": [
         "GET"
@@ -614,7 +623,7 @@
         "POST"
       ],
       "path": "/api/internal/work/automations/cron",
-      "lines": 57,
+      "lines": 60,
       "critical": false
     },
     {
@@ -759,7 +768,7 @@
         "PATCH"
       ],
       "path": "/api/workspaces/:workspaceId",
-      "lines": 99,
+      "lines": 103,
       "critical": false
     }
   ],
@@ -907,12 +916,19 @@
   ],
   "environment": [
     {
+      "name": "ANTHROPIC_API_KEY",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
       "name": "DATABASE_URL",
       "references": [
         "apps/web/drizzle.config.ts",
         "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
         "apps/web/src/db/index.ts",
         "apps/web/src/lib/auth.integration.test.ts",
+        "apps/web/src/lib/tenant-deletion.integration.test.ts",
         "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts",
         "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
         "scripts/migrate-product-db.ts",
@@ -1416,6 +1432,18 @@
         "apps/web/src/modules/auth/infrastructure/auth-service.ts",
         "apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts",
         "apps/web/src/proxy.ts"
+      ]
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "references": [
+        "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "OPENROUTER_API_KEY",
+      "references": [
+        "infra/dev/compose.yaml"
       ]
     },
     {

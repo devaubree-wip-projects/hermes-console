@@ -384,6 +384,10 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/account/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/approvals/[approvalId]/route.ts",
     "incoming": []
   },
@@ -1831,7 +1835,10 @@
       "apps/web/src/lib/auth.ts",
       "apps/web/src/lib/chat-agent-context.server.ts",
       "apps/web/src/lib/hermes/installations.ts",
+      "apps/web/src/lib/maintenance.ts",
       "apps/web/src/lib/product-model.ts",
+      "apps/web/src/lib/tenant-deletion.integration.test.ts",
+      "apps/web/src/lib/tenant-deletion.ts",
       "apps/web/src/lib/workspace.ts",
       "apps/web/src/modules/agents/infrastructure/agent-context-repository.ts",
       "apps/web/src/modules/agents/infrastructure/drizzle-agent-inference-mutations.ts",
@@ -1913,7 +1920,10 @@
       "apps/web/src/lib/hermes/installations.ts",
       "apps/web/src/lib/hermes/runtime-policy.ts",
       "apps/web/src/lib/hermes/runtime-ticket.ts",
+      "apps/web/src/lib/maintenance.ts",
       "apps/web/src/lib/product-model.ts",
+      "apps/web/src/lib/tenant-deletion.integration.test.ts",
+      "apps/web/src/lib/tenant-deletion.ts",
       "apps/web/src/lib/tenant-rbac.ts",
       "apps/web/src/lib/workspace.ts",
       "apps/web/src/modules/agents/infrastructure/agent-context-repository.ts",
@@ -2014,6 +2024,7 @@
       "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/account/export/route.ts",
+      "apps/web/src/app/api/account/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
       "apps/web/src/app/api/files/route.ts",
@@ -2348,6 +2359,12 @@
     ]
   },
   {
+    "module": "apps/web/src/lib/maintenance.ts",
+    "incoming": [
+      "apps/web/src/app/api/internal/work/automations/cron/route.ts"
+    ]
+  },
+  {
     "module": "apps/web/src/lib/membership-policy.test.ts",
     "incoming": []
   },
@@ -2390,6 +2407,7 @@
       "apps/web/src/db/schema.ts",
       "apps/web/src/db/seed.ts",
       "apps/web/src/lib/task-templates.ts",
+      "apps/web/src/lib/tenant-deletion.integration.test.ts",
       "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts"
     ]
   },
@@ -2545,6 +2563,18 @@
       "apps/web/src/components/tasks/task-status-badge.tsx",
       "apps/web/src/components/tasks/task-template-grid.tsx",
       "apps/web/src/db/schema.ts"
+    ]
+  },
+  {
+    "module": "apps/web/src/lib/tenant-deletion.integration.test.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/lib/tenant-deletion.ts",
+    "incoming": [
+      "apps/web/src/app/api/account/route.ts",
+      "apps/web/src/app/api/workspaces/[workspaceId]/route.ts",
+      "apps/web/src/lib/tenant-deletion.integration.test.ts"
     ]
   },
   {

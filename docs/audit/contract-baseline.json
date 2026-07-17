@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "426a1b8fddf8b07c3d841f3ce0a9b474a237daa7",
+  "commit": "8e416cd5cf308420bb41b7b822caa2c21da1f6b5",
   "routes": [
     {
       "methods": [
@@ -353,6 +353,12 @@
         "POST"
       ],
       "path": "/api/:tenantSlug/work-views"
+    },
+    {
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/account"
     },
     {
       "methods": [
