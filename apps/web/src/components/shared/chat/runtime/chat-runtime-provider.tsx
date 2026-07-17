@@ -6,18 +6,21 @@ import { HermesComposerProvider } from "@/components/shared/chat/runtime/hermes-
 
 export function ChatRuntimeProvider({
   children,
+  active,
   threadId,
   sessionsEndpoint,
   inferenceEndpoint,
   agentsEndpoint,
 }: {
   children: React.ReactNode;
+  active: boolean;
   threadId?: string;
   sessionsEndpoint: string;
   inferenceEndpoint: string;
   agentsEndpoint: string;
 }) {
   const { runtime, composer } = useHermesChatRuntime({
+    active,
     threadId,
     sessionsEndpoint,
     inferenceEndpoint,

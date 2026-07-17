@@ -1,15 +1,17 @@
 .DEFAULT_GOAL := help
 
 HERMES_GATEWAY_URL ?= http://127.0.0.1:8787
+DEV_LOG ?= .next/dev-stack.log
 COMPOSE_DEV = HERMES_UID=$(shell id -u) HERMES_GID=$(shell id -g) docker compose --project-directory . -f infra/dev/compose.yaml -f infra/dev/compose.override.yaml
 
-.PHONY: help install dev stop dev-stop dev-fresh dev-next dev-gateway dev-system typecheck lint build check \
+.PHONY: help install dev dev-fg stop dev-stop dev-fresh dev-next dev-gateway dev-system typecheck lint build check \
 	db-migrate db-push db-seed-demo db-reset logs logs-snapshot logs-errors logs-edge logs-hermes runtime-setup runtime-up runtime-logs runtime-status runtime-stop runtime-relay-cert runtime-relay-up runtime-relay-logs runtime-backups-maintain runtime-import runtime-import-rollback test-gateway
 
 help: ## Afficher cette aide
 	@printf '\nHermes Console\n\n'
 	@printf 'Développement\n'
-	@printf '  make dev              Lancer toute la stack ; Ctrl+C arrête tout proprement\n'
+	@printf '  make dev              Lancer toute la stack en arrière-plan (terminal libéré)\n'
+	@printf '  make dev-fg           Lancer la stack au premier plan ; Ctrl+C arrête tout\n'
 	@printf '  make stop             Arrêter Next.js, Edge et Hermes\n'
 	@printf '  make dev-stop         Alias de make stop\n'
 	@printf '  make dev-fresh        Arrêter la stack, vider le cache puis la relancer\n'
@@ -25,7 +27,7 @@ help: ## Afficher cette aide
 	@printf 'Base de données\n'
 	@printf '  make db-migrate       Migrer vers le modèle produit\n'
 	@printf '  make db-push          Synchroniser le schéma Drizzle\n'
-	@printf '  make db-seed-demo     Créer explicitement les données Garage Dupont\n'
+	@printf '  make db-seed-demo     Créer Atelier Lumière avec Owner, Member et Viewer\n'
 	@printf '  make db-reset         Réinitialiser les données (CONFIRM=reset requis)\n\n'
 	@printf 'Runtime Hermes\n'
 	@printf '  make runtime-setup    Assistant initial Hermes dans le conteneur\n'
@@ -48,7 +50,13 @@ help: ## Afficher cette aide
 install: ## Installer les dépendances
 	bun install
 
-dev: ## Lancer toute la stack locale avec cleanup automatique
+dev: ## Lancer toute la stack en arrière-plan (containers détachés + Next.js) ; terminal libéré
+	@mkdir -p .next
+	@nohup bun run scripts/dev-stack.ts > $(DEV_LOG) 2>&1 &
+	@sleep 2
+	@printf 'Stack Hermes Console lancée en arrière-plan.\n  Frontend : http://localhost:3010\n  Logs     : tail -f %s\n  Arrêt    : make stop\n' "$(DEV_LOG)"
+
+dev-fg: ## Lancer la stack au premier plan (Ctrl+C arrête tout proprement)
 	bun run scripts/dev-stack.ts
 
 stop: ## Arrêter tous les processus et conteneurs de développement du projet

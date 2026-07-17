@@ -12,6 +12,7 @@ import {
   isNull,
   lt,
   max,
+  min,
   ne,
   or,
   sql,
@@ -50,6 +51,7 @@ import {
 } from "@/db/schema";
 import { evaluateInferenceBudget } from "@/lib/hermes/runtime-policy";
 import {
+  assertWorkItemReachable,
   assertWorkItemTransition,
   validateAssignee,
   WorkDomainError,
@@ -539,6 +541,7 @@ export async function createWorkspaceWorkItem(input: {
   const title = cleanText(input.title, 240, "Le titre");
   const description = input.description.trim().slice(0, 40_000);
   const assignee = input.assignee ?? {};
+  const initialStatus = input.status ?? (assignee.type ? "todo" : "backlog");
   await validateWorkspaceReferences(input.context.workspaceId, {
     ...assignee,
     projectId: input.projectId,
@@ -553,6 +556,13 @@ export async function createWorkspaceWorkItem(input: {
       .from(workItems)
       .where(eq(workItems.workspaceId, input.context.workspaceId));
     const number = Number(value ?? 0) + 1;
+    const [{ value: firstBoardPosition }] = await tx
+      .select({ value: min(workItems.boardPosition) })
+      .from(workItems)
+      .where(and(
+        eq(workItems.workspaceId, input.context.workspaceId),
+        inArray(workItems.status, boardStatusGroup(initialStatus)),
+      ));
     const [created] = await tx
       .insert(workItems)
       .values({
@@ -562,7 +572,8 @@ export async function createWorkspaceWorkItem(input: {
         key: workItemKey(input.context.workspaceSlug, number),
         title,
         description,
-        status: input.status ?? (assignee.type ? "todo" : "backlog"),
+        status: initialStatus,
+        boardPosition: Number(firstBoardPosition ?? 1024) - 1024,
         priority: input.priority ?? "none",
         creatorUserId: input.context.userId,
         ...assigneeColumns(assignee),
@@ -682,7 +693,7 @@ export async function listWorkspaceWorkItems(input: {
       .leftJoin(workRuns, eq(workRuns.workItemId, workItems.id))
       .where(and(...predicates))
       .groupBy(workItems.id, projects.name, agents.name, agentTeams.name)
-      .orderBy(desc(workItems.updatedAt))
+      .orderBy(asc(workItems.boardPosition), desc(workItems.updatedAt))
       // Product endpoints request one sentinel row to compute `hasMore` while
       // still exposing a maximum public page size of 200.
       .limit(Math.min(Math.max(input.limit ?? 100, 1), 201))
@@ -1012,6 +1023,165 @@ export async function deleteWorkspaceSavedView(input: {
   return view;
 }
 
+async function triggerWorkItemStatusAutomations(input: {
+  context: WorkContext;
+  previousStatus: WorkItemStatus;
+  updated: typeof workItems.$inferSelect;
+  occurredAt: Date;
+}) {
+  if (
+    input.updated.status === input.previousStatus ||
+    !workFeatureEnabled("WORK_AUTOMATIONS_ENABLED")
+  ) return;
+  const eventName = `work_item.${input.updated.status}`;
+  const automations = await db
+    .select({ id: workAutomations.id, config: workAutomations.triggerConfig })
+    .from(workAutomations)
+    .where(
+      and(
+        eq(workAutomations.workspaceId, input.context.workspaceId),
+        eq(workAutomations.status, "active"),
+        eq(workAutomations.triggerType, "event"),
+      ),
+    );
+  await Promise.allSettled(
+    automations
+      .filter((automation) => String(automation.config.event ?? "") === eventName)
+      .map((automation) =>
+        triggerWorkspaceAutomation({
+          context: input.context,
+          automationId: automation.id,
+          idempotencyKey: `event:${automation.id}:${input.updated.id}:${eventName}:${input.occurredAt.toISOString()}`,
+          safePayload: { event: eventName, workItemId: input.updated.id },
+        }),
+      ),
+  );
+}
+
+/** Fire status automations for each hop on a multi-step transition (async, sequential). */
+async function triggerWorkItemTransitionChain(input: {
+  context: WorkContext;
+  from: WorkItemStatus;
+  path: WorkItemStatus[];
+  updated: typeof workItems.$inferSelect;
+  occurredAt: Date;
+}) {
+  let previousStatus = input.from;
+  for (const status of input.path) {
+    await triggerWorkItemStatusAutomations({
+      context: input.context,
+      previousStatus,
+      updated: { ...input.updated, status },
+      occurredAt: input.occurredAt,
+    });
+    previousStatus = status;
+  }
+}
+
+function boardStatusGroup(status: WorkItemStatus): WorkItemStatus[] {
+  return status === "in_progress" || status === "blocked"
+    ? ["in_progress", "blocked"]
+    : [status];
+}
+
+export async function placeWorkspaceWorkItem(input: {
+  context: WorkContext;
+  workItemId: string;
+  status: WorkItemStatus;
+  previousItemId: string | null;
+  nextItemId: string | null;
+}) {
+  const occurredAt = new Date();
+  const result = await db.transaction(async (tx) => {
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext(${input.context.workspaceId}))`,
+    );
+    const [current] = await tx
+      .select()
+      .from(workItems)
+      .where(and(
+        eq(workItems.id, input.workItemId),
+        eq(workItems.workspaceId, input.context.workspaceId),
+      ))
+      .limit(1);
+    if (!current) throw new WorkNotFoundError("Tâche introuvable.");
+    const transitionPath = assertWorkItemReachable(current.status, input.status);
+    if (input.previousItemId === current.id || input.nextItemId === current.id) {
+      throw new WorkConflictError("La position cible de la tâche est invalide.");
+    }
+
+    const targetItems = await tx
+      .select({ id: workItems.id })
+      .from(workItems)
+      .where(and(
+        eq(workItems.workspaceId, input.context.workspaceId),
+        inArray(workItems.status, boardStatusGroup(input.status)),
+        ne(workItems.id, current.id),
+      ))
+      .orderBy(asc(workItems.boardPosition), desc(workItems.updatedAt), asc(workItems.id));
+
+    const previousIndex = input.previousItemId
+      ? targetItems.findIndex((item) => item.id === input.previousItemId)
+      : -1;
+    const nextIndex = input.nextItemId
+      ? targetItems.findIndex((item) => item.id === input.nextItemId)
+      : -1;
+    if ((input.previousItemId && previousIndex < 0) || (input.nextItemId && nextIndex < 0)) {
+      throw new WorkConflictError("L’ordre du Kanban a changé. Réessayez le déplacement.");
+    }
+
+    const insertionIndex = nextIndex >= 0
+      ? nextIndex
+      : previousIndex >= 0
+        ? previousIndex + 1
+        : 0;
+    const orderedIds = targetItems.map((item) => item.id);
+    orderedIds.splice(insertionIndex, 0, current.id);
+    for (const [position, itemId] of orderedIds.entries()) {
+      if (itemId === current.id) continue;
+      await tx
+        .update(workItems)
+        .set({ boardPosition: position * 1024 })
+        .where(eq(workItems.id, itemId));
+    }
+    const [updated] = await tx
+      .update(workItems)
+      .set({
+        status: input.status,
+        boardPosition: insertionIndex * 1024,
+        completedAt: input.status === "done" ? occurredAt : null,
+        cancelledAt: input.status === "cancelled" ? occurredAt : null,
+        updatedAt: occurredAt,
+      })
+      .where(eq(workItems.id, current.id))
+      .returning();
+    await tx.insert(auditEvents).values({
+      tenantId: input.context.tenantId,
+      workspaceId: input.context.workspaceId,
+      actorUserId: input.context.userId,
+      action: "work_item.reordered",
+      targetType: "work_item",
+      targetId: current.id,
+      metadata: {
+        previousStatus: current.status,
+        status: updated.status,
+        transitionPath,
+        previousItemId: input.previousItemId,
+        nextItemId: input.nextItemId,
+      },
+    });
+    return { previousStatus: current.status, updated, transitionPath };
+  });
+  await triggerWorkItemTransitionChain({
+    context: input.context,
+    from: result.previousStatus,
+    path: result.transitionPath,
+    updated: result.updated,
+    occurredAt,
+  });
+  return result.updated;
+}
+
 export async function updateWorkspaceWorkItem(input: {
   context: WorkContext;
   workItemId: string;
@@ -1034,7 +1204,9 @@ export async function updateWorkspaceWorkItem(input: {
     )
     .limit(1);
   if (!current) throw new WorkNotFoundError("Tâche introuvable.");
-  if (input.status) assertWorkItemTransition(current.status, input.status);
+  const transitionPath = input.status
+    ? assertWorkItemReachable(current.status, input.status)
+    : [];
   if (input.projectId)
     await validateWorkspaceReferences(input.context.workspaceId, {
       projectId: input.projectId,
@@ -1073,38 +1245,19 @@ export async function updateWorkspaceWorkItem(input: {
     action: "work_item.updated",
     targetType: "work_item",
     targetId: current.id,
-    metadata: { status: updated.status },
+    metadata: {
+      status: updated.status,
+      ...(transitionPath.length > 0 ? { transitionPath } : {}),
+    },
   });
-  if (
-    input.status &&
-    input.status !== current.status &&
-    workFeatureEnabled("WORK_AUTOMATIONS_ENABLED")
-  ) {
-    const eventName = `work_item.${input.status}`;
-    const automations = await db
-      .select({ id: workAutomations.id, config: workAutomations.triggerConfig })
-      .from(workAutomations)
-      .where(
-        and(
-          eq(workAutomations.workspaceId, input.context.workspaceId),
-          eq(workAutomations.status, "active"),
-          eq(workAutomations.triggerType, "event"),
-        ),
-      );
-    await Promise.allSettled(
-      automations
-        .filter(
-          (automation) => String(automation.config.event ?? "") === eventName,
-        )
-        .map((automation) =>
-          triggerWorkspaceAutomation({
-            context: input.context,
-            automationId: automation.id,
-            idempotencyKey: `event:${automation.id}:${updated.id}:${eventName}:${now.toISOString()}`,
-            safePayload: { event: eventName, workItemId: updated.id },
-          }),
-        ),
-    );
+  if (transitionPath.length > 0) {
+    await triggerWorkItemTransitionChain({
+      context: input.context,
+      from: current.status,
+      path: transitionPath,
+      updated,
+      occurredAt: now,
+    });
   }
   return updated;
 }
@@ -1882,6 +2035,35 @@ export async function createWorkspaceAgentTeam(input: {
         leadAgentId: input.leadAgentId,
         memberCount: memberIds.length,
       },
+    });
+    return team;
+  });
+}
+
+export async function deleteWorkspaceAgentTeam(input: {
+  context: WorkContext;
+  teamId: string;
+}) {
+  return db.transaction(async (tx) => {
+    // Members cascade; work-item and automation assignments are set to null.
+    const [team] = await tx
+      .delete(agentTeams)
+      .where(
+        and(
+          eq(agentTeams.id, input.teamId),
+          eq(agentTeams.workspaceId, input.context.workspaceId),
+        ),
+      )
+      .returning();
+    if (!team) throw new WorkNotFoundError("Équipe introuvable.");
+    await tx.insert(auditEvents).values({
+      tenantId: input.context.tenantId,
+      workspaceId: input.context.workspaceId,
+      actorUserId: input.context.userId,
+      action: "agent_team.deleted",
+      targetType: "agent_team",
+      targetId: team.id,
+      metadata: { name: team.name },
     });
     return team;
   });

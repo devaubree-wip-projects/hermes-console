@@ -1,5 +1,6 @@
 import { after, NextResponse, type NextRequest } from "next/server";
 import { normalizedRequestId, webLogger } from "@/lib/observability/logger";
+import { legacyTenantRedirectPath } from "@/lib/tenant-routing";
 
 export function proxy(request: NextRequest) {
   const startedAt = performance.now();
@@ -7,7 +8,10 @@ export function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-request-id", requestId);
 
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  const redirectPath = legacyTenantRedirectPath(request.nextUrl.pathname);
+  const response = redirectPath
+    ? NextResponse.redirect(new URL(redirectPath + request.nextUrl.search, request.url), 308)
+    : NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("x-request-id", requestId);
 
   if (process.env.NODE_ENV === "production" || process.env.HERMES_LOG_HTTP === "true") {

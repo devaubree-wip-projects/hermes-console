@@ -71,6 +71,7 @@ async function migrate() {
         description text NOT NULL DEFAULT '',
         status text NOT NULL DEFAULT 'backlog',
         priority text NOT NULL DEFAULT 'none',
+        board_position double precision NOT NULL DEFAULT 0,
         creator_user_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
         assignee_type text,
         assignee_user_id uuid REFERENCES users(id) ON DELETE SET NULL,
@@ -101,6 +102,35 @@ async function migrate() {
       CREATE UNIQUE INDEX IF NOT EXISTS work_items_workspace_key_uidx ON work_items(workspace_id, key);
       CREATE UNIQUE INDEX IF NOT EXISTS work_items_legacy_task_uidx ON work_items(legacy_task_id) WHERE legacy_task_id IS NOT NULL;
       CREATE INDEX IF NOT EXISTS work_items_workspace_status_updated_idx ON work_items(workspace_id, status, updated_at);
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_schema = 'public'
+            AND table_name = 'work_items'
+            AND column_name = 'board_position'
+        ) THEN
+          ALTER TABLE work_items
+            ADD COLUMN board_position double precision NOT NULL DEFAULT 0;
+          WITH ranked AS (
+            SELECT
+              id,
+              row_number() OVER (
+                PARTITION BY workspace_id,
+                  CASE WHEN status IN ('in_progress', 'blocked') THEN 'in_progress' ELSE status END
+                ORDER BY updated_at DESC, id
+              ) * 1024 AS position
+            FROM work_items
+          )
+          UPDATE work_items item
+          SET board_position = ranked.position
+          FROM ranked
+          WHERE item.id = ranked.id;
+        END IF;
+      END
+      $$;
+      CREATE INDEX IF NOT EXISTS work_items_workspace_board_position_idx ON work_items(workspace_id, status, board_position);
       CREATE INDEX IF NOT EXISTS work_items_workspace_assignee_idx ON work_items(workspace_id, assignee_type, assignee_agent_id);
 
       CREATE TABLE IF NOT EXISTS work_item_labels (

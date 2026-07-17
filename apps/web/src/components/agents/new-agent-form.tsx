@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export function NewAgentForm({ endpoint }: { endpoint: string }) {
+export function NewAgentForm({
+  endpoint,
+  onSuccess,
+}: {
+  endpoint: string;
+  onSuccess?: (redirectTo: string) => void;
+}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -27,8 +33,12 @@ export function NewAgentForm({ endpoint }: { endpoint: string }) {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) throw new Error(data?.error ?? "Création impossible.");
-      router.push(data.redirectTo);
-      router.refresh();
+      if (onSuccess) {
+        onSuccess(data.redirectTo);
+      } else {
+        router.push(data.redirectTo);
+        router.refresh();
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Création impossible.");
       setPending(false);

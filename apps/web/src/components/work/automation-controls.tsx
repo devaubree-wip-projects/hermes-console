@@ -43,7 +43,7 @@ export function RunAutomationButton({ endpoint, taskBase }: { endpoint: string; 
       });
       const data = await response.json();
       if (!response.ok) return toast.error(data.error ?? "Exécution impossible.");
-      router.push(`${taskBase}/${data.item.id}`);
+      router.push(`${taskBase}?task=${encodeURIComponent(data.item.id)}`, { scroll: false });
     } catch { toast.error("La Console est momentanément inaccessible."); }
     finally { setPending(false); }
   }

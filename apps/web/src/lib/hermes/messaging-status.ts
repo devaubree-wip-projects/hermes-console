@@ -33,9 +33,22 @@ export function resolvedPlatformState(input: {
   enabled?: boolean;
   configured?: boolean;
 }) {
+  if (input.configured === false) return "not_configured";
+  if (input.enabled === false) return "disabled";
+
   return input.topologyState
     ?? (input.gatewayRunning ? input.localState : null)
     ?? (input.gatewayRunning && input.enabled && input.configured
       ? "pending_restart"
       : input.platformState);
+}
+
+export function resolvedPlatformError(input: {
+  runtimeError?: string | null;
+  platformError?: string | null;
+  enabled?: boolean;
+  configured?: boolean;
+}) {
+  if (input.configured === false || input.enabled === false) return null;
+  return input.runtimeError ?? input.platformError ?? null;
 }

@@ -13,11 +13,11 @@ const badgeVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
         destructive:
-          "border-destructive/25 bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "border-red-700/25 bg-red-100 text-red-800 focus-visible:ring-red-700/20 dark:border-red-300/30 dark:bg-red-950/50 dark:text-red-300 dark:focus-visible:ring-red-300/30 [a]:hover:bg-red-200 dark:[a]:hover:bg-red-950/70",
         success:
-          "border-[color:var(--ok)]/25 bg-[color:var(--ok)]/10 text-[color:var(--ok)] focus-visible:ring-[color:var(--ok)]/20 [a]:hover:bg-[color:var(--ok)]/15",
+          "border-emerald-700/25 bg-emerald-100 text-emerald-800 focus-visible:ring-emerald-700/20 dark:border-emerald-300/30 dark:bg-emerald-950/50 dark:text-emerald-300 dark:focus-visible:ring-emerald-300/30 [a]:hover:bg-emerald-200 dark:[a]:hover:bg-emerald-950/70",
         warning:
-          "border-[color:var(--warn)]/30 bg-[color:var(--warn)]/10 text-[color:var(--warn)] focus-visible:ring-[color:var(--warn)]/20 [a]:hover:bg-[color:var(--warn)]/15",
+          "border-amber-700/30 bg-amber-100 text-amber-900 focus-visible:ring-amber-700/20 dark:border-amber-300/30 dark:bg-amber-950/50 dark:text-amber-300 dark:focus-visible:ring-amber-300/30 [a]:hover:bg-amber-200 dark:[a]:hover:bg-amber-950/70",
         outline:
           "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
         ghost:

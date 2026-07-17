@@ -3,7 +3,7 @@ import { resolveWorkspaceAccess } from "@/modules/auth/infrastructure/workspace-
 import type { InstallationContextPort } from "../application/ports";
 
 export const installationContextRepository: InstallationContextPort = {
-  async resolveWorkspace(params) {
+  async resolveTenant(params) {
     const user = await requireUser();
     const access = await resolveWorkspaceAccess({ ...params, userId: user.id });
     return access ? {

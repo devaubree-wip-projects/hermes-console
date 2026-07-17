@@ -13,7 +13,6 @@ export type AgentRuntimeContext = {
 
 export type AgentContextParams = {
   tenantSlug: string;
-  workspaceSlug: string;
   agentSlug: string;
 };
 

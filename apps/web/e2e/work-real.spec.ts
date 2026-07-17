@@ -12,7 +12,7 @@ test("executes through the real Docker Edge and Hermes while the browser is clos
 }) => {
   test.setTimeout(180_000);
   await loginE2E(page);
-  await page.goto("/e2e/e2e/tasks");
+  await page.goto("/e2e/tasks");
   const title = `Hermes Docker réel ${Date.now()}`;
   await page.getByRole("button", { name: "Nouvelle tâche" }).click();
   await page.getByLabel("Résultat attendu").fill(title);
@@ -24,7 +24,7 @@ test("executes through the real Docker Edge and Hermes while the browser is clos
   await page.getByLabel("Assignation").click();
   await page.getByRole("option", { name: "Assistant principal" }).click();
   await page.getByRole("button", { name: "Créer", exact: true }).click();
-  await expect(page).toHaveURL(/\/e2e\/e2e\/tasks\/[0-9a-f-]+$/);
+  await expect(page).toHaveURL(/\/e2e\/tasks\/[0-9a-f-]+$/);
   const taskUrl = page.url();
   const taskId = taskUrl.split("/").at(-1)!;
   const request = context.request;
@@ -34,7 +34,7 @@ test("executes through the real Docker Edge and Hermes while the browser is clos
   await expect
     .poll(
       async () => {
-        const response = await request.get(`/api/e2e/e2e/work-items/${taskId}`);
+        const response = await request.get(`/api/e2e/work-items/${taskId}`);
         if (!response.ok()) return false;
         const payload = (await response.json()) as {
           item: { status: string };

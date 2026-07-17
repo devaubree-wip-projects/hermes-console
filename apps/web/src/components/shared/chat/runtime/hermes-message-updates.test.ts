@@ -4,9 +4,11 @@ import {
   appendAssistantReasoning,
   appendAssistantText,
   appendAssistantToolStart,
+  coerceToolResultText,
   ensureRunningAssistant,
   prepareMessagesForEdit,
   prepareMessagesForReload,
+  setAssistantReasoningIfEmpty,
   sliceMessagesUntil,
   updateAssistantTool,
 } from "@/components/shared/chat/runtime/hermes-message-updates";
@@ -110,7 +112,7 @@ describe("Hermes assistant message updates", () => {
 
     const assistant = lastAssistant(messages);
     expect(assistant?.content).toEqual([
-      { type: "reasoning", text: "Step one" },
+      { type: "reasoning", text: "Step one\n\nStep two" },
       {
         type: "tool-call",
         toolCallId: "tool-1",
@@ -119,7 +121,33 @@ describe("Hermes assistant message updates", () => {
         argsText: "ls -la",
         result: "done",
       },
-      { type: "reasoning", text: "Step two" },
     ]);
+  });
+
+  test("sets reasoning.available only when no reasoning streamed yet", () => {
+    const empty = setAssistantReasoningIfEmpty([], "fallback reasoning");
+    expect(lastAssistant(empty)?.content).toEqual([
+      { type: "reasoning", text: "fallback reasoning" },
+    ]);
+
+    let messages = appendAssistantReasoning([], "streamed");
+    messages = setAssistantReasoningIfEmpty(messages, "fallback");
+    expect(lastAssistant(messages)?.content).toEqual([
+      { type: "reasoning", text: "streamed" },
+    ]);
+  });
+
+  test("stringifies object tool results from Hermes payloads", () => {
+    expect(coerceToolResultText({
+      result: { exit_code: 0, output: "ok" },
+    })).toContain('"exit_code": 0');
+    expect(coerceToolResultText({
+      summary: "short",
+      result: { ok: true },
+    })).toContain('"ok": true');
+    expect(coerceToolResultText({
+      result_text: "verbose",
+      result: { ok: true },
+    })).toBe("verbose");
   });
 });

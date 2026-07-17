@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { db } from "@/db";
 import {
   agents,
@@ -86,6 +86,33 @@ async function seed() {
       target: [tenantMemberships.tenantId, tenantMemberships.userId],
       set: { role: "viewer" },
     });
+  let [member] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, "member-e2e@hermes.local"))
+    .limit(1);
+  if (!member) {
+    [member] = await db
+      .insert(users)
+      .values({
+        email: "member-e2e@hermes.local",
+        passwordHash: hashPassword("member-e2e-password"),
+        name: "Hermes Member E2E",
+        onboardedAt: new Date(),
+      })
+      .returning();
+  }
+  await db
+    .insert(tenantMemberships)
+    .values({
+      tenantId: tenant.id,
+      userId: member.id,
+      role: "member",
+    })
+    .onConflictDoUpdate({
+      target: [tenantMemberships.tenantId, tenantMemberships.userId],
+      set: { role: "member" },
+    });
   const [installation] = await db
     .insert(runtimeInstallations)
     .values({
@@ -119,6 +146,16 @@ async function seed() {
       },
     })
     .returning();
+  await db
+    .update(runtimeInstallations)
+    .set({ name: "Hermes local historique" })
+    .where(
+      and(
+        eq(runtimeInstallations.tenantId, tenant.id),
+        eq(runtimeInstallations.name, "Hermes E2E"),
+        ne(runtimeInstallations.id, installation.id),
+      ),
+    );
   await db
     .insert(runtimeCapabilities)
     .values({

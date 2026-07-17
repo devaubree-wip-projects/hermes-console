@@ -49,7 +49,7 @@ export const TASK_TEMPLATES: Record<TaskKind, TaskTemplate> = {
   report: {
     kind: "report",
     label: "Rapport",
-    description: "Générer un rapport structuré à partir du contexte du workspace.",
+    description: "Générer un rapport structuré à partir du contexte de l’organisation.",
     inputLabel: "Sujet du rapport",
     inputPlaceholder: "Ex. : rapport SEO local du mois avec plan d'action",
     permission: "generate_reports",
@@ -68,12 +68,12 @@ export const TASK_TEMPLATES: Record<TaskKind, TaskTemplate> = {
   summary: {
     kind: "summary",
     label: "Résumé de documents",
-    description: "Résumer les documents déposés dans le workspace.",
+    description: "Résumer les documents déposés dans l’organisation.",
     inputLabel: "Que résumer ?",
     inputPlaceholder: "Ex. : résumer le brief projet et lister les points ouverts",
     permission: "read_files",
     buildPrompt: (input) =>
-      `Résume les documents du workspace selon la consigne suivante :\n\n${input}\n\nTermine par la liste des points ouverts ou ambigus.`,
+      `Résume les documents de l’organisation selon la consigne suivante :\n\n${input}\n\nTermine par la liste des points ouverts ou ambigus.`,
   },
   email: {
     kind: "email",

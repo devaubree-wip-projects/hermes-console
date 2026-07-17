@@ -36,8 +36,6 @@ export function OnboardingFlow({ userName }: { userName: string }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [organizationName, setOrganizationName] = useState("");
-  const [workspaceName, setWorkspaceName] = useState("");
-  const [workspaceTouched, setWorkspaceTouched] = useState(false);
   const [agentTemplate, setAgentTemplate] = useState<AgentTemplateId>("general");
   const [agentName, setAgentName] = useState<string>(AGENT_TEMPLATES[0].defaultName);
   const [agentDescription, setAgentDescription] = useState<string>(AGENT_TEMPLATES[0].mission);
@@ -61,11 +59,6 @@ export function OnboardingFlow({ userName }: { userName: string }) {
     };
   }, [runtime, step]);
 
-  function changeOrganization(value: string) {
-    setOrganizationName(value);
-    if (!workspaceTouched) setWorkspaceName(value);
-  }
-
   function selectTemplate(id: AgentTemplateId) {
     const previous = getAgentTemplate(agentTemplate);
     const next = getAgentTemplate(id);
@@ -77,8 +70,8 @@ export function OnboardingFlow({ userName }: { userName: string }) {
 
   function goTo(nextStep: number) {
     setError(null);
-    if (step === 1 && (!organizationName.trim() || !workspaceName.trim())) {
-      setError("Renseignez le nom de votre organisation et de votre espace.");
+    if (step === 1 && !organizationName.trim()) {
+      setError("Renseignez le nom de votre organisation.");
       return;
     }
     if (step === 2 && !agentName.trim()) {
@@ -97,7 +90,6 @@ export function OnboardingFlow({ userName }: { userName: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           organizationName,
-          workspaceName,
           agentTemplate,
           agentName,
           agentDescription,
@@ -110,7 +102,7 @@ export function OnboardingFlow({ userName }: { userName: string }) {
           router.refresh();
           return;
         }
-        setError(data.error ?? "Impossible de créer votre espace.");
+        setError(data.error ?? "Impossible de créer votre organisation.");
         return;
       }
       router.replace(data.redirectTo);
@@ -168,12 +160,7 @@ export function OnboardingFlow({ userName }: { userName: string }) {
               {step === 1 ? (
                 <WorkspaceStep
                   organizationName={organizationName}
-                  workspaceName={workspaceName}
-                  onOrganizationChange={changeOrganization}
-                  onWorkspaceChange={(value) => {
-                    setWorkspaceTouched(true);
-                    setWorkspaceName(value);
-                  }}
+                  onOrganizationChange={setOrganizationName}
                 />
               ) : null}
               {step === 2 ? (
@@ -191,7 +178,6 @@ export function OnboardingFlow({ userName }: { userName: string }) {
                   runtime={runtime}
                   pending={!runtime}
                   organizationName={organizationName}
-                  workspaceName={workspaceName}
                   agentName={agentName}
                   onRetry={() => setRuntime(null)}
                 />
@@ -214,7 +200,7 @@ export function OnboardingFlow({ userName }: { userName: string }) {
                 ) : (
                   <Button size="lg" onClick={completeOnboarding} disabled={pending}>
                     {pending ? <Loader2 className="animate-spin" /> : <Sparkles />}
-                    Créer mon espace
+                    Créer mon organisation
                   </Button>
                 )}
               </div>
@@ -284,16 +270,16 @@ function StepHeading({ eyebrow, title, description }: { eyebrow: string; title: 
   return <div className="mb-8"><p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{eyebrow}</p><h2 className="mt-3 text-3xl font-semibold tracking-[-0.025em]">{title}</h2><p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">{description}</p></div>;
 }
 
-function WorkspaceStep({ organizationName, workspaceName, onOrganizationChange, onWorkspaceChange }: { organizationName: string; workspaceName: string; onOrganizationChange: (value: string) => void; onWorkspaceChange: (value: string) => void }) {
-  return <div><StepHeading eyebrow="Étape 1 sur 3" title="Où travaillera votre agent ?" description="Ces noms structurent votre console. Ils pourront être modifiés plus tard dans les réglages." /><div className="space-y-5"><div className="space-y-2"><Label htmlFor="organizationName">Organisation</Label><Input id="organizationName" autoFocus maxLength={100} placeholder="Acme" value={organizationName} onChange={(event) => onOrganizationChange(event.target.value)} /><p className="text-xs text-muted-foreground">Votre entreprise, association ou équipe.</p></div><div className="space-y-2"><Label htmlFor="workspaceName">Nom de l’espace</Label><Input id="workspaceName" maxLength={100} placeholder="Équipe principale" value={workspaceName} onChange={(event) => onWorkspaceChange(event.target.value)} /><p className="text-xs text-muted-foreground">L’espace regroupe agents, conversations, fichiers et tâches.</p></div></div></div>;
+function WorkspaceStep({ organizationName, onOrganizationChange }: { organizationName: string; onOrganizationChange: (value: string) => void }) {
+  return <div><StepHeading eyebrow="Étape 1 sur 3" title="Quelle est votre organisation ?" description="L’organisation est l’unique espace de travail et la frontière de sécurité de la console." /><div className="space-y-2"><Label htmlFor="organizationName">Organisation</Label><Input id="organizationName" autoFocus maxLength={100} placeholder="Acme" value={organizationName} onChange={(event) => onOrganizationChange(event.target.value)} /><p className="text-xs text-muted-foreground">Elle regroupe les membres, agents, conversations, fichiers et tâches.</p></div></div>;
 }
 
 function AgentStep({ selected, name, description, onSelect, onNameChange, onDescriptionChange }: { selected: AgentTemplateId; name: string; description: string; onSelect: (id: AgentTemplateId) => void; onNameChange: (value: string) => void; onDescriptionChange: (value: string) => void }) {
   return <div><StepHeading eyebrow="Étape 2 sur 3" title="Quel sera son premier rôle ?" description="Choisissez un point de départ, puis décrivez sa mission avec vos propres mots." /><div className="space-y-2" role="radiogroup" aria-label="Rôle de l'agent">{AGENT_TEMPLATES.map((template) => <button key={template.id} type="button" role="radio" aria-checked={selected === template.id} onClick={() => onSelect(template.id)} className={cn("flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition-colors hover:border-foreground/30", selected === template.id && "border-foreground bg-muted/40")}><span className={cn("mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border", selected === template.id && "border-foreground")}><span className={cn("size-2.5 rounded-full", selected === template.id && "bg-foreground")} /></span><span><span className="block text-sm font-medium">{template.label}</span><span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{template.description}</span></span></button>)}</div><div className="mt-6 grid gap-5"><div className="space-y-2"><Label htmlFor="agentName">Nom de l’agent</Label><Input id="agentName" maxLength={80} value={name} onChange={(event) => onNameChange(event.target.value)} /></div><div className="space-y-2"><Label htmlFor="agentDescription">Mission</Label><Textarea id="agentDescription" maxLength={500} rows={3} value={description} onChange={(event) => onDescriptionChange(event.target.value)} /></div></div></div>;
 }
 
-function RuntimeStep({ runtime, pending, organizationName, workspaceName, agentName, onRetry }: { runtime: RuntimeStatus | null; pending: boolean; organizationName: string; workspaceName: string; agentName: string; onRetry: () => void }) {
-  return <div><StepHeading eyebrow="Étape 3 sur 3" title="Tout est prêt à être créé" description="La console vérifie le moteur Hermes local. Cette vérification ne bloque pas la création de votre espace." /><div className="overflow-hidden rounded-xl border"><div className="grid grid-cols-[120px_1fr] gap-4 border-b px-4 py-3 text-sm"><span className="text-muted-foreground">Organisation</span><span className="font-medium">{organizationName}</span></div><div className="grid grid-cols-[120px_1fr] gap-4 border-b px-4 py-3 text-sm"><span className="text-muted-foreground">Espace</span><span className="font-medium">{workspaceName}</span></div><div className="grid grid-cols-[120px_1fr] gap-4 px-4 py-3 text-sm"><span className="text-muted-foreground">Agent</span><span className="font-medium">{agentName}</span></div></div><div className={cn("mt-5 flex items-start gap-3 rounded-xl border px-4 py-4", runtime?.online ? "border-[color:var(--ok)]/40 bg-[color:var(--ok)]/5" : "bg-muted/20")}>
+function RuntimeStep({ runtime, pending, organizationName, agentName, onRetry }: { runtime: RuntimeStatus | null; pending: boolean; organizationName: string; agentName: string; onRetry: () => void }) {
+  return <div><StepHeading eyebrow="Étape 3 sur 3" title="Tout est prêt à être créé" description="La console vérifie le moteur Hermes local. Cette vérification ne bloque pas la création de votre organisation." /><div className="overflow-hidden rounded-xl border"><div className="grid grid-cols-[120px_1fr] gap-4 border-b px-4 py-3 text-sm"><span className="text-muted-foreground">Organisation</span><span className="font-medium">{organizationName}</span></div><div className="grid grid-cols-[120px_1fr] gap-4 px-4 py-3 text-sm"><span className="text-muted-foreground">Agent</span><span className="font-medium">{agentName}</span></div></div><div className={cn("mt-5 flex items-start gap-3 rounded-xl border px-4 py-4", runtime?.online ? "border-[color:var(--ok)]/40 bg-[color:var(--ok)]/5" : "bg-muted/20")}>
     {pending ? <Loader2 className="mt-0.5 size-5 animate-spin text-muted-foreground" /> : runtime?.online ? <Radio className="mt-0.5 size-5 text-[var(--ok)]" /> : <CircleAlert className="mt-0.5 size-5 text-[var(--warn)]" />}
     <div className="min-w-0 flex-1">{pending ? <><p className="text-sm font-medium">Détection de Hermes…</p><p className="mt-1 text-xs text-muted-foreground">Vérification du runtime local.</p></> : runtime?.online ? <><p className="text-sm font-medium">Hermes est prêt{runtime.version ? ` · v${runtime.version}` : ""}</p><p className="mt-1 text-xs text-muted-foreground">Le profil de votre agent sera créé automatiquement.</p></> : <><p className="text-sm font-medium">Hermes n’est pas joignable pour le moment</p><p className="mt-1 text-xs leading-5 text-muted-foreground">L’espace sera quand même créé. Le broker tentera de reconnecter le runtime.</p><button type="button" className="mt-2 text-xs font-medium underline underline-offset-4" onClick={onRetry}>Vérifier à nouveau</button></>}</div>
   </div></div>;

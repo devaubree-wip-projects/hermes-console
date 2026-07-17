@@ -4,10 +4,10 @@ import type { InstallationDependencies } from "./ports";
 
 export function createConnectInstallation(dependencies: InstallationDependencies) {
   return async function connectInstallation(
-    params: { tenantSlug: string; workspaceSlug: string },
+    params: { tenantSlug: string },
     body: Record<string, unknown> | null,
   ) {
-    const context = await dependencies.contexts.resolveWorkspace(params);
+    const context = await dependencies.contexts.resolveTenant(params);
     if (!context) return result({ error: "Workspace introuvable." }, 404);
     if (context.role !== "owner") return result({ error: "Seul un Owner peut connecter une installation." }, 403);
 

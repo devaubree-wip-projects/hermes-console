@@ -35,14 +35,24 @@ func TestRuntimeRouteAllowlist(t *testing.T) {
 		{http.MethodGet, "/api/status"},
 		{http.MethodPost, "/api/config"},
 		{http.MethodPut, "/api/config"},
+		{http.MethodGet, "/api/skills"},
+		{http.MethodPost, "/api/skills"},
+		{http.MethodGet, "/api/skills/content"},
+		{http.MethodPut, "/api/skills/content"},
+		{http.MethodPut, "/api/skills/toggle"},
 		{http.MethodGet, "/api/sessions/id/history"},
+		// `/api/env` is covered by both a GET-only rule and a PUT/DELETE rule;
+		// all three must be allowed (the GET rule must not shadow the writes).
+		{http.MethodGet, "/api/env"},
+		{http.MethodPut, "/api/env"},
+		{http.MethodDelete, "/api/env"},
 	}
 	for _, route := range allowed {
 		if !allowedRuntimeRoute(route[0], route[1]) {
 			t.Errorf("expected route to be allowed: %s %s", route[0], route[1])
 		}
 	}
-	rejected := [][2]string{{http.MethodDelete, "/api/config"}, {http.MethodGet, "/api/internal/secrets"}, {http.MethodPost, "/api/sessions"}}
+	rejected := [][2]string{{http.MethodDelete, "/api/config"}, {http.MethodGet, "/api/internal/secrets"}, {http.MethodPost, "/api/sessions"}, {http.MethodDelete, "/api/skills"}, {http.MethodPost, "/api/skills/content"}}
 	for _, route := range rejected {
 		if allowedRuntimeRoute(route[0], route[1]) {
 			t.Errorf("expected route to be rejected: %s %s", route[0], route[1])

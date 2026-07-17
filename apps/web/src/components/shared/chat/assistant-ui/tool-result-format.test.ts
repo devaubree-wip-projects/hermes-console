@@ -52,4 +52,19 @@ describe("formatToolDisplay", () => {
     expect(display.result?.text).toContain("```");
     expect(display.result?.text).toContain("ok");
   });
+
+  test("does not summarize empty args as {}", () => {
+    const display = formatToolDisplay(
+      "browser_navigate",
+      {},
+      "",
+      `<untrusted_tool_result source="browser_navigate">
+{"success": true, "url": "https://wttr.in/Villeneuve-d%27Ascq", "title": "wttr.in"}
+</untrusted_tool_result>`,
+    );
+
+    expect(display.summary).toBe("https://wttr.in/Villeneuve-d%27Ascq");
+    expect(display.summary).not.toBe("{}");
+    expect(display.result?.text).toContain("**url:**");
+  });
 });

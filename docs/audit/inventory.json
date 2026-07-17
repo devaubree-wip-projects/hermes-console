@@ -1,453 +1,453 @@
 {
   "schemaVersion": 1,
-  "commit": "599668e0e968385eaba878a9e1e4695a6da8c4ab",
+  "commit": "0faa7b92c50b267e69c938fe5da5b81d69bae2f5",
   "layout": "monorepo",
   "endpoints": [
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agent-teams/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agent-teams/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agent-teams",
-      "lines": 63,
+      "path": "/api/:tenantSlug/agent-teams",
+      "lines": 59,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents",
+      "path": "/api/:tenantSlug/agents",
       "lines": 78,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/inference/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference",
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference",
       "lines": 22,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/codex/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/inference/codex/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference/codex",
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference/codex",
       "lines": 29,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/messaging/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/messaging/route.ts",
       "methods": [
         "GET",
         "POST",
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/messaging",
+      "path": "/api/:tenantSlug/agents/:agentSlug/messaging",
       "lines": 22,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-status/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-status",
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-status",
       "lines": 49,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-ticket",
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-ticket",
       "lines": 47,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions",
-      "lines": 77,
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions",
+      "lines": 76,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId",
-      "lines": 99,
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId",
+      "lines": 98,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId/metrics",
-      "lines": 77,
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId/metrics",
+      "lines": 73,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/automations/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/automations",
+      "path": "/api/:tenantSlug/automations",
       "lines": 59,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/automations/[automationId]/run/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/automations/[automationId]/run/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/automations/:automationId/run",
+      "path": "/api/:tenantSlug/automations/:automationId/run",
       "lines": 20,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/events/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/events/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/events",
+      "path": "/api/:tenantSlug/events",
       "lines": 49,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/inbox/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/inbox/route.ts",
       "methods": [
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/inbox",
+      "path": "/api/:tenantSlug/inbox",
       "lines": 29,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations",
+      "path": "/api/:tenantSlug/installations",
       "lines": 9,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/route.ts",
       "methods": [
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId",
+      "path": "/api/:tenantSlug/installations/:installationId",
       "lines": 17,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/backups/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/backups/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/backups",
+      "path": "/api/:tenantSlug/installations/:installationId/backups",
       "lines": 128,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/budget/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/budget/route.ts",
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/budget",
+      "path": "/api/:tenantSlug/installations/:installationId/budget",
       "lines": 66,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/capacity-policy/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/capacity-policy/route.ts",
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/capacity-policy",
+      "path": "/api/:tenantSlug/installations/:installationId/capacity-policy",
       "lines": 38,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/enrollment/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/enrollment/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/enrollment",
+      "path": "/api/:tenantSlug/installations/:installationId/enrollment",
       "lines": 66,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/operations/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/operations/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/operations",
+      "path": "/api/:tenantSlug/installations/:installationId/operations",
       "lines": 128,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/upgrades/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/upgrades/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/upgrades",
+      "path": "/api/:tenantSlug/installations/:installationId/upgrades",
       "lines": 107,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/enroll/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/enroll/route.ts",
       "methods": [
         "DELETE",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/enroll",
+      "path": "/api/:tenantSlug/installations/enroll",
       "lines": 101,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/preflight/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/preflight/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/preflight",
+      "path": "/api/:tenantSlug/installations/preflight",
       "lines": 35,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/interventions/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/interventions",
+      "path": "/api/:tenantSlug/interventions",
       "lines": 12,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/interventions/[interventionId]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/interventions/[interventionId]/route.ts",
       "methods": [
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/interventions/:interventionId",
+      "path": "/api/:tenantSlug/interventions/:interventionId",
       "lines": 16,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/projects/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/projects",
+      "path": "/api/:tenantSlug/projects",
       "lines": 24,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/projects/[projectId]/resources/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/projects/[projectId]/resources/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/projects/:projectId/resources",
+      "path": "/api/:tenantSlug/projects/:projectId/resources",
       "lines": 21,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/resources/[resourceId]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/resources/[resourceId]/route.ts",
       "methods": [
         "DELETE"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/resources/:resourceId",
+      "path": "/api/:tenantSlug/resources/:resourceId",
       "lines": 12,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/runtime/config/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/runtime/config/route.ts",
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/runtime/config",
+      "path": "/api/:tenantSlug/runtime/config",
       "lines": 68,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/skills/content/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/skills/content",
+      "path": "/api/:tenantSlug/skills/content",
       "lines": 55,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/tools/toolsets/[name]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/tools/toolsets/:name",
+      "path": "/api/:tenantSlug/tools/toolsets/:name",
       "lines": 48,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items",
+      "path": "/api/:tenantSlug/work-items",
       "lines": 70,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId",
-      "lines": 84,
+      "path": "/api/:tenantSlug/work-items/:workItemId",
+      "lines": 106,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/assign/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/assign/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/assign",
+      "path": "/api/:tenantSlug/work-items/:workItemId/assign",
       "lines": 23,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/cancel/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/cancel/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/cancel",
+      "path": "/api/:tenantSlug/work-items/:workItemId/cancel",
       "lines": 14,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/comments/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/comments/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/comments",
+      "path": "/api/:tenantSlug/work-items/:workItemId/comments",
       "lines": 29,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/dependencies/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/dependencies/route.ts",
       "methods": [
         "DELETE",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/dependencies",
+      "path": "/api/:tenantSlug/work-items/:workItemId/dependencies",
       "lines": 31,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/labels/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/labels/route.ts",
       "methods": [
         "DELETE",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/labels",
+      "path": "/api/:tenantSlug/work-items/:workItemId/labels",
       "lines": 20,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/resources/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/resources/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/resources",
+      "path": "/api/:tenantSlug/work-items/:workItemId/resources",
       "lines": 21,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/runs/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/runs/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/runs",
+      "path": "/api/:tenantSlug/work-items/:workItemId/runs",
       "lines": 31,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-items/[workItemId]/timeline/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/timeline/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/timeline",
+      "path": "/api/:tenantSlug/work-items/:workItemId/timeline",
       "lines": 18,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-labels/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-labels/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-labels",
+      "path": "/api/:tenantSlug/work-labels",
       "lines": 23,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/cancel/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-runs/[runId]/cancel/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/cancel",
+      "path": "/api/:tenantSlug/work-runs/:runId/cancel",
       "lines": 14,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/plan-steps/:stepId/promote",
+      "path": "/api/:tenantSlug/work-runs/:runId/plan-steps/:stepId/promote",
       "lines": 14,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-stream/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-stream",
+      "path": "/api/:tenantSlug/work-stream",
       "lines": 77,
       "critical": false
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-views/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/work-views/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-views",
+      "path": "/api/:tenantSlug/work-views",
       "lines": 33,
       "critical": false
     },
@@ -638,7 +638,7 @@
         "POST"
       ],
       "path": "/api/workspaces",
-      "lines": 103,
+      "lines": 18,
       "critical": false
     },
     {
@@ -658,96 +658,100 @@
       "path": "/"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/agents"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/page.tsx",
+      "path": "/:tenantSlug"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/agents/new/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/agents/new"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/agents/page.tsx",
+      "path": "/:tenantSlug/agents"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/approvals/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/approvals"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/agents/new/page.tsx",
+      "path": "/:tenantSlug/agents/new"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/automations/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/automations"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/approvals/page.tsx",
+      "path": "/:tenantSlug/approvals"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/d/chat/[[...segments]]/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/d/chat/*segments?"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/automations/page.tsx",
+      "path": "/:tenantSlug/automations"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/dashboard/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/dashboard"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/d/chat/[[...segments]]/page.tsx",
+      "path": "/:tenantSlug/d/chat/*segments?"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/events/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/events"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/dashboard/page.tsx",
+      "path": "/:tenantSlug/dashboard"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/files/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/files"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/events/page.tsx",
+      "path": "/:tenantSlug/events"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/inbox/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/inbox"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/files/page.tsx",
+      "path": "/:tenantSlug/files"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/installations"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/inbox/page.tsx",
+      "path": "/:tenantSlug/inbox"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/installations/[installationId]/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/installations/:installationId"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/installations/page.tsx",
+      "path": "/:tenantSlug/installations"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/integrations/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/integrations"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/installations/[installationId]/page.tsx",
+      "path": "/:tenantSlug/installations/:installationId"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/knowledge/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/knowledge"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/integrations/page.tsx",
+      "path": "/:tenantSlug/integrations"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/models/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/models"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/knowledge/page.tsx",
+      "path": "/:tenantSlug/knowledge"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/projects"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/models/page.tsx",
+      "path": "/:tenantSlug/models"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/projects/[projectId]/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/projects/:projectId"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/projects/page.tsx",
+      "path": "/:tenantSlug/projects"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/settings/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/settings"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/projects/[projectId]/page.tsx",
+      "path": "/:tenantSlug/projects/:projectId"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/settings/[panel]/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/settings/:panel"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/settings/page.tsx",
+      "path": "/:tenantSlug/settings"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/skills/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/skills"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/settings/[panel]/page.tsx",
+      "path": "/:tenantSlug/settings/:panel"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/tasks"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/skills/page.tsx",
+      "path": "/:tenantSlug/skills"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tasks/[taskId]/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/tasks/:taskId"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/tasks/page.tsx",
+      "path": "/:tenantSlug/tasks"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/team/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/team"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/tasks/[taskId]/page.tsx",
+      "path": "/:tenantSlug/tasks/:taskId"
     },
     {
-      "file": "apps/web/src/app/(app)/[tenantSlug]/[workspaceSlug]/tools/page.tsx",
-      "path": "/:tenantSlug/:workspaceSlug/tools"
+      "file": "apps/web/src/app/(app)/[tenantSlug]/team/page.tsx",
+      "path": "/:tenantSlug/team"
+    },
+    {
+      "file": "apps/web/src/app/(app)/[tenantSlug]/tools/page.tsx",
+      "path": "/:tenantSlug/tools"
     },
     {
       "file": "apps/web/src/app/(auth)/login/page.tsx",
@@ -771,11 +775,12 @@
       "name": "DATABASE_URL",
       "references": [
         "apps/web/drizzle.config.ts",
-        "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/work-stream/route.ts",
+        "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
         "apps/web/src/db/index.ts",
         "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
         "scripts/migrate-product-model.ts",
         "scripts/migrate-runtime-installations.ts",
+        "scripts/migrate-tenant-boundary.ts",
         "scripts/migrate-work-control-plane.ts",
         "scripts/reset-product-data.ts"
       ]
@@ -864,8 +869,6 @@
       "references": [
         "apps/web/scripts/sync-local-runtime-profiles.ts",
         "apps/web/src/app/api/onboarding/complete/route.ts",
-        "apps/web/src/app/api/workspaces/route.ts",
-        "apps/web/src/db/seed.ts",
         "apps/web/src/lib/hermes/installations.ts",
         "scripts/dev-stack.ts",
         "scripts/migrate-runtime-installations.ts"
@@ -874,7 +877,6 @@
     {
       "name": "HERMES_DEFAULT_INSTALLATION_ID",
       "references": [
-        "apps/web/scripts/sync-local-runtime-profiles.ts",
         "apps/web/src/lib/hermes/installations.ts",
         "infra/dev/compose.yaml",
         "scripts/dev-stack.ts",
@@ -891,14 +893,12 @@
     {
       "name": "HERMES_DEV_LOGIN_EMAIL",
       "references": [
-        "apps/web/src/app/(auth)/login/page.tsx",
         "apps/web/src/modules/auth/infrastructure/auth-service.ts"
       ]
     },
     {
       "name": "HERMES_DEV_LOGIN_PASSWORD",
       "references": [
-        "apps/web/src/app/(auth)/login/page.tsx",
         "apps/web/src/modules/auth/infrastructure/auth-service.ts"
       ]
     },
@@ -977,6 +977,8 @@
       "name": "HERMES_HOME",
       "references": [
         "apps/web/src/lib/hermes/extension-files.ts",
+        "apps/web/src/lib/hermes/gateway-locks.test.ts",
+        "apps/web/src/lib/hermes/gateway-locks.ts",
         "apps/web/src/lib/hermes/server.ts"
       ]
     },
@@ -1117,8 +1119,8 @@
       "name": "HERMES_RELAY_URL",
       "references": [
         "apps/gateway/gateway/config.go",
-        "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/enrollment/route.ts",
-        "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/enroll/route.ts",
+        "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/enrollment/route.ts",
+        "apps/web/src/app/api/[tenantSlug]/installations/enroll/route.ts",
         "apps/web/src/app/api/runtime/enroll/route.ts"
       ]
     },
@@ -1263,6 +1265,13 @@
       "references": [
         "apps/web/src/app/api/internal/work/automations/cron/route.ts"
       ]
+    },
+    {
+      "name": "XDG_STATE_HOME",
+      "references": [
+        "apps/web/src/lib/hermes/gateway-locks.test.ts",
+        "apps/web/src/lib/hermes/gateway-locks.ts"
+      ]
     }
   ],
   "scripts": {
@@ -1279,7 +1288,7 @@
       "start": "next start",
       "test": "bun test --path-ignore-patterns=e2e/**",
       "test:e2e": "bun run test:e2e:seed && bun --env-file=../../.env x playwright test",
-      "test:e2e:seed": "bun --env-file=../../.env run ../../scripts/migrate-runtime-installations.ts && bun --env-file=../../.env run ../../scripts/migrate-work-control-plane.ts && bun --env-file=../../.env run e2e/seed.ts",
+      "test:e2e:seed": "bun --env-file=../../.env run ../../scripts/migrate-runtime-installations.ts && bun --env-file=../../.env run ../../scripts/migrate-work-control-plane.ts && bun --env-file=../../.env run ../../scripts/migrate-tenant-boundary.ts && bun --env-file=../../.env run e2e/seed.ts",
       "typecheck": "tsc --noEmit"
     },
     "package.json": {
@@ -1291,7 +1300,7 @@
       "build:web": "bun --cwd=apps/web run build",
       "check": "bun run contracts:verify && bun run typecheck && bun run lint && bun run test && bun run test:gateway && bun run build:all",
       "contracts:verify": "bun run tools/verify-contracts.ts",
-      "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts && bun run scripts/migrate-work-control-plane.ts",
+      "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts && bun run scripts/migrate-work-control-plane.ts && bun run scripts/migrate-tenant-boundary.ts",
       "db:migrate:runtime": "bun run scripts/migrate-runtime-installations.ts",
       "db:migrate:work": "bun run scripts/migrate-work-control-plane.ts",
       "db:push": "bunx --bun drizzle-kit push --config=apps/web/drizzle.config.ts",
@@ -1331,6 +1340,7 @@
     "apps/web/drizzle.config.ts",
     "scripts/migrate-product-model.ts",
     "scripts/migrate-runtime-installations.ts",
+    "scripts/migrate-tenant-boundary.ts",
     "scripts/migrate-work-control-plane.ts"
   ],
   "keyConfigFiles": [
@@ -1348,6 +1358,7 @@
     "bun.lock",
     "infra/dev/compose.override.yaml",
     "infra/dev/compose.yaml",
+    "infra/dev/data/hermes/skills/research/research-paper-writing/templates/neurips2025/Makefile",
     "infra/prod/compose.edge.yaml",
     "package.json",
     "packages/shared/gatewaycontracts/go.mod",
@@ -1356,185 +1367,185 @@
   ],
   "criticalRoutes": [
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents",
+      "path": "/api/:tenantSlug/agents",
       "lines": 78,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/inference/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference",
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference",
       "lines": 22,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/inference/codex/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/inference/codex/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference/codex",
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference/codex",
       "lines": 29,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/messaging/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/messaging/route.ts",
       "methods": [
         "GET",
         "POST",
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/messaging",
+      "path": "/api/:tenantSlug/agents/:agentSlug/messaging",
       "lines": 22,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-status/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-status",
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-status",
       "lines": 49,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-ticket",
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-ticket",
       "lines": 47,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions",
-      "lines": 77,
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions",
+      "lines": 76,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/route.ts",
       "methods": [
         "DELETE",
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId",
-      "lines": 99,
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId",
+      "lines": 98,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId/metrics",
-      "lines": 77,
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId/metrics",
+      "lines": 73,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations",
+      "path": "/api/:tenantSlug/installations",
       "lines": 9,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/route.ts",
       "methods": [
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId",
+      "path": "/api/:tenantSlug/installations/:installationId",
       "lines": 17,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/backups/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/backups/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/backups",
+      "path": "/api/:tenantSlug/installations/:installationId/backups",
       "lines": 128,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/budget/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/budget/route.ts",
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/budget",
+      "path": "/api/:tenantSlug/installations/:installationId/budget",
       "lines": 66,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/capacity-policy/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/capacity-policy/route.ts",
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/capacity-policy",
+      "path": "/api/:tenantSlug/installations/:installationId/capacity-policy",
       "lines": 38,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/enrollment/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/enrollment/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/enrollment",
+      "path": "/api/:tenantSlug/installations/:installationId/enrollment",
       "lines": 66,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/operations/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/operations/route.ts",
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/operations",
+      "path": "/api/:tenantSlug/installations/:installationId/operations",
       "lines": 128,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/[installationId]/upgrades/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/upgrades/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/upgrades",
+      "path": "/api/:tenantSlug/installations/:installationId/upgrades",
       "lines": 107,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/enroll/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/enroll/route.ts",
       "methods": [
         "DELETE",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/enroll",
+      "path": "/api/:tenantSlug/installations/enroll",
       "lines": 101,
       "critical": true
     },
     {
-      "file": "apps/web/src/app/api/[tenantSlug]/[workspaceSlug]/installations/preflight/route.ts",
+      "file": "apps/web/src/app/api/[tenantSlug]/installations/preflight/route.ts",
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/preflight",
+      "path": "/api/:tenantSlug/installations/preflight",
       "lines": 35,
       "critical": true
     },

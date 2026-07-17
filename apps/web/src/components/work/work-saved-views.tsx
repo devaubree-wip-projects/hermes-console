@@ -22,13 +22,14 @@ export function WorkSavedViews({ apiBase, views }: { apiBase: string; views: Sav
     const view = views.find((candidate) => candidate.id === id);
     if (!view) return;
     const params = new URLSearchParams(view.filters);
+    params.delete("view");
     router.push(`${pathname}${params.size ? `?${params}` : ""}`);
   }
 
   async function save(event: React.FormEvent) {
     event.preventDefault(); setPending(true);
     try {
-      const filters = Object.fromEntries([...current.entries()].filter(([key]) => key !== "page"));
+      const filters = Object.fromEntries([...current.entries()].filter(([key]) => key !== "page" && key !== "view"));
       const response = await fetch(`${apiBase}/work-views`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

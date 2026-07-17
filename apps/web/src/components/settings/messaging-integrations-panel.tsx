@@ -17,6 +17,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  Trash2,
   X,
 } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
@@ -24,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -32,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SettingsPanelHeader } from "@/components/settings/settings-row";
+import { DiscordSetupGuideDialog } from "@/components/settings/discord-setup-guide-dialog";
 
 type AgentOption = {
   id: string;
@@ -59,6 +62,7 @@ type MessagingPlatform = {
   configured: boolean;
   gateway_running: boolean;
   state: string | null;
+  error_code: string | null;
   error_message: string | null;
   env_vars: MessagingEnv[];
 };
@@ -113,12 +117,115 @@ const EMPTY_DRAFT: Draft = {
   showToken: false,
 };
 
+const skeletonMotion = "motion-reduce:animate-none";
+
+const platformSkeletonDetails = {
+  telegram: {
+    name: "Telegram",
+    description: "Run Hermes from Telegram DMs, groups, and topics.",
+    docsUrl: "https://core.telegram.org/bots/features#botfather",
+    icon: Send,
+  },
+  discord: {
+    name: "Discord",
+    description: "Connect Hermes to Discord DMs, channels, and threads.",
+    docsUrl: "https://discord.com/developers/applications",
+    icon: MessageCircle,
+  },
+} as const;
+
+function MessagingPlatformSkeleton({ platform }: { platform: MessagingPlatform["id"] }) {
+  const details = platformSkeletonDetails[platform];
+  const Icon = details.icon;
+
+  return (
+    <section className="overflow-hidden rounded-xl border bg-card">
+      <div className="flex items-start justify-between gap-4 border-b p-5">
+        <div className="flex min-w-0 flex-1 gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
+            <Icon className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold">{details.name}</h2>
+              <Skeleton className={`h-5 w-20 rounded-full ${skeletonMotion}`} />
+            </div>
+            <p className="text-sm text-muted-foreground">{details.description}</p>
+          </div>
+        </div>
+        <Button asChild size="icon" variant="ghost">
+          <a href={details.docsUrl} target="_blank" rel="noreferrer" aria-label={`Documentation ${details.name}`}>
+            <ExternalLink />
+          </a>
+        </Button>
+      </div>
+
+      <div className="space-y-5 p-5">
+        {platform === "telegram" ? (
+          <>
+            <div className="flex items-start gap-3">
+              <Skeleton className={`size-9 shrink-0 rounded-lg ${skeletonMotion}`} />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className={`h-4 w-36 ${skeletonMotion}`} />
+                <Skeleton className={`h-3 w-full max-w-md ${skeletonMotion}`} />
+                <Skeleton className={`h-3 w-4/5 max-w-sm ${skeletonMotion}`} />
+              </div>
+            </div>
+            <Skeleton className={`h-9 w-48 ${skeletonMotion}`} />
+            <div className="flex items-center justify-between border-t pt-4">
+              <div>
+                <span className="text-sm font-medium">Configuration manuelle</span>
+                <span className="ml-2 text-xs text-muted-foreground">Token et identifiants numériques</span>
+              </div>
+              <Skeleton className={`size-4 ${skeletonMotion}`} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <Label>Token du bot</Label>
+              <Skeleton className={`h-9 w-full ${skeletonMotion}`} />
+              <Skeleton className={`h-3 w-3/4 ${skeletonMotion}`} />
+            </div>
+            <div className="space-y-2">
+              <Label>Utilisateurs autorisés</Label>
+              <Skeleton className={`h-9 w-full ${skeletonMotion}`} />
+              <Skeleton className={`h-3 w-5/6 ${skeletonMotion}`} />
+            </div>
+            <div className="space-y-2">
+              <Label>Mode de réponse</Label>
+              <Skeleton className={`h-9 w-full ${skeletonMotion}`} />
+            </div>
+            <Skeleton className={`h-9 w-48 ${skeletonMotion}`} />
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function MessagingPlatformsSkeleton() {
+  return (
+    <div
+      className="grid gap-5 xl:grid-cols-2"
+      role="status"
+      aria-live="polite"
+      aria-label="Chargement de l’état des intégrations"
+    >
+      <span className="sr-only">Chargement de l’état des intégrations Hermes…</span>
+      <MessagingPlatformSkeleton platform="telegram" />
+      <MessagingPlatformSkeleton platform="discord" />
+    </div>
+  );
+}
+
 const STATE_LABELS: Record<string, string> = {
   connected: "Connecté",
   disabled: "Désactivé",
   gateway_stopped: "Gateway arrêté",
   not_configured: "À configurer",
   pending_restart: "Connexion…",
+  retrying: "Reconnexion…",
   startup_failed: "Erreur",
 };
 
@@ -139,7 +246,7 @@ function stateVariant(platform: MessagingPlatform) {
   if (["startup_failed", "gateway_stopped"].includes(platform.state ?? "")) {
     return "destructive" as const;
   }
-  if (platform.state === "pending_restart") return "warning" as const;
+  if (["pending_restart", "retrying"].includes(platform.state ?? "")) return "warning" as const;
   return "secondary" as const;
 }
 
@@ -185,6 +292,8 @@ export function MessagingIntegrationsPanel({
   const [telegramBotUsername, setTelegramBotUsername] = useState<string | null>(null);
   const [telegramOwnerId, setTelegramOwnerId] = useState<string | null>(null);
   const [telegramManualOpen, setTelegramManualOpen] = useState(false);
+  const [unblockConfirm, setUnblockConfirm] = useState<MessagingPlatform["id"] | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<MessagingPlatform["id"] | null>(null);
   const [drafts, setDrafts] = useState<Record<MessagingPlatform["id"], Draft>>({
     telegram: { ...EMPTY_DRAFT },
     discord: { ...EMPTY_DRAFT },
@@ -452,13 +561,56 @@ export function MessagingIntegrationsPanel({
     if (saved) updateDraft(platform.id, { token: "", showToken: false });
   }
 
-  if (loading && !data) {
-    return (
-      <div className="flex min-h-72 items-center justify-center text-sm text-muted-foreground">
-        <Loader2 className="mr-2 size-4 animate-spin" /> Lecture des channels Hermes…
-      </div>
+  async function unblockTelegram(platform: MessagingPlatform) {
+    setUnblockConfirm(null);
+    await request(
+      { action: "unblock_telegram" },
+      `unblock:${platform.id}`,
+      {
+        kind: "success",
+        title: "Telegram débloqué",
+        message: "Le verrou résiduel est supprimé et le gateway redémarre.",
+      },
     );
   }
+
+  async function deleteCredentialFor(platform: MessagingPlatform) {
+    setDeleteConfirm(null);
+    await request(
+      { action: "delete_credential", platform: platform.id },
+      `delete:${platform.id}`,
+      {
+        kind: "success",
+        title: "Credential supprimé",
+        message: "Le token est retiré du profil de l’agent et le gateway redémarre.",
+      },
+    );
+  }
+
+  function deleteCredentialControl(platform: MessagingPlatform) {
+    const credential = field(platform, credentialKey(platform.id));
+    if (!data?.canEdit || !credential?.is_set) return null;
+    if (deleteConfirm === platform.id) {
+      return (
+        <>
+          <Button type="button" variant="destructive" disabled={action !== null} onClick={() => void deleteCredentialFor(platform)}>
+            {action === `delete:${platform.id}` ? <Loader2 className="animate-spin" /> : <Trash2 />}
+            Confirmer la suppression
+          </Button>
+          <Button type="button" variant="ghost" disabled={action !== null} onClick={() => setDeleteConfirm(null)}>
+            Annuler
+          </Button>
+        </>
+      );
+    }
+    return (
+      <Button type="button" variant="ghost" disabled={action !== null} onClick={() => setDeleteConfirm(platform.id)}>
+        <Trash2 /> Supprimer le credential
+      </Button>
+    );
+  }
+
+  const initialLoading = loading && !data;
 
   return (
     <div className="space-y-8">
@@ -494,34 +646,45 @@ export function MessagingIntegrationsPanel({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={gatewayRunning ? "success" : "destructive"}>
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
-            {gatewayRunning ? "Gateway en ligne" : "Gateway arrêté"}
-          </Badge>
-          {data?.canEdit ? (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={action !== null}
-              onClick={() => void request(
-                { action: gatewayRunning ? "restart" : "start" },
-                "gateway",
-                {
-                  kind: "success",
-                  title: gatewayRunning ? "Gateway redémarré" : "Gateway démarré",
-                  message: "Hermes applique la configuration des channels de cet agent.",
-                },
-              )}
-            >
-              {action === "gateway" ? <Loader2 className="animate-spin" /> : gatewayRunning ? <RefreshCw /> : <Play />}
-              {gatewayRunning ? "Redémarrer" : "Démarrer"}
-            </Button>
-          ) : null}
+          {initialLoading ? (
+            <div role="status" aria-label="Chargement de l’état du gateway" className="flex items-center gap-2">
+              <span className="sr-only">Chargement de l’état du gateway Hermes…</span>
+              <Skeleton className={`h-5 w-28 rounded-full ${skeletonMotion}`} />
+              <Skeleton className={`h-9 w-28 ${skeletonMotion}`} />
+            </div>
+          ) : (
+            <>
+              <Badge variant={gatewayRunning ? "success" : "destructive"}>
+                <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+                {gatewayRunning ? "Gateway en ligne" : "Gateway arrêté"}
+              </Badge>
+              {data?.canEdit ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={action !== null}
+                  onClick={() => void request(
+                    { action: gatewayRunning ? "restart" : "start" },
+                    "gateway",
+                    {
+                      kind: "success",
+                      title: gatewayRunning ? "Gateway redémarré" : "Gateway démarré",
+                      message: "Hermes applique la configuration des channels de cet agent.",
+                    },
+                  )}
+                >
+                  {action === "gateway" ? <Loader2 className="animate-spin" /> : gatewayRunning ? <RefreshCw /> : <Play />}
+                  {gatewayRunning ? "Redémarrer" : "Démarrer"}
+                </Button>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        {(data?.platforms ?? []).map((platform) => {
+      {initialLoading ? <MessagingPlatformsSkeleton /> : (
+        <div className="grid gap-5 xl:grid-cols-2">
+          {(data?.platforms ?? []).map((platform) => {
           const Icon = platform.id === "telegram" ? Send : MessageCircle;
           const draft = drafts[platform.id];
           const credential = field(platform, credentialKey(platform.id));
@@ -552,17 +715,69 @@ export function MessagingIntegrationsPanel({
                     <p className="mt-1 text-sm text-muted-foreground">{platform.description}</p>
                   </div>
                 </div>
-                {platform.docs_url ? (
-                  <Button asChild size="icon" variant="ghost">
-                    <a href={platform.docs_url} target="_blank" rel="noreferrer" aria-label={`Documentation ${platform.name}`}>
-                      <ExternalLink />
-                    </a>
-                  </Button>
-                ) : null}
+                <div className="flex shrink-0 items-center gap-1">
+                  {platform.id === "discord" ? (
+                    <DiscordSetupGuideDialog portalUrl={platform.docs_url} />
+                  ) : null}
+                  {platform.docs_url ? (
+                    <Button asChild size="icon" variant="ghost">
+                      <a href={platform.docs_url} target="_blank" rel="noreferrer" aria-label={`Documentation ${platform.name}`}>
+                        <ExternalLink />
+                      </a>
+                    </Button>
+                  ) : null}
+                </div>
               </div>
 
               <div className="space-y-5 p-5">
-                {platform.error_message ? (
+                {platform.error_code === "telegram-bot-token_lock" ? (
+                  <Alert variant="warning" title="Verrou Telegram résiduel">
+                    <div className="space-y-3">
+                      <p className="text-sm leading-5">
+                        Un ancien gateway n’a pas libéré ce bot (après un crash, une réinstallation
+                        ou une mise à jour). Tant que le verrou reste, Hermes refuse de reconnecter
+                        le bot — un simple redémarrage ne suffit pas.
+                      </p>
+                      {data?.canEdit ? (
+                        unblockConfirm === platform.id ? (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-xs text-muted-foreground">
+                              Confirme qu’aucun autre gateway n’utilise ce bot.
+                            </span>
+                            <Button
+                              type="button"
+                              size="sm"
+                              disabled={action !== null}
+                              onClick={() => void unblockTelegram(platform)}
+                            >
+                              {action === `unblock:${platform.id}` ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
+                              Confirmer le déblocage
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              disabled={action !== null}
+                              onClick={() => setUnblockConfirm(null)}
+                            >
+                              Annuler
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={action !== null}
+                            onClick={() => setUnblockConfirm(platform.id)}
+                          >
+                            <ShieldCheck /> Débloquer Telegram
+                          </Button>
+                        )
+                      ) : null}
+                    </div>
+                  </Alert>
+                ) : platform.error_message ? (
                   <Alert variant="warning" title="Erreur remontée par Hermes">
                     {platform.error_message}
                   </Alert>
@@ -726,6 +941,7 @@ export function MessagingIntegrationsPanel({
                               Désactiver
                             </Button>
                           ) : null}
+                          {deleteCredentialControl(platform)}
                         </div>
                       </div>
                     ) : (
@@ -888,14 +1104,16 @@ export function MessagingIntegrationsPanel({
                         Tester
                       </Button>
                     ) : null}
+                    {platform.id !== "telegram" ? deleteCredentialControl(platform) : null}
                   </div>
                 )}
                 </div>
               </div>
             </section>
           );
-        })}
-      </div>
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -58,12 +58,17 @@ export const ToolCallsByName: FC<ToolCallsByNameProps> = memo(({
     indices.map((index) => {
       const part = s.message.parts[index];
       if (part?.type !== "tool-call") return "";
+      const resultText = typeof part.result === "string" ? part.result : "";
       return [
         index,
         part.toolName,
         part.status?.type ?? "",
         part.result === undefined ? "pending" : "done",
         part.argsText.length,
+        resultText.length,
+        // Cheap content signal so completed tools remount when payload arrives/changes.
+        resultText.slice(0, 24),
+        resultText.slice(-24),
       ].join(":");
     }).join("|"),
   );

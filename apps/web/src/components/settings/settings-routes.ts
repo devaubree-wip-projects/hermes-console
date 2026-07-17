@@ -26,10 +26,10 @@ export const SETTINGS_PANELS = [
   },
   {
     id: "tools",
-    label: "Outils",
+    label: "Outils intégrés",
     icon: WrenchIcon,
     section: "Conversation",
-    keywords: ["tools", "capacités", "toolsets"],
+    keywords: ["tools", "capacités", "toolsets", "mcp", "runtime", "shell", "fichiers"],
   },
   {
     id: "documents",

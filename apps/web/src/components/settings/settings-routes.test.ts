@@ -18,7 +18,7 @@ describe("settings routes", () => {
     expect(resolveSettingsPanel(["chat", "advanced"])).toBeNull()
   })
 
-  test("builds workspace-scoped panel links", () => {
-    expect(settingsPanelHref("/acme/ops", "members")).toBe("/acme/ops/settings/members")
+  test("builds tenant-scoped panel links", () => {
+    expect(settingsPanelHref("/acme", "members")).toBe("/acme/settings/members")
   })
 })

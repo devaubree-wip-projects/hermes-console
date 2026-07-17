@@ -765,7 +765,7 @@ function InferenceSettingsContent({
                 </div>
               ) : (
                 <Alert variant="info" title="Accès en lecture seule">
-                  Seul un Owner du workspace peut modifier la connexion et le modèle.
+                  Seul un Owner de l’organisation peut modifier la connexion et le modèle.
                 </Alert>
               )}
             </form>

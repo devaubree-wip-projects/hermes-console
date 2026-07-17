@@ -28,18 +28,11 @@ function resolveApiBaseFromParams(
       : Array.isArray(params.tenantSlug)
         ? params.tenantSlug[0]
         : undefined
-  const workspaceSlug =
-    typeof params.workspaceSlug === "string"
-      ? params.workspaceSlug
-      : Array.isArray(params.workspaceSlug)
-        ? params.workspaceSlug[0]
-        : undefined
-
-  if (!tenantSlug || !workspaceSlug) {
+  if (!tenantSlug) {
     return "/api"
   }
 
-  return `/api/${tenantSlug}/${workspaceSlug}`
+  return `/api/${tenantSlug}`
 }
 
 export function ContextAlertWatcher({

@@ -116,7 +116,7 @@ function formatResultSection(
   toolName: string,
   result: unknown,
 ): ToolDisplaySection | undefined {
-  const parsed = tryParseJson(result);
+  const parsed = unwrapToolResultPayload(result);
   if (parsed === undefined || parsed === null || parsed === "") return undefined;
 
   if (isSkillPayload(parsed) || (toolName === "skill_view" && isRecord(parsed))) {
@@ -126,9 +126,6 @@ function formatResultSection(
   if (typeof parsed === "string") {
     const text = parsed.trim();
     if (!text) return undefined;
-    if (/^#{1,6}\s/.test(text) || text.includes("\n## ") || text.includes("\n- ")) {
-      return { type: "markdown", text };
-    }
     return { type: "markdown", text };
   }
 
@@ -136,10 +133,10 @@ function formatResultSection(
     if (typeof parsed.content === "string" && parsed.content.trim()) {
       return formatSkillPayload(parsed).result;
     }
-    if (typeof parsed.summary === "string" && parsed.summary.trim()) {
+    if (typeof parsed.summary === "string" && parsed.summary.trim() && Object.keys(parsed).length === 1) {
       return { type: "markdown", text: parsed.summary.trim() };
     }
-    if (typeof parsed.result_text === "string" && parsed.result_text.trim()) {
+    if (typeof parsed.result_text === "string" && parsed.result_text.trim() && Object.keys(parsed).length === 1) {
       return { type: "markdown", text: parsed.result_text.trim() };
     }
     return { type: "markdown", text: objectToMarkdown(parsed, toolName) };
@@ -152,24 +149,61 @@ function formatResultSection(
   return { type: "markdown", text: String(parsed) };
 }
 
+function unwrapToolResultPayload(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  const untrusted = trimmed.match(
+    /<untrusted_tool_result\b[^>]*>\s*([\s\S]*?)\s*<\/untrusted_tool_result>/i,
+  );
+  const body = (untrusted?.[1] ?? trimmed).trim();
+  return tryParseJson(body);
+}
+
+function summaryFromResult(toolName: string, result: unknown): string | undefined {
+  const parsed = unwrapToolResultPayload(result);
+  if (isSkillPayload(parsed)) {
+    const name = typeof parsed.name === "string" ? parsed.name : toolName;
+    const description = typeof parsed.description === "string"
+      ? parsed.description.trim()
+      : "";
+    return description ? `${name} — ${truncate(description, 96)}` : name;
+  }
+  if (isRecord(parsed)) {
+    const url = typeof parsed.url === "string" ? parsed.url.trim() : "";
+    const title = typeof parsed.title === "string" ? parsed.title.trim() : "";
+    if (url) return truncate(url, 120);
+    if (title) return truncate(title, 120);
+    if (typeof parsed.output === "string" && parsed.output.trim()) {
+      return truncate(parsed.output.trim(), 120);
+    }
+    if (typeof parsed.name === "string" && parsed.name.trim()) {
+      return parsed.name.trim();
+    }
+    if (typeof parsed.summary === "string" && parsed.summary.trim()) {
+      return truncate(parsed.summary.trim(), 120);
+    }
+  }
+  if (typeof parsed === "string" && parsed.trim()) {
+    return truncate(parsed.trim(), 120);
+  }
+  return undefined;
+}
+
 function buildSummary(
   toolName: string,
   args: Record<string, unknown>,
   argsText: string,
   result: unknown,
 ) {
-  const parsedResult = tryParseJson(result);
-  if (isSkillPayload(parsedResult)) {
-    const name = typeof parsedResult.name === "string" ? parsedResult.name : toolName;
-    const description = typeof parsedResult.description === "string"
-      ? parsedResult.description.trim()
-      : "";
-    return description ? `${name} — ${truncate(description, 96)}` : name;
+  const resultSummary = summaryFromResult(toolName, result);
+  if (resultSummary && isSkillPayload(unwrapToolResultPayload(result))) {
+    return resultSummary;
   }
 
   const parsedArgs = tryParseJson(argsText.trim() || args);
   if (isRecord(parsedArgs)) {
-    const skill = parsedArgs.skill ?? parsedArgs.name ?? parsedArgs.path;
+    const skill = parsedArgs.skill ?? parsedArgs.name ?? parsedArgs.path
+      ?? parsedArgs.url ?? parsedArgs.command;
     if (typeof skill === "string" && skill.trim()) {
       return `${toolName} · ${truncate(skill.trim(), 96)}`;
     }
@@ -177,18 +211,13 @@ function buildSummary(
 
   const argsPreview = typeof parsedArgs === "string"
     ? parsedArgs.trim()
-    : isRecord(parsedArgs)
+    : isRecord(parsedArgs) && Object.keys(parsedArgs).length > 0
       ? JSON.stringify(parsedArgs)
       : "";
-  if (argsPreview) return truncate(argsPreview, 120);
+  // Never surface literal "{}" — empty args are common for Hermes tool.start.
+  if (argsPreview && argsPreview !== "{}") return truncate(argsPreview, 120);
 
-  if (typeof parsedResult === "string" && parsedResult.trim()) {
-    return truncate(parsedResult.trim(), 120);
-  }
-
-  if (isRecord(parsedResult) && typeof parsedResult.name === "string") {
-    return parsedResult.name;
-  }
+  if (resultSummary) return resultSummary;
 
   return toolName;
 }

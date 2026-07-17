@@ -1,11 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import {
+  assertWorkItemReachable,
   assertWorkItemTransition,
   assertWorkRunTransition,
+  canReachWorkItemStatus,
   diffWorkPlans,
   isRetryableWorkFailure,
   normalizeHermesTodo,
   redactWorkText,
+  resolveWorkItemTransitionPath,
   selectPlanDelegationMember,
   validateAssignee,
   workItemKey,
@@ -21,13 +24,27 @@ describe("work domain state machines", () => {
     ).not.toThrow();
   });
 
-  test("rejects terminal run resurrection and invalid task jumps", () => {
+  test("rejects terminal run resurrection and invalid direct task jumps", () => {
     expect(() => assertWorkRunTransition("succeeded", "running")).toThrow(
       /interdite/,
     );
     expect(() => assertWorkItemTransition("backlog", "done")).toThrow(
       /interdite/,
     );
+  });
+
+  test("resolves multi-hop kanban paths for reachable targets", () => {
+    expect(resolveWorkItemTransitionPath("in_progress", "todo")).toEqual([
+      "todo",
+    ]);
+    expect(resolveWorkItemTransitionPath("backlog", "done")).toEqual([
+      "todo",
+      "in_progress",
+      "done",
+    ]);
+    expect(resolveWorkItemTransitionPath("todo", "todo")).toEqual([]);
+    expect(canReachWorkItemStatus("backlog", "done")).toBe(true);
+    expect(() => assertWorkItemReachable("backlog", "done")).not.toThrow();
   });
 
   test("classifies only infrastructure failures as retryable", () => {

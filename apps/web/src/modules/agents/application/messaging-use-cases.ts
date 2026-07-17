@@ -219,9 +219,69 @@ export function createMessagingUseCases(dependencies: MessagingDependencies) {
             ? result(await dependencies.runtime.telegramCancel(agent.id, agent.hermesProfileName, pairingId))
             : result({ error: "Session Telegram invalide." }, 400);
         }
+        if (body?.action === "unblock_telegram") {
+          const cleared = await dependencies.runtime.reconcileTelegramLock(agent.id, agent.hermesProfileName);
+          if (cleared.status === "unsupported") {
+            return result({ error: cleared.reason ?? "Déblocage Telegram indisponible sur ce runtime." }, 400);
+          }
+          if (cleared.status === "conflict") {
+            return result({ error: `Un autre agent (profil ${cleared.profile}) est déjà connecté à ce bot Telegram. S’il s’agit du même bot, retire son token au lieu de forcer le déblocage — sinon les deux se déconnecteraient en boucle.` }, 409);
+          }
+          if (cleared.status === "ambiguous") {
+            return result({ error: "Plusieurs verrous Telegram détectés : impossible de choisir sans risque. Débloque-les sur l’hôte du runtime." }, 409);
+          }
+          let restartWarning: string | null = null;
+          try {
+            await dependencies.runtime.lifecycle(agent.id, agent.hermesProfileName, "restart");
+          } catch (error) {
+            restartWarning = error instanceof Error ? error.message : "Redémarrage du gateway impossible.";
+          }
+          await dependencies.audit.record(auditInput(context, "messaging.telegram_lock_cleared", {
+            platform: "telegram",
+            cleared: cleared.status === "cleared",
+            restartWarning: restartWarning ? dependencies.runtime.classifyError(new Error(restartWarning)).safeMessage : null,
+          }));
+          return result({
+            ok: restartWarning === null,
+            message: cleared.status === "cleared"
+              ? "Verrou Telegram résiduel supprimé, le gateway redémarre."
+              : "Aucun verrou résiduel à supprimer ; le gateway redémarre.",
+            restartWarning,
+          });
+        }
+        if (body?.action === "delete_credential") {
+          if (!isSupportedPlatform(body.platform)) return result({ error: "Channel non pris en charge." }, 400);
+          const platform = body.platform;
+          await dependencies.runtime.deleteCredential(agent.id, agent.hermesProfileName, tokenKey(platform));
+          await dependencies.runtime.deleteCredential(agent.id, agent.hermesProfileName, allowedUsersKey(platform)).catch(() => null);
+          let restartWarning: string | null = null;
+          try {
+            await dependencies.runtime.configure({ agentId: agent.id, profile: agent.hermesProfileName, platform, enabled: false, env: {} });
+            await dependencies.runtime.lifecycle(agent.id, agent.hermesProfileName, "restart");
+          } catch (error) {
+            restartWarning = error instanceof Error ? error.message : "Redémarrage du gateway impossible.";
+          }
+          await dependencies.audit.record(auditInput(context, "messaging.credential_deleted", {
+            platform,
+            restartWarning: restartWarning ? dependencies.runtime.classifyError(new Error(restartWarning)).safeMessage : null,
+          }));
+          return result({
+            ok: restartWarning === null,
+            message: `Credential ${platform === "telegram" ? "Telegram" : "Discord"} supprimé du profil ; le gateway redémarre.`,
+            restartWarning,
+          });
+        }
         if (body?.action === "start" || body?.action === "restart") {
-          const telegram = (await dependencies.runtime.load(agent.id, agent.hermesProfileName)).platforms.find((platform) => platform.id === "telegram");
+          const state = await dependencies.runtime.load(agent.id, agent.hermesProfileName);
+          const telegram = state.platforms.find((platform) => platform.id === "telegram");
           if (telegram?.enabled && telegram.configured) await dependencies.runtime.ensureControlExtension(agent.id, agent.hermesProfileName);
+          // Partie C — replug propre au reinstall/reupdate : un gateway confirmé arrêté
+          // ne peut pas poller Telegram, donc un verrou token résiduel est orphelin et
+          // sûr à purger avant le démarrage. Best-effort, ne bloque jamais le start.
+          const gatewayRunning = state.platforms.some((platform) => platform.gateway_running);
+          if (body.action === "start" && !gatewayRunning && telegram?.configured) {
+            await dependencies.runtime.reconcileTelegramLock(agent.id, agent.hermesProfileName).catch(() => null);
+          }
           const lifecycle = await dependencies.runtime.lifecycle(agent.id, agent.hermesProfileName, body.action);
           await dependencies.audit.record(auditInput(context,
             body.action === "start" ? "messaging.gateway_started" : "messaging.gateway_restarted",

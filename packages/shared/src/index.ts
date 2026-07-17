@@ -14,15 +14,14 @@ export type PublicError = {
   code?: PublicErrorCode;
 };
 
-export type WorkspaceRouteParams = {
+export type TenantRouteParams = {
   tenantSlug: string;
-  workspaceSlug: string;
 };
 
-export type AgentRouteParams = WorkspaceRouteParams & {
+export type AgentRouteParams = TenantRouteParams & {
   agentSlug: string;
 };
 
-export type InstallationRouteParams = WorkspaceRouteParams & {
+export type InstallationRouteParams = TenantRouteParams & {
   installationId: string;
 };

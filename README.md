@@ -1,6 +1,6 @@
 # Hermes Console
 
-Cockpit web métier pour piloter une installation locale Hermes : organisations, workspaces, agents, sessions,
+Cockpit web métier pour piloter une installation locale Hermes : organisations, agents, sessions,
 tâches, fichiers, connaissances, validations et capacités.
 
 ## Architecture
@@ -36,24 +36,25 @@ correspond à un Agent ; Hermes reste l’autorité des conversations et de leur
 ## Modèle et routes
 
 ```text
-Tenant
-└── Workspace
-    ├── Agent (1 profil Hermes)
-    │   └── Sessions (N conversations Hermes)
-    ├── Tasks
-    ├── Files / Knowledge
-    └── Approvals / Audit events
+Tenant (organisation + frontière RBAC)
+├── Members (Owner / Member / Viewer)
+├── Agent (1 profil Hermes)
+│   └── Sessions (N conversations Hermes)
+├── Tasks / Projects / Automations
+├── Files / Knowledge
+└── Approvals / Audit events
 ```
 
-La home redirige vers `/:tenantSlug/:workspaceSlug/dashboard`. Les anciennes URLs `/w/:id` sont uniquement
-des redirections de migration.
+La home redirige vers `/:tenantSlug/dashboard`. Les pages produit et les APIs publiques utilisent toutes
+`/:tenantSlug/**` et `/api/:tenantSlug/**`. Une réécriture interne maintient temporairement la compatibilité
+avec l'ancien arbre App Router à deux segments pendant la migration des clés `workspace_id` vers `tenant_id`.
 
 Un compte neuf ne reçoit aucune donnée fictive. Après l'inscription, `/onboarding` collecte l'organisation,
-le nom de l'espace et la mission du premier agent, vérifie le runtime Hermes, crée les objets réels puis ouvre
-la première conversation. Un compte possédant déjà un workspace est envoyé directement vers son dashboard.
+la mission du premier agent, vérifie le runtime Hermes, crée les objets réels puis ouvre la première conversation.
+Un compte appartenant déjà à une organisation est envoyé directement vers son dashboard.
 
-Rôles : `owner`, `member`, `viewer`. Le rôle tenant est hérité par le workspace, avec override ou refus local.
-Owners et Members peuvent valider ; seul un Owner peut modifier la configuration technique.
+Rôles tenant-only : `owner`, `member`, `viewer`. Owner administre les membres, les agents et Hermes ; Member
+crée/modifie le travail et répond aux validations ; Viewer consulte toute l'organisation en lecture seule.
 
 ## Démarrage local
 
@@ -83,7 +84,7 @@ actif.
 
 Avant de lancer Next.js, `make dev` partage les mêmes secrets locaux avec l'Edge, crée dans le volume Docker
 les profils manquants déjà associés aux agents en base, puis actualise l'état et les capacités des installations
-locales. Un workspace existant reste ainsi utilisable après le passage d'un Hermes systemwide à Hermes Docker.
+locales. Une organisation existante reste ainsi utilisable après le passage d'un Hermes systemwide à Hermes Docker.
 
 Pour retrouver volontairement une base vide :
 
@@ -92,7 +93,9 @@ make db-reset CONFIRM=reset
 ```
 
 Cette commande supprime les comptes, leurs données produit et les profils Hermes associés (sauf `default`).
-Les données « Garage Dupont » ne sont plus implicites ; elles ne sont créées qu'avec `make db-seed-demo`.
+Les données « Atelier Lumière » ne sont pas implicites ; `make db-seed-demo` crée une organisation complète et
+idempotente avec les comptes `owner@atelier-lumiere.local`, `member@atelier-lumiere.local` et
+`viewer@atelier-lumiere.local` (mot de passe commun : `demo-password`).
 
 Variables importantes :
 

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react"
 import { usePathname } from "next/navigation"
 import { SearchCommandProvider } from "@/components/v1-xulux/search-command"
+import { Toaster } from "@/components/ui/sonner"
 import { SidebarInset, SidebarProvider } from "@/components/v1-xulux/ui/sidebar"
 import {
 	AppSidebar,
@@ -37,6 +38,7 @@ export function AppShell({
 
 	return (
 		<SearchCommandProvider>
+			{!isChatRoute ? <Toaster position="bottom-right" /> : null}
 			<div className="overflow-hidden">
 				<SidebarProvider defaultOpen className="relative h-svh">
 					<AppSidebar
@@ -44,7 +46,7 @@ export function AppShell({
 						workspaceBase={workspaceBase}
 						workspaceName={workspaceName}
 					/>
-					<SidebarInset className="bg-sidebar shadow-none md:rounded-none md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none">
+					<SidebarInset className="min-w-0 bg-sidebar shadow-none md:rounded-none md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none">
 						<div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar">
 							{isChatRoute ? children : (
 								<div className="flex min-h-0 flex-1 p-3">

@@ -357,6 +357,16 @@ export class HermesClient {
   toolsList() {
     return this.call(M.toolsList) as unknown as Promise<{ toolsets?: HermesToolset[] }>;
   }
+  /** Live tools that passed Hermes check_fn gates (web_search, terminal, …). */
+  toolsShow(sessionId?: string) {
+    return this.call(M.toolsShow, sessionId ? { session_id: sessionId } : {}) as unknown as Promise<{
+      sections?: Array<{ name: string; tools?: Array<{ name: string }> }>;
+      total?: number;
+    }>;
+  }
+  approvalRespondAsync(sessionId: string, choice: ApprovalChoice, all = false) {
+    return this.call(M.approvalRespond, { session_id: sessionId, choice, all });
+  }
   completePath(word: string, cwd?: string) {
     return this.call(M.completePath, { word, ...(cwd ? { cwd } : {}) });
   }

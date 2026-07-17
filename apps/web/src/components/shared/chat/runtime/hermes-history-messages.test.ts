@@ -49,6 +49,27 @@ describe("historyToMessages", () => {
     ]);
   });
 
+  test("restores reasoning parts from persisted assistant rows", () => {
+    const messages = historyToMessages([
+      { role: "user", text: "météo", timestamp: 1 },
+      {
+        role: "assistant",
+        text: "Il va pleuvoir.",
+        reasoning: "Je regarde wttr.in",
+        timestamp: 2,
+      },
+    ]);
+
+    const assistant = messages[1];
+    if (!assistant || assistant.role !== "assistant") {
+      throw new Error("expected assistant message");
+    }
+    expect(assistant.content).toEqual([
+      { type: "reasoning", text: "Je regarde wttr.in" },
+      { type: "text", text: "Il va pleuvoir." },
+    ]);
+  });
+
   test("does not emit legacy Outil exécuté text rows", () => {
     const messages = historyToMessages([
       { role: "user", text: "go", timestamp: 1 },

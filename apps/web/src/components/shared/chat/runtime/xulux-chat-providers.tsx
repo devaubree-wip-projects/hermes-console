@@ -22,12 +22,14 @@ function deriveApiBaseFromChatBase(chatBase: string) {
 }
 
 function ChatRuntimeLayer({
+  active,
   threadId,
   sessionsEndpoint,
   inferenceEndpoint,
   agentsEndpoint,
   children,
 }: {
+  active: boolean
   threadId?: string
   sessionsEndpoint: string
   inferenceEndpoint: string
@@ -36,6 +38,7 @@ function ChatRuntimeLayer({
 }) {
   return (
     <ChatRuntimeProvider
+      active={active}
       threadId={threadId}
       sessionsEndpoint={sessionsEndpoint}
       inferenceEndpoint={inferenceEndpoint}
@@ -111,6 +114,7 @@ export function XuluxChatProviders({
       {mountRuntime ? (
         <HermesProvider key={activeAgentId ?? "no-agent"} ticketEndpoint={ticketEndpoint}>
           <ChatRuntimeLayer
+            active={isChatRoute}
             threadId={threadId}
             sessionsEndpoint={sessionsEndpoint}
             inferenceEndpoint={inferenceEndpoint}

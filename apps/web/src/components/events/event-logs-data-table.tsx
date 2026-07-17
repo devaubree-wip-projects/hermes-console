@@ -63,7 +63,7 @@ function targetLabel(targetType: string) {
     agent: "Agent",
     agent_session: "Conversation",
     runtime_installation: "Installation",
-    workspace: "Workspace",
+    workspace: "Organisation",
   };
   return labels[targetType] ?? targetType.replaceAll("_", " ");
 }

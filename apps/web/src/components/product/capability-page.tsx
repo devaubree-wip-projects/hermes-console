@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { agents } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { hermesFetch } from "@/lib/hermes/server";
-import { getWorkspaceAccessBySlugs } from "@/lib/workspace";
+import { canConfigureRuntime, getTenantAccessBySlug } from "@/lib/workspace";
 import { PageHeading } from "@/components/product/page-heading";
 import { CapabilityGrid, type CapabilityItem } from "@/components/product/capability-grid";
 
@@ -35,17 +35,19 @@ export async function CapabilityPage({
   endpoint,
   empty,
   showSkillDetails = false,
+  writable = false,
 }: {
-  params: Promise<{ tenantSlug: string; workspaceSlug: string }>;
+  params: Promise<{ tenantSlug: string }>;
   title: string;
   description: string;
   endpoint: string;
   empty: string;
   showSkillDetails?: boolean;
+  writable?: boolean;
 }) {
-  const { tenantSlug, workspaceSlug } = await params;
+  const { tenantSlug } = await params;
   const user = await requireUser();
-  const access = await getWorkspaceAccessBySlugs(tenantSlug, workspaceSlug, user.id);
+  const access = await getTenantAccessBySlug(tenantSlug, user.id);
   if (!access) notFound();
   const [agent] = await db.select().from(agents).where(eq(agents.workspaceId, access.workspace.id)).orderBy(asc(agents.createdAt)).limit(1);
   const separator = endpoint.includes("?") ? "&" : "?";
@@ -61,12 +63,21 @@ export async function CapabilityPage({
     name: String(item.name ?? item.title ?? item.id ?? `Élément ${index + 1}`),
     description: String(item.description ?? item.summary ?? item.status ?? "Configuré dans le profil Hermes."),
     enabled: item.enabled !== false && item.disabled !== true,
+    provenance: typeof item.provenance === "string" ? item.provenance : undefined,
   }));
+  const canWrite = writable && canConfigureRuntime(access.role);
+  const writes = writable
+    ? {
+        create: `/api/${tenantSlug}/skills`,
+        content: `/api/${tenantSlug}/skills/content`,
+        toggle: `/api/${tenantSlug}/skills/toggle`,
+      }
+    : undefined;
 
   return <div className="h-full overflow-y-auto bg-background">
     <PageHeading eyebrow="Capacités Hermes" title={title} description={description} />
     <main className="w-full px-5 py-6 md:px-8">
-      {result.error ? <div className="rounded-xl border border-amber-500/30 bg-amber-500/8 p-4 text-sm"><p className="font-medium">Données indisponibles</p><p className="mt-1 text-muted-foreground">{result.error}</p></div> : capabilities.length ? <CapabilityGrid items={capabilities} detailEndpoint={showSkillDetails ? `/api/${tenantSlug}/${workspaceSlug}/skills/content` : undefined} /> : <div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">{empty}</div>}
+      {result.error ? <div className="rounded-xl border border-amber-500/30 bg-amber-500/8 p-4 text-sm"><p className="font-medium">Données indisponibles</p><p className="mt-1 text-muted-foreground">{result.error}</p></div> : capabilities.length ? <CapabilityGrid items={capabilities} detailEndpoint={showSkillDetails ? `/api/${tenantSlug}/skills/content` : undefined} writes={writes} canWrite={canWrite} /> :<div className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">{empty}</div>}
     </main>
   </div>;
 }

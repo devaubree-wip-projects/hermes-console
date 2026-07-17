@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { installHermesMock, loginE2E, type RpcCall } from "./hermes-mock";
 
-const chatUrl = "/e2e/e2e/d/chat";
+const chatUrl = "/e2e/d/chat";
 
 async function openComposer(page: Page) {
   const calls = await installHermesMock(page);
@@ -99,7 +99,7 @@ test("explains and completes the real Telegram handoff in a responsive 75% dialo
 test("creates an isolated agent from /agent-create without opening a Hermes session", async ({ page }) => {
   const calls = await openComposer(page);
   let createPayload: Record<string, unknown> | null = null;
-  await page.route("**/api/e2e/e2e/agents", async (route) => {
+  await page.route("**/api/e2e/agents", async (route) => {
     createPayload = await route.request().postDataJSON() as Record<string, unknown>;
     await route.fulfill({
       status: 201,
@@ -188,7 +188,7 @@ test("sends selected model, effort and speed in the first session.create", async
     provider: "anthropic",
     model: "claude-opus-4-6",
   });
-  await expect(page.getByText("Modèle par défaut mis à jour")).toBeVisible();
+  await expect(page.getByText("Modèle enregistré", { exact: true })).toBeVisible();
   await expect(page.locator("[data-sonner-toaster]")).toHaveAttribute("data-y-position", "top");
   await page.getByRole("button", { name: "Select effort" }).click();
   await expect(page.getByRole("button", { name: /^Extra high/ })).toHaveCount(0);
@@ -215,6 +215,59 @@ test("sends selected model, effort and speed in the first session.create", async
     reasoningEffort: "max",
   });
   await expect(page.getByText("Réponse Hermes simulée.")).toBeVisible();
+});
+
+test("saves an existing thread model through the same inference path as Settings", async ({ page }) => {
+  const calls = await installHermesMock(page);
+  await loginE2E(page);
+  await page.goto(`${chatUrl}/c/history-e2e`);
+
+  await expect(page.getByRole("button", { name: "Select model" })).toContainText("gpt 5.5");
+  await page.getByRole("button", { name: "Select model" }).click();
+  await page.getByRole("button", { name: "gpt-5.3-codex", exact: true }).click();
+
+  await expect.poll(() => lastCall(calls, "inference.update")?.params).toMatchObject({
+    mode: "model",
+    provider: "openai-codex",
+    model: "gpt-5.3-codex",
+  });
+  await expect(page.getByText("Modèle enregistré", { exact: true })).toBeVisible();
+  await expect(page.getByText(
+    "gpt-5.3-codex sera utilisé par les prochaines sessions de cet agent.",
+    { exact: true },
+  )).toBeVisible();
+  expect(calls.some((call) => call.method === "config.set" && call.params.key === "model"))
+    .toBe(false);
+});
+
+test("revalidates the saved model immediately when returning to chat without a hard refresh", async ({ page }) => {
+  const calls = await openComposer(page);
+  const initialReads = calls.filter((call) => call.method === "inference.get").length;
+
+  const responseStatus = await page.evaluate(async () => {
+    const response = await fetch("/api/e2e/agents/assistant-principal/inference", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        mode: "model",
+        provider: "openai-codex",
+        model: "gpt-5.5",
+        reasoningEffort: "high",
+      }),
+    });
+    return response.status;
+  });
+  expect(responseStatus).toBe(200);
+
+  await page.getByRole("link", { name: "Dashboard", exact: true }).click();
+  await page.getByRole("link", { name: "Sessions", exact: true }).click();
+
+  await expect.poll(
+    () => calls.filter((call) => call.method === "inference.get").length,
+    { timeout: 1_500 },
+  ).toBeGreaterThan(initialReads);
+  await expect(page.getByRole("button", { name: "Select model" }))
+    .toContainText("gpt 5.5");
 });
 
 test("uses native Hermes plan mode and the web-search turn instruction", async ({ page }) => {
@@ -381,7 +434,7 @@ test("returns to the base chat URL when creating a new session", async ({ page }
   await expect(page).toHaveURL(/\/d\/chat\/c\/session-e2e$/);
   await expect(page.getByRole("button", { name: "Select model" })).toContainText("gpt 5.5");
   await page.getByRole("button", { name: /nouvelle session/i }).first().click();
-  await expect(page).toHaveURL(/\/e2e\/e2e\/d\/chat$/);
+  await expect(page).toHaveURL(/\/e2e\/d\/chat$/);
   await expect(page.getByRole("button", { name: "Select model" })).toContainText("claude haiku 4 5");
   await expect(page.getByRole("button", { name: "Select effort" })).toContainText(/medium/i);
 });
@@ -502,7 +555,7 @@ test("deletes the active session without resuming the deleted Hermes id", async 
   await page.getByRole("menuitem", { name: "Delete" }).click();
   await page.getByRole("button", { name: "Supprimer", exact: true }).click();
 
-  await expect(page).toHaveURL(/\/e2e\/e2e\/d\/chat$/);
+  await expect(page).toHaveURL(/\/e2e\/d\/chat$/);
   await expect.poll(() => calls.some((call) => call.method === "sessions.delete")).toBe(true);
   await expect(page.getByText("Session supprimée", { exact: true })).toBeVisible();
   await expect(page.locator("[data-sonner-toaster]")).toHaveAttribute("data-y-position", "top");

@@ -33,7 +33,7 @@ export type InstallationCapacitySample = {
 };
 
 export interface InstallationContextPort {
-  resolveWorkspace(params: { tenantSlug: string; workspaceSlug: string }): Promise<WorkspaceInstallationContext | null>;
+  resolveTenant(params: { tenantSlug: string }): Promise<WorkspaceInstallationContext | null>;
 }
 
 export interface InstallationGatewayPort {

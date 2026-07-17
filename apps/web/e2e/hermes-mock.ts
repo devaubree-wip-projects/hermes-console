@@ -43,6 +43,11 @@ function resultFor(call: RpcCall, activeSessionInfo: MockSessionInfo = sessionIn
       };
     case "tools.list":
       return { toolsets: [{ name: "web", enabled: true, tools: ["web_search"] }] };
+    case "tools.show":
+      return {
+        total: 1,
+        sections: [{ name: "web", tools: [{ name: "web_search", description: "Search the web" }] }],
+      };
     case "session.create":
       return {
         session_id: "live-e2e",
@@ -141,6 +146,11 @@ export async function installHermesMock(
   } = {},
 ) {
   const calls: RpcCall[] = [];
+  let inferenceState = {
+    currentProvider: "anthropic",
+    currentModel: "claude-haiku-4-5",
+    currentReasoningEffort: "medium",
+  };
   const activeSessionInfo = options.liveContext === false
     ? { ...sessionInfo, usage: {} }
     : sessionInfo;
@@ -170,13 +180,12 @@ export async function installHermesMock(
   }));
   await page.route("**/agents/*/inference", async (route) => {
     if (route.request().method() === "GET") {
+      calls.push({ id: -1, method: "inference.get", params: {} });
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          currentProvider: "anthropic",
-          currentModel: "claude-haiku-4-5",
-          currentReasoningEffort: "medium",
+          ...inferenceState,
           providers: [
             {
               id: "anthropic",
@@ -211,6 +220,25 @@ export async function installHermesMock(
       method: "inference.update",
       params: route.request().postDataJSON() as Record<string, unknown>,
     });
+    const update = calls.at(-1)?.params;
+    if (update?.mode === "model") {
+      inferenceState = {
+        currentProvider: typeof update.provider === "string"
+          ? update.provider
+          : inferenceState.currentProvider,
+        currentModel: typeof update.model === "string"
+          ? update.model
+          : inferenceState.currentModel,
+        currentReasoningEffort: typeof update.reasoningEffort === "string"
+          ? update.reasoningEffort
+          : inferenceState.currentReasoningEffort,
+      };
+    } else if (update?.mode === "reasoning" && typeof update.reasoningEffort === "string") {
+      inferenceState = {
+        ...inferenceState,
+        currentReasoningEffort: update.reasoningEffort,
+      };
+    }
     await new Promise((resolve) => setTimeout(resolve, 200));
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
   });
@@ -353,16 +381,45 @@ export async function installHermesMock(
   return calls;
 }
 
+async function loginWithRetry(
+  page: Page,
+  data: { email: string; password: string },
+  label: string,
+) {
+  let failure = "network error";
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await page.request.post("/api/auth/login", { data });
+      if (response.ok()) return;
+      failure = `HTTP ${response.status()}`;
+    } catch (error) {
+      failure = error instanceof Error ? error.message : "network error";
+    }
+    if (attempt < 3) await page.waitForTimeout(150 * attempt);
+  }
+  throw new Error(`${label} login failed: ${failure}`);
+}
+
 export async function loginE2E(page: Page) {
-  const response = await page.request.post("/api/auth/login", {
-    data: { email: "e2e@hermes.local", password: "e2e-password" },
-  });
-  if (!response.ok()) throw new Error(`E2E login failed: ${response.status()}`);
+  await loginWithRetry(
+    page,
+    { email: "e2e@hermes.local", password: "e2e-password" },
+    "E2E",
+  );
 }
 
 export async function loginViewerE2E(page: Page) {
-  const response = await page.request.post("/api/auth/login", {
-    data: { email: "viewer-e2e@hermes.local", password: "viewer-e2e-password" },
-  });
-  if (!response.ok()) throw new Error(`Viewer E2E login failed: ${response.status()}`);
+  await loginWithRetry(
+    page,
+    { email: "viewer-e2e@hermes.local", password: "viewer-e2e-password" },
+    "Viewer E2E",
+  );
+}
+
+export async function loginMemberE2E(page: Page) {
+  await loginWithRetry(
+    page,
+    { email: "member-e2e@hermes.local", password: "member-e2e-password" },
+    "Member E2E",
+  );
 }

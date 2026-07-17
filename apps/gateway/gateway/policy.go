@@ -63,6 +63,8 @@ var runtimeRoutes = []routeRule{
 	{methods(http.MethodGet), regexp.MustCompile(`^/api/fs/default-cwd$`)},
 	{methods(http.MethodGet), regexp.MustCompile(`^/api/tools/toolsets$`)},
 	{methods(http.MethodGet), regexp.MustCompile(`^/api/mcp/servers$`)},
+	{methods(http.MethodGet, http.MethodPost), regexp.MustCompile(`^/api/skills$`)},
+	{methods(http.MethodPut), regexp.MustCompile(`^/api/skills/(content|toggle)$`)},
 	{methods(http.MethodGet, http.MethodPost), regexp.MustCompile(`^/api/profiles$`)},
 	{methods(http.MethodGet), regexp.MustCompile(`^/api/sessions$`)},
 	{methods(http.MethodGet, http.MethodDelete, http.MethodPatch), regexp.MustCompile(`^/api/sessions/[^/]+$`)},
@@ -84,10 +86,15 @@ var runtimeRoutes = []routeRule{
 
 func allowedRuntimeRoute(method, path string) bool {
 	method = strings.ToUpper(method)
+	// A path can match more than one rule (e.g. `/api/env` is covered by both a
+	// GET-only rule and a PUT/DELETE rule). Allow the request when ANY matching
+	// rule permits the method — never return on the first path match alone, or
+	// the earlier GET-only rule would shadow the later PUT/DELETE one.
 	for _, rule := range runtimeRoutes {
 		if rule.path.MatchString(path) {
-			_, ok := rule.methods[method]
-			return ok
+			if _, ok := rule.methods[method]; ok {
+				return true
+			}
 		}
 	}
 	return false

@@ -36,7 +36,6 @@ import {
   SidebarMenuSubItem,
 } from "@/components/v1-xulux/ui/sidebar"
 import { SessionUsageCard } from "@/components/v1-xulux/session-usage-card"
-import { EventLogsCard } from "@/components/v1-xulux/event-logs-card"
 import { HermesStatusCard } from "@/components/v1-xulux/hermes-status-card"
 import { ThemeToggle } from "@/components/v1-xulux/theme-toggle"
 import { useSearchCommand } from "@/components/v1-xulux/search-command"
@@ -50,7 +49,6 @@ import {
   FolderKanbanIcon,
   InboxIcon,
   LibraryIcon,
-  ListTreeIcon,
   Loader2Icon,
   MessageCircleIcon,
   PlugIcon,
@@ -61,6 +59,7 @@ import {
   SparklesIcon,
   UsersRoundIcon,
   WorkflowIcon,
+  WrenchIcon,
 } from "lucide-react"
 
 export type SidebarNavItem = {
@@ -116,7 +115,7 @@ export function AppSidebar({
 
   const navSections: SidebarSection[] = [
     {
-      label: workspaceName ?? "Workspace",
+      label: workspaceName ?? "Organisation",
       items: [
         {
           title: "Dashboard",
@@ -159,7 +158,7 @@ export function AppSidebar({
       items: [
         { title: "Installations", url: `${workspaceBase}/installations`, icon: <ServerIcon /> },
         { title: "Intégrations", url: `${workspaceBase}/integrations`, icon: <PlugIcon /> },
-        { title: "Event Logs", url: `${workspaceBase}/events`, icon: <ListTreeIcon /> },
+        { title: "Outils", url: `${workspaceBase}/settings/tools`, icon: <WrenchIcon /> },
         { title: "Paramètres", url: `${workspaceBase}/settings/chat`, icon: <SettingsIcon /> },
       ],
     },
@@ -327,7 +326,6 @@ export function AppSidebar({
           agentSlug={activeAgent?.slug}
           workspaceBase={workspaceBase}
         />
-        <EventLogsCard workspaceBase={workspaceBase} />
         <HermesStatusCard
           agent={activeAgent}
           workspaceBase={workspaceBase}

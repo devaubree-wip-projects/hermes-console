@@ -4,17 +4,21 @@ import {
   GATEWAY_SERVICE_HEADERS,
   GATEWAY_WORK_PATHS,
 } from "@hermes-console/shared/gateway";
-import { loginE2E, loginViewerE2E } from "./hermes-mock";
+import { loginE2E, loginMemberE2E, loginViewerE2E } from "./hermes-mock";
 
 const installationKey =
   process.env.E2E_REAL_WORK === "1" ? "local-default" : "e2e-work";
 const profile = "default";
 
+// Durable Work scenarios exercise the full signed Edge protocol and several
+// server-rendered refreshes; keep them stable under the parallel full suite.
+test.describe.configure({ timeout: 60_000 });
+
 function deriveServiceSecret() {
   const master =
     process.env.HERMES_GATEWAY_SERVICE_SECRET ??
     process.env.HERMES_GATEWAY_TICKET_SECRET ??
-    "hermes-console-local-development";
+    "hermes-console-local-development-service";
   if (process.env.HERMES_GATEWAY_DERIVE_SECRETS === "false") return master;
   return createHmac("sha256", master)
     .update(`hermes-console:service:${installationKey}`)
@@ -61,7 +65,7 @@ test("executes a durable Work task and renders the live Hermes plan without open
   page,
 }) => {
   await loginE2E(page);
-  await page.goto("/e2e/e2e/tasks");
+  await page.goto("/e2e/tasks");
   await expect(page.getByRole("link", { name: "Inbox" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Projets" })).toBeVisible();
   await expect(
@@ -76,7 +80,7 @@ test("executes a durable Work task and renders the live Hermes plan without open
   await page.getByLabel("Assignation").click();
   await page.getByRole("option", { name: "Assistant principal" }).click();
   await page.getByRole("button", { name: "Créer", exact: true }).click();
-  await expect(page).toHaveURL(/\/e2e\/e2e\/tasks\/[0-9a-f-]+$/);
+  await expect(page).toHaveURL(/\/e2e\/tasks\?task=[0-9a-f-]+$/);
   const originalTaskUrl = page.url();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
   expect(page.url()).not.toContain("/d/chat");
@@ -154,12 +158,12 @@ test("executes a durable Work task and renders the live Hermes plan without open
     },
   );
   expect(intervention.intervention.id).toBeTruthy();
-  await page.goto("/e2e/e2e/inbox");
+  await page.goto("/e2e/inbox");
   await expect(
     page.getByText(/intervention approval requiert votre attention/i).first(),
   ).toBeVisible();
   await page.getByRole("button", { name: "Tout marquer comme lu" }).click();
-  await page.goto("/e2e/e2e/approvals");
+  await page.goto("/e2e/approvals");
   const approvalCard = page
     .locator("article")
     .filter({ hasText: approvalPrompt });
@@ -257,14 +261,14 @@ test("creates projects, agent teams and traceable automations from Work", async 
   await loginE2E(page);
   const suffix = Date.now().toString().slice(-7);
 
-  await page.goto("/e2e/e2e/projects");
+  await page.goto("/e2e/projects");
   await page.getByRole("button", { name: "Nouveau projet" }).click();
   await page.getByLabel("Clé").fill(`P${suffix}`);
   await page.getByLabel("Nom").fill(`Projet fonctionnel ${suffix}`);
   await page.getByRole("button", { name: "Créer", exact: true }).click();
   await expect(page.getByText(`Projet fonctionnel ${suffix}`)).toBeVisible();
 
-  await page.goto("/e2e/e2e/agents");
+  await page.goto("/e2e/agents");
   await page.getByRole("button", { name: "Nouvelle équipe" }).click();
   await page.getByLabel("Nom de l’équipe").fill(`Équipe ${suffix}`);
   await page.getByRole("combobox", { name: "Agent lead" }).click();
@@ -285,7 +289,7 @@ test("creates projects, agent teams and traceable automations from Work", async 
   await expect(createdTeamRow).toBeVisible();
   await expect(createdTeamRow.getByText("plan auto-délégué")).toBeVisible();
 
-  const teamsResponse = await page.request.get("/api/e2e/e2e/agent-teams");
+  const teamsResponse = await page.request.get("/api/e2e/agent-teams");
   const teamsPayload = (await teamsResponse.json()) as {
     teams: Array<{ id: string; name: string }>;
   };
@@ -295,7 +299,7 @@ test("creates projects, agent teams and traceable automations from Work", async 
   expect(teamId).toBeTruthy();
   const delegatedTitle = `Plan délégué ${suffix}`;
   const delegatedTaskResponse = await page.request.post(
-    "/api/e2e/e2e/work-items",
+    "/api/e2e/work-items",
     {
       data: {
         title: delegatedTitle,
@@ -364,7 +368,7 @@ test("creates projects, agent teams and traceable automations from Work", async 
       ],
     },
   );
-  await page.goto(`/e2e/e2e/tasks/${delegatedTask.item.id}`);
+  await page.goto(`/e2e/tasks?task=${encodeURIComponent(delegatedTask.item.id)}`);
   const delegationSection = page
     .getByRole("heading", { name: "Délégations Hermes" })
     .locator("..");
@@ -386,7 +390,7 @@ test("creates projects, agent teams and traceable automations from Work", async 
     },
   );
 
-  await page.goto("/e2e/e2e/automations");
+  await page.goto("/e2e/automations");
   await page.getByRole("button", { name: "Nouvelle automatisation" }).click();
   await page.getByLabel("Nom").fill(`Automatisation ${suffix}`);
   await page.getByLabel("Tâche créée").fill(`Tâche automatique ${suffix}`);
@@ -396,28 +400,26 @@ test("creates projects, agent teams and traceable automations from Work", async 
     .first();
   await expect(automationRow).toBeVisible();
   await automationRow.getByRole("button", { name: "Exécuter" }).click();
-  await expect(page).toHaveURL(/\/e2e\/e2e\/tasks\/[0-9a-f-]+$/);
+  await expect(page).toHaveURL(/\/e2e\/tasks\?task=[0-9a-f-]+$/);
   await expect(
     page.getByRole("heading", { name: `Tâche automatique ${suffix}` }),
   ).toBeVisible();
   await page.goto(
-    `/e2e/e2e/tasks?view=board&q=${encodeURIComponent(`Tâche automatique ${suffix}`)}`,
+    `/e2e/tasks?q=${encodeURIComponent(`Tâche automatique ${suffix}`)}`,
   );
-  await expect(
-    page.getByText("utilisez son sélecteur d’état au clavier", {
-      exact: false,
-    }),
-  ).toBeVisible();
+  await expect(page.getByTestId("tasks-kanban")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Colonne Backlog" })).toBeVisible();
   const taskCard = page
     .locator("li", { hasText: `Tâche automatique ${suffix}` })
     .first();
-  await taskCard.getByRole("combobox").selectOption("in_progress");
-  await expect(taskCard.getByRole("combobox")).toHaveValue("in_progress");
+  await taskCard.getByRole("button", { name: /Changer le statut/ }).click();
+  await page.getByRole("menuitem", { name: "En cours" }).click();
+  await expect(page.getByRole("region", { name: "Colonne En cours" }).getByText(`Tâche automatique ${suffix}`)).toBeVisible();
   await page.getByRole("button", { name: "Enregistrer la vue" }).click();
   await page.getByLabel("Nom de la vue").fill(`Vue board ${suffix}`);
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await expect(page.getByLabel("Ouvrir une vue enregistrée")).toBeVisible();
-  await page.goto("/e2e/e2e/automations");
+  await page.goto("/e2e/automations");
   await expect(
     page.getByRole("heading", { name: "Historique des déclenchements" }),
   ).toBeVisible();
@@ -425,7 +427,7 @@ test("creates projects, agent teams and traceable automations from Work", async 
     page.getByRole("link", { name: "Voir la tâche" }).first(),
   ).toBeVisible();
 
-  const automationResponse = await page.request.get("/api/e2e/e2e/automations");
+  const automationResponse = await page.request.get("/api/e2e/automations");
   const automationPayload = (await automationResponse.json()) as {
     automations: Array<{ name: string; assigneeAgentId: string }>;
   };
@@ -434,7 +436,7 @@ test("creates projects, agent teams and traceable automations from Work", async 
   )?.assigneeAgentId;
   expect(agentId).toBeTruthy();
   const webhookName = `Webhook ${suffix}`;
-  const createdWebhook = await page.request.post("/api/e2e/e2e/automations", {
+  const createdWebhook = await page.request.post("/api/e2e/automations", {
     data: {
       name: webhookName,
       triggerType: "webhook",
@@ -480,23 +482,197 @@ test("creates projects, agent teams and traceable automations from Work", async 
   expect(duplicateHookPayload.workItemId).toBe(firstHookPayload.workItemId);
 });
 
+test("keeps Work board-only and persists vertical card reordering", async ({ page }) => {
+  await loginE2E(page);
+  const suffix = Date.now();
+  const commonTitle = `Ordre Kanban ${suffix}`;
+  for (const label of ["A", "B"]) {
+    const created = await page.request.post("/api/e2e/work-items", {
+      data: {
+        title: `${commonTitle} ${label}`,
+        description: "Valide la persistance du tri vertical.",
+        status: "in_progress",
+      },
+    });
+    expect(created.status()).toBe(201);
+  }
+
+  await page.goto(`/e2e/tasks?view=list&q=${encodeURIComponent(commonTitle)}`);
+  await expect(page.getByTestId("tasks-kanban")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Colonne Backlog" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Vue liste" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Vue Kanban" })).toHaveCount(0);
+
+  const activeColumn = page.getByRole("region", { name: "Colonne En cours" });
+  const cards = activeColumn.locator("li");
+  await expect(cards).toHaveCount(2);
+  const before = await cards.getByTestId("task-card-open").allTextContents();
+  const sourceBox = await cards.nth(0).getByRole("button", { name: /^Déplacer / }).boundingBox();
+  const targetBox = await cards.nth(1).boundingBox();
+  expect(sourceBox).toBeTruthy();
+  expect(targetBox).toBeTruthy();
+  await page.mouse.move(sourceBox!.x + sourceBox!.width / 2, sourceBox!.y + sourceBox!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetBox!.x + targetBox!.width / 2, targetBox!.y + targetBox!.height - 8, { steps: 12 });
+  await page.mouse.up();
+  await expect.poll(() => cards.getByTestId("task-card-open").allTextContents()).toEqual([...before].reverse());
+  await expect(page.getByText("Position de la tâche mise à jour.")).toBeVisible();
+  await expect(page.locator('[data-sonner-toaster][data-x-position="right"][data-y-position="bottom"]')).toHaveCount(1);
+
+  await page.reload();
+  await expect(cards).toHaveCount(2);
+  await expect.poll(() => cards.getByTestId("task-card-open").allTextContents()).toEqual([...before].reverse());
+
+  const firstCardButton = cards.nth(0).getByTestId("task-card-open");
+  const openedTaskId = await firstCardButton.getAttribute("data-task-id");
+  const openedTitle = (await firstCardButton.locator("span").first().textContent())?.trim();
+  expect(openedTaskId).toBeTruthy();
+  expect(openedTitle).toBeTruthy();
+  let releaseTaskRequests!: () => void;
+  const taskRequestsReleased = new Promise<void>((resolve) => { releaseTaskRequests = resolve; });
+  let resolveFirstTaskRequest!: () => void;
+  const firstTaskRequestContinued = new Promise<void>((resolve) => { resolveFirstTaskRequest = resolve; });
+  let prefetchedRequestCount = 0;
+  await page.route(`**/api/e2e/work-items/${openedTaskId}*`, async (route) => {
+    if (route.request().method() !== "GET") return route.continue();
+    prefetchedRequestCount += 1;
+    await taskRequestsReleased;
+    await route.continue();
+    resolveFirstTaskRequest();
+  });
+  const boardUrl = page.url();
+  await firstCardButton.hover();
+  await expect.poll(() => prefetchedRequestCount).toBeGreaterThanOrEqual(1);
+  const requestsBeforeClick = prefetchedRequestCount;
+  const sheetStartedAt = Date.now();
+  await firstCardButton.click();
+  const taskSheet = page.locator('[data-slot="sheet-content"]');
+  await expect(taskSheet).toBeVisible();
+  await expect(taskSheet.getByRole("heading", { name: openedTitle! })).toBeVisible({ timeout: 500 });
+  expect(prefetchedRequestCount).toBe(requestsBeforeClick);
+  const sheetVisibleMs = Date.now() - sheetStartedAt;
+  expect(sheetVisibleMs).toBeLessThan(750);
+  expect(page.url()).toBe(boardUrl);
+  releaseTaskRequests();
+  await firstTaskRequestContinued;
+  await page.unroute(`**/api/e2e/work-items/${openedTaskId}*`);
+  await expect(taskSheet.getByLabel("Chargement du plan")).toBeHidden();
+  const sheetBox = await taskSheet.boundingBox();
+  expect(sheetBox?.width).toBeGreaterThanOrEqual(800);
+  await expect(page.getByTestId("tasks-kanban")).toBeVisible();
+  await taskSheet.getByRole("button", { name: "Close" }).click();
+  await expect(taskSheet).toBeHidden();
+  expect(page.url()).toBe(boardUrl);
+  await expect(page.getByTestId("tasks-kanban")).toBeVisible();
+  await page.getByRole("button", { name: "Filtrer les tâches" }).click();
+  const filterPanel = page.getByRole("dialog");
+  await expect(filterPanel).toBeVisible();
+  const filterPanelBox = await filterPanel.boundingBox();
+  expect(filterPanelBox?.width).toBeGreaterThanOrEqual(700);
+});
+
+test("moves a backlog card into an empty column by drag-and-drop", async ({ page }) => {
+  await loginE2E(page);
+  const suffix = Date.now();
+  const prefix = `Colonne vide ${suffix}`;
+  const title = `${prefix} source`;
+  const created = await page.request.post("/api/e2e/work-items", {
+    data: { title, description: "Valide le drop dans une colonne vide.", status: "backlog" },
+  });
+  expect(created.status()).toBe(201);
+  // Mirror the real board: the empty "À faire" column sits between populated
+  // neighbours (Backlog on the left, En cours on the right).
+  for (const label of ["A", "B"]) {
+    const neighbour = await page.request.post("/api/e2e/work-items", {
+      data: { title: `${prefix} voisin ${label}`, description: "Voisin En cours.", status: "in_progress" },
+    });
+    expect(neighbour.status()).toBe(201);
+  }
+
+  await page.goto(`/e2e/tasks?q=${encodeURIComponent(prefix)}`);
+  await expect(page.getByTestId("tasks-kanban")).toBeVisible();
+
+  const backlogColumn = page.getByRole("region", { name: "Colonne Backlog" });
+  const todoColumn = page.getByRole("region", { name: "Colonne À faire" });
+  const activeColumn = page.getByRole("region", { name: "Colonne En cours" });
+  await expect(backlogColumn.locator("li")).toHaveCount(1);
+  await expect(todoColumn.locator("li")).toHaveCount(0);
+  await expect(activeColumn.locator("li")).toHaveCount(2);
+
+  // Grab the card by its body (not the small grip handle): a user expects the
+  // whole card to be draggable.
+  const sourceBox = await backlogColumn
+    .locator("li")
+    .first()
+    .getByTestId("task-card-open")
+    .boundingBox();
+  const targetBox = await todoColumn.boundingBox();
+  expect(sourceBox).toBeTruthy();
+  expect(targetBox).toBeTruthy();
+  await page.mouse.move(sourceBox!.x + sourceBox!.width / 2, sourceBox!.y + sourceBox!.height / 2);
+  await page.mouse.down();
+  // Drop near the top of the empty column, the way a user releases after
+  // dragging the card just past the column header.
+  await page.mouse.move(targetBox!.x + targetBox!.width / 2, targetBox!.y + 48, { steps: 16 });
+  await page.mouse.up();
+
+  await expect(todoColumn.locator("li")).toHaveCount(1);
+  await expect(backlogColumn.locator("li")).toHaveCount(0);
+  await expect(page.getByText("Position de la tâche mise à jour.")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("region", { name: "Colonne À faire" }).locator("li")).toHaveCount(1);
+});
+
 test("keeps Viewer access strictly read-only across Work UI and API", async ({
   page,
 }) => {
   await loginViewerE2E(page);
-  await page.goto("/e2e/e2e/tasks");
+  await page.goto("/e2e/tasks");
+  await expect(page.getByTestId("tasks-kanban")).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Nouvelle tâche" }),
   ).toHaveCount(0);
-  const firstTask = page.locator('a[href^="/e2e/e2e/tasks/"]').first();
+  await expect(page.getByRole("button", { name: /^Déplacer / })).toHaveCount(0);
+  const firstTask = page.getByTestId("task-card-open").first();
   await expect(firstTask).toBeVisible();
+  const taskId = await firstTask.getAttribute("data-task-id");
+  expect(taskId).toBeTruthy();
+  const forbiddenReorder = await page.request.patch(`/api/e2e/work-items/${taskId}`, {
+    data: {
+      status: "todo",
+      placement: { previousItemId: null, nextItemId: null },
+    },
+  });
+  expect(forbiddenReorder.status()).toBe(403);
   await firstTask.click();
   await expect(page.getByLabel("Ajouter un commentaire")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: /Relancer|Annuler/ }),
   ).toHaveCount(0);
-  const forbidden = await page.request.post("/api/e2e/e2e/work-items", {
+  const forbidden = await page.request.post("/api/e2e/work-items", {
     data: { title: "Interdit au viewer", description: "Mutation refusée." },
+  });
+  expect(forbidden.status()).toBe(403);
+});
+
+test("lets a Member create work but not administer Hermes", async ({ page }) => {
+  await loginMemberE2E(page);
+  await page.goto("/e2e/settings/members");
+  await expect(page).toHaveURL(/\/e2e\/settings\/members$/);
+  await expect(page.getByText("Hermes Member E2E")).toBeVisible();
+  await expect(page.getByText("Créer et modifier le travail")).toBeVisible();
+
+  const created = await page.request.post("/api/e2e/work-items", {
+    data: {
+      title: `Tâche Member ${Date.now()}`,
+      description: "Le rôle Member peut créer du travail.",
+    },
+  });
+  expect(created.status()).toBe(201);
+
+  const forbidden = await page.request.put("/api/e2e/runtime/config", {
+    data: { profile: "default", approvalMode: "manual" },
   });
   expect(forbidden.status()).toBe(403);
 });

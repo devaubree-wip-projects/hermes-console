@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "commit": "599668e0e968385eaba878a9e1e4695a6da8c4ab",
+  "commit": "0faa7b92c50b267e69c938fe5da5b81d69bae2f5",
   "routes": [
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agent-teams"
+      "path": "/api/:tenantSlug/agent-teams"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents"
+      "path": "/api/:tenantSlug/agents"
     },
     {
       "methods": [
@@ -21,7 +21,7 @@
         "GET",
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference"
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference"
     },
     {
       "methods": [
@@ -29,7 +29,7 @@
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/inference/codex"
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference/codex"
     },
     {
       "methods": [
@@ -37,26 +37,26 @@
         "POST",
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/messaging"
+      "path": "/api/:tenantSlug/agents/:agentSlug/messaging"
     },
     {
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-status"
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-status"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/runtime-ticket"
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-ticket"
     },
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions"
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions"
     },
     {
       "methods": [
@@ -64,158 +64,158 @@
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId"
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId"
     },
     {
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/agents/:agentSlug/sessions/:sessionId/metrics"
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId/metrics"
     },
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/automations"
+      "path": "/api/:tenantSlug/automations"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/automations/:automationId/run"
+      "path": "/api/:tenantSlug/automations/:automationId/run"
     },
     {
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/events"
+      "path": "/api/:tenantSlug/events"
     },
     {
       "methods": [
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/inbox"
+      "path": "/api/:tenantSlug/inbox"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations"
+      "path": "/api/:tenantSlug/installations"
     },
     {
       "methods": [
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId"
+      "path": "/api/:tenantSlug/installations/:installationId"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/backups"
+      "path": "/api/:tenantSlug/installations/:installationId/backups"
     },
     {
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/budget"
+      "path": "/api/:tenantSlug/installations/:installationId/budget"
     },
     {
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/capacity-policy"
+      "path": "/api/:tenantSlug/installations/:installationId/capacity-policy"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/enrollment"
+      "path": "/api/:tenantSlug/installations/:installationId/enrollment"
     },
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/operations"
+      "path": "/api/:tenantSlug/installations/:installationId/operations"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/:installationId/upgrades"
+      "path": "/api/:tenantSlug/installations/:installationId/upgrades"
     },
     {
       "methods": [
         "DELETE",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/enroll"
+      "path": "/api/:tenantSlug/installations/enroll"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/installations/preflight"
+      "path": "/api/:tenantSlug/installations/preflight"
     },
     {
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/interventions"
+      "path": "/api/:tenantSlug/interventions"
     },
     {
       "methods": [
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/interventions/:interventionId"
+      "path": "/api/:tenantSlug/interventions/:interventionId"
     },
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/projects"
+      "path": "/api/:tenantSlug/projects"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/projects/:projectId/resources"
+      "path": "/api/:tenantSlug/projects/:projectId/resources"
     },
     {
       "methods": [
         "DELETE"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/resources/:resourceId"
+      "path": "/api/:tenantSlug/resources/:resourceId"
     },
     {
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/runtime/config"
+      "path": "/api/:tenantSlug/runtime/config"
     },
     {
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/skills/content"
+      "path": "/api/:tenantSlug/skills/content"
     },
     {
       "methods": [
         "PUT"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/tools/toolsets/:name"
+      "path": "/api/:tenantSlug/tools/toolsets/:name"
     },
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items"
+      "path": "/api/:tenantSlug/work-items"
     },
     {
       "methods": [
@@ -223,83 +223,83 @@
         "GET",
         "PATCH"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId"
+      "path": "/api/:tenantSlug/work-items/:workItemId"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/assign"
+      "path": "/api/:tenantSlug/work-items/:workItemId/assign"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/cancel"
+      "path": "/api/:tenantSlug/work-items/:workItemId/cancel"
     },
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/comments"
+      "path": "/api/:tenantSlug/work-items/:workItemId/comments"
     },
     {
       "methods": [
         "DELETE",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/dependencies"
+      "path": "/api/:tenantSlug/work-items/:workItemId/dependencies"
     },
     {
       "methods": [
         "DELETE",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/labels"
+      "path": "/api/:tenantSlug/work-items/:workItemId/labels"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/resources"
+      "path": "/api/:tenantSlug/work-items/:workItemId/resources"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/runs"
+      "path": "/api/:tenantSlug/work-items/:workItemId/runs"
     },
     {
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-items/:workItemId/timeline"
+      "path": "/api/:tenantSlug/work-items/:workItemId/timeline"
     },
     {
       "methods": [
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-labels"
+      "path": "/api/:tenantSlug/work-labels"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/cancel"
+      "path": "/api/:tenantSlug/work-runs/:runId/cancel"
     },
     {
       "methods": [
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-runs/:runId/plan-steps/:stepId/promote"
+      "path": "/api/:tenantSlug/work-runs/:runId/plan-steps/:stepId/promote"
     },
     {
       "methods": [
         "GET"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-stream"
+      "path": "/api/:tenantSlug/work-stream"
     },
     {
       "methods": [
@@ -307,7 +307,7 @@
         "GET",
         "POST"
       ],
-      "path": "/api/:tenantSlug/:workspaceSlug/work-views"
+      "path": "/api/:tenantSlug/work-views"
     },
     {
       "methods": [
@@ -446,6 +446,6 @@
   ],
   "databaseSchema": {
     "file": "apps/web/src/db/schema.ts",
-    "sha256": "d266c5ad3b2d631bd7b7f6f796f7d8115a748ae93e8d61cccb82bfc6cabf16c9"
+    "sha256": "3977ac15792f4002287ca0e2e16f694aee38c9deb19961f442fd7228a3686ed1"
   }
 }

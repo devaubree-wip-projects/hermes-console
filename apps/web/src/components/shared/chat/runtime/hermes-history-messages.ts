@@ -93,6 +93,7 @@ export function historyToMessages(history: JsonObject[]): ThreadMessage[] {
   history.forEach((row, index) => {
     const role = row.role;
     const text = typeof row.text === "string" ? row.text : "";
+    const reasoning = typeof row.reasoning === "string" ? row.reasoning : "";
     const createdAt = dateFromHermes(
       typeof row.timestamp === "number" || typeof row.timestamp === "string"
         ? row.timestamp
@@ -112,17 +113,32 @@ export function historyToMessages(history: JsonObject[]): ThreadMessage[] {
         : typeof row.text === "string" && row.text
           ? row.text
           : "Terminé";
+      const argsText = typeof row.context === "string" ? row.context : "";
       ensurePending(index, createdAt);
       pending!.content.push({
         ...createToolCallPart(`hermes-history-tool-${index}`, name),
+        ...(argsText ? { argsText } : {}),
         result,
       });
       return;
     }
 
-    if (role === "assistant" && text) {
+    if (role === "assistant" && (text || reasoning)) {
       ensurePending(index, createdAt);
-      pending!.content = appendAssistantTextPart(pending!.content, text);
+      if (reasoning) {
+        const last = pending!.content[pending!.content.length - 1];
+        if (last?.type === "reasoning") {
+          pending!.content[pending!.content.length - 1] = {
+            type: "reasoning",
+            text: `${last.text}\n${reasoning}`,
+          };
+        } else {
+          pending!.content.push({ type: "reasoning", text: reasoning });
+        }
+      }
+      if (text) {
+        pending!.content = appendAssistantTextPart(pending!.content, text);
+      }
     }
   });
 
@@ -134,8 +150,10 @@ export function historyVersion(history: JsonObject[]) {
   return JSON.stringify(history.map((row) => [
     row.role,
     row.text,
+    row.reasoning,
     row.name,
     row.result,
+    row.context,
     row.timestamp,
   ]));
 }

@@ -107,7 +107,7 @@ export function InstallationActions({
     <div className="grid gap-3 border-t pt-5">
       <div><h3 className="font-medium">Associer un agent</h3><p className="text-xs text-muted-foreground">Le profil est forcé par l’Edge pour toutes ses requêtes.</p></div>
       <div className="grid gap-2">
-        <Label htmlFor="installation-detail-agent">Agent du workspace</Label>
+        <Label htmlFor="installation-detail-agent">Agent de l’organisation</Label>
         <Select disabled={agents.length === 0} onValueChange={setAgentId} value={agentId}>
           <SelectTrigger id="installation-detail-agent"><SelectValue placeholder="Aucun agent" /></SelectTrigger>
           <SelectContent>{agents.map((agent) => <SelectItem key={agent.id} value={agent.id}>{agent.name}</SelectItem>)}</SelectContent>

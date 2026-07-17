@@ -18,7 +18,6 @@ import { DEFAULT_PERMISSIONS } from "@/lib/permissions";
 import {
   allocateAgentIdentity,
   allocateTenantSlug,
-  allocateWorkspaceSlug,
 } from "@/lib/product-model";
 import { listWorkspacesForUser, getWorkspaceLocationForUser } from "@/lib/workspace";
 
@@ -34,19 +33,18 @@ export async function POST(request: Request) {
     return Response.json({
       error: "Votre espace est déjà configuré.",
       redirectTo: location
-        ? `/${location.tenant.slug}/${location.workspace.slug}/dashboard`
+        ? `/${location.tenant.slug}/dashboard`
         : "/",
     }, { status: 409 });
   }
 
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   const organizationName = textField(body?.organizationName, 100);
-  const workspaceName = textField(body?.workspaceName, 100);
   const agentName = textField(body?.agentName, 80);
   const agentDescription = textField(body?.agentDescription, 500);
   const template = getAgentTemplate(textField(body?.agentTemplate, 32));
 
-  if (!organizationName || !workspaceName || !agentName || !template) {
+  if (!organizationName || !agentName || !template) {
     return Response.json({ error: "Complétez les informations de votre espace et de votre agent." }, { status: 400 });
   }
 
@@ -55,7 +53,9 @@ export async function POST(request: Request) {
   const agentId = randomUUID();
   const runtimeInstallationId = randomUUID();
   const tenantSlug = await allocateTenantSlug(organizationName);
-  const workspaceSlug = await allocateWorkspaceSlug(tenantId, workspaceName);
+  // Temporary 1:1 storage row. It shares the tenant identity and is not a
+  // product, URL or authorization boundary.
+  const workspaceSlug = tenantSlug;
   const identity = await allocateAgentIdentity(
     workspaceId,
     tenantSlug,
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     await tx.insert(workspaces).values({
       id: workspaceId,
       tenantId,
-      name: workspaceName,
+      name: organizationName,
       slug: workspaceSlug,
       hermesBaseUrl: process.env.HERMES_DEFAULT_GATEWAY_URL ?? "http://127.0.0.1:8787",
       permissions: DEFAULT_PERMISSIONS,
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
     });
     await tx.update(users).set({
       onboardedAt: new Date(),
-      onboardingData: { organizationName, workspaceName, agentTemplate: template.id },
+      onboardingData: { organizationName, agentTemplate: template.id },
     }).where(eq(users.id, user.id));
   });
 
@@ -132,6 +132,6 @@ export async function POST(request: Request) {
   return Response.json({
     ok: true,
     runtimeState,
-    redirectTo: `/${tenantSlug}/${workspaceSlug}/d/chat`,
+    redirectTo: `/${tenantSlug}/d/chat`,
   }, { status: 201 });
 }

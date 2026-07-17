@@ -12,12 +12,14 @@ export function WorkRunActions({
   runId,
   active,
   canRun,
+  onChanged,
 }: {
   apiBase: string;
   workItemId: string;
   runId?: string | null;
   active: boolean;
   canRun: boolean;
+  onChanged?: () => void;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -36,7 +38,8 @@ export function WorkRunActions({
         return;
       }
       toast.success(active ? "Annulation transmise à l’Edge." : "Nouveau run ajouté à la file.");
-      router.refresh();
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch {
       toast.error("La Console est momentanément inaccessible.");
     } finally {

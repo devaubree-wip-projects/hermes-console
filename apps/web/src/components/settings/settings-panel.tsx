@@ -1,8 +1,8 @@
 import Link from "next/link"
-import { and, asc, eq } from "drizzle-orm"
+import { asc, eq } from "drizzle-orm"
 import { BotIcon, PlusIcon } from "lucide-react"
 import { db } from "@/db"
-import { agents, tenantMemberships, users, workspaceMemberships } from "@/db/schema"
+import { agents, tenantMemberships, users } from "@/db/schema"
 import { InferenceSettings } from "@/components/agents/inference-settings"
 import { ChatSettingsPanel, DocumentsSettingsPanel } from "@/components/settings/settings-client-panels"
 import { ToolsSettingsPanel, type ToolsetItem } from "@/components/settings/tools-settings-panel"
@@ -18,7 +18,13 @@ import { requireUser } from "@/lib/auth"
 import { getRuntimeAccess, hermesFetch } from "@/lib/hermes/server"
 import { runtimeInstallationForAgent } from "@/lib/hermes/installations"
 import { normalizePermissions } from "@/lib/permissions"
-import { canConfigureRuntime, getWorkspaceAccessBySlugs } from "@/lib/workspace"
+import {
+  TENANT_CAPABILITIES,
+  TENANT_ROLES,
+  TENANT_ROLE_LABELS,
+  tenantRoleCan,
+} from "@/lib/tenant-rbac"
+import { canConfigureRuntime, getTenantAccessBySlug } from "@/lib/workspace"
 
 type CapabilityRecord = Record<string, unknown>
 
@@ -46,19 +52,17 @@ function ReadOnlyNotice({ role }: { role: string }) {
 export async function SettingsPanel({
   panel,
   tenantSlug,
-  workspaceSlug,
   agentId,
 }: {
   panel: SettingsPanelId
   tenantSlug: string
-  workspaceSlug: string
   agentId?: string
 }) {
   const currentUser = await requireUser()
-  const access = await getWorkspaceAccessBySlugs(tenantSlug, workspaceSlug, currentUser.id)
+  const access = await getTenantAccessBySlug(tenantSlug, currentUser.id)
   if (!access) return null
 
-  const workspaceBase = `/${tenantSlug}/${workspaceSlug}`
+  const workspaceBase = `/${tenantSlug}`
   const owner = canConfigureRuntime(access.role)
 
   if (panel === "chat") return <ChatSettingsPanel />
@@ -69,7 +73,7 @@ export async function SettingsPanel({
       <div className="space-y-8">
         <SettingsPanelHeader
           title="Général"
-          description="Gérez l’identité visible de cet espace de travail."
+          description="Gérez l’identité visible de votre organisation."
         />
         {owner ? (
           <GeneralSection workspaceId={access.workspace.id} name={access.workspace.name} />
@@ -83,36 +87,48 @@ export async function SettingsPanel({
       .select({
         user: users,
         role: tenantMemberships.role,
-        overrideRole: workspaceMemberships.role,
-        denied: workspaceMemberships.denied,
       })
       .from(tenantMemberships)
       .innerJoin(users, eq(users.id, tenantMemberships.userId))
-      .leftJoin(
-        workspaceMemberships,
-        and(
-          eq(workspaceMemberships.userId, users.id),
-          eq(workspaceMemberships.workspaceId, access.workspace.id),
-        ),
-      )
       .where(eq(tenantMemberships.tenantId, access.tenant.id))
 
     return (
       <div className="space-y-8">
         <SettingsPanelHeader
           title="Membres"
-          description="Consultez les rôles hérités du tenant et les exceptions propres à ce workspace."
+          description="Un seul rôle par membre s’applique à toute l’organisation."
         />
         <SettingsSection title="Équipe">
-          {memberRows.map(({ user, role, overrideRole, denied }) => (
+          {memberRows.map(({ user, role }) => (
             <SettingsRow
               key={user.id}
               label={`${user.name}${user.id === currentUser.id ? " (vous)" : ""}`}
               description={user.email}
               control={(
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline">{denied ? "Refusé" : overrideRole ?? role}</Badge>
-                  {overrideRole ? <Badge variant="secondary">Override</Badge> : null}
+                  <Badge variant="outline">{TENANT_ROLE_LABELS[role]}</Badge>
+                </div>
+              )}
+            />
+          ))}
+        </SettingsSection>
+        <SettingsSection title="Droits par rôle">
+          {TENANT_CAPABILITIES.map((capability) => (
+            <SettingsRow
+              key={capability.key}
+              label={capability.label}
+              description="Ces droits sont contrôlés côté serveur sur toute l’organisation."
+              control={(
+                <div className="flex flex-wrap justify-end gap-1.5">
+                  {TENANT_ROLES.map((role) => (
+                    <Badge
+                      key={role}
+                      variant={tenantRoleCan(role, capability.key) ? "secondary" : "outline"}
+                      className={!tenantRoleCan(role, capability.key) ? "text-muted-foreground line-through" : undefined}
+                    >
+                      {TENANT_ROLE_LABELS[role]}
+                    </Badge>
+                  ))}
                 </div>
               )}
             />
@@ -152,8 +168,8 @@ export async function SettingsPanel({
             agents={agentRows}
             activeAgent={activeAgent}
             modelsBase={`${workspaceBase}/settings/models`}
-            apiEndpoint={`/api/${tenantSlug}/${workspaceSlug}/agents/${activeAgent.slug}/inference`}
-            ticketEndpoint={`/api/${tenantSlug}/${workspaceSlug}/agents/${activeAgent.slug}/runtime-ticket`}
+            apiEndpoint={`/api/${tenantSlug}/agents/${activeAgent.slug}/inference`}
+            ticketEndpoint={`/api/${tenantSlug}/agents/${activeAgent.slug}/runtime-ticket`}
             newSessionHref={`${workspaceBase}/d/chat?agentId=${activeAgent.id}`}
             embedded
           />
@@ -191,7 +207,7 @@ export async function SettingsPanel({
             workspaceId={access.workspace.id}
             permissions={normalizePermissions(access.workspace.permissions)}
             profile={firstAgent?.hermesProfileName ?? null}
-            toolsetApiBase={`/api/${tenantSlug}/${workspaceSlug}/tools/toolsets`}
+            toolsetApiBase={`/api/${tenantSlug}/tools/toolsets`}
             runtimeHref={`${workspaceBase}/settings/runtime`}
           />
         ) : <ReadOnlyNotice role={access.role} />}
@@ -216,7 +232,7 @@ export async function SettingsPanel({
       <div className="space-y-8">
         <SettingsPanelHeader
           title="Runtime"
-          description="Consultez et réglez l’accès machine réel des agents de ce workspace."
+          description="Consultez et réglez l’accès machine réel des agents de cette organisation."
         />
         <SettingsSection title="Connexion Hermes">
           <SettingsRow
@@ -238,7 +254,7 @@ export async function SettingsPanel({
           <RuntimeAccessSection
             access={runtimeAccess}
             profile={firstAgent?.hermesProfileName ?? null}
-            configApiBase={`/api/${tenantSlug}/${workspaceSlug}/runtime/config`}
+            configApiBase={`/api/${tenantSlug}/runtime/config`}
             toolsHref={`${workspaceBase}/settings/tools`}
             integrationsHref={`${workspaceBase}/integrations`}
             canEdit={owner}
@@ -270,8 +286,8 @@ export async function SettingsPanel({
       return (
         <div className="space-y-8">
           <SettingsPanelHeader
-            title="Outils"
-            description="Activez ou désactivez les familles d’outils du profil Hermes principal."
+            title="Outils intégrés du runtime"
+            description="Familles d’outils fournies par le runtime Hermes (shell, fichiers, etc.) pour le profil principal. À ne pas confondre avec les serveurs MCP externes, qui se configurent par conversation depuis le composer."
           />
           <Alert variant="warning" title="Données indisponibles">
             {result.error}
@@ -284,7 +300,7 @@ export async function SettingsPanel({
       <ToolsSettingsPanel
         items={toToolsetItems(result.data)}
         profile={firstAgent?.hermesProfileName ?? null}
-        apiBase={`/api/${tenantSlug}/${workspaceSlug}/tools/toolsets`}
+        apiBase={`/api/${tenantSlug}/tools/toolsets`}
         canEdit={owner}
       />
     )

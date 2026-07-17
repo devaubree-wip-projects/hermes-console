@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { isProfileGatewayRunning, resolvedPlatformState } from "@/lib/hermes/messaging-status";
+import {
+  isProfileGatewayRunning,
+  resolvedPlatformError,
+  resolvedPlatformState,
+} from "@/lib/hermes/messaging-status";
 
 describe("profile-scoped messaging state", () => {
   test("does not mistake the default gateway for a named profile gateway", () => {
@@ -31,5 +35,34 @@ describe("profile-scoped messaging state", () => {
       enabled: true,
       configured: true,
     })).toBe("connected");
+  });
+
+  test("ignores a stale retry after the credential is deleted", () => {
+    expect(resolvedPlatformState({
+      gatewayRunning: true,
+      topologyState: "retrying",
+      localState: "retrying",
+      platformState: "retrying",
+      enabled: false,
+      configured: false,
+    })).toBe("not_configured");
+
+    expect(resolvedPlatformError({
+      runtimeError: "Telegram startup failed with the deleted token.",
+      platformError: "Previous Telegram error.",
+      enabled: false,
+      configured: false,
+    })).toBeNull();
+  });
+
+  test("reports a configured but disabled platform as disabled", () => {
+    expect(resolvedPlatformState({
+      gatewayRunning: true,
+      topologyState: "retrying",
+      localState: "retrying",
+      platformState: "retrying",
+      enabled: false,
+      configured: true,
+    })).toBe("disabled");
   });
 });

@@ -1,9 +1,9 @@
-import { getWorkspaceAccessBySlugs } from "@/lib/workspace";
+import { getTenantAccessBySlug } from "@/lib/workspace";
 import type { WorkspaceAccessRepository } from "../application/workspace-access";
 
 export const workspaceAccessAdapter: WorkspaceAccessRepository = {
-  async findBySlugs(input) {
-    const access = await getWorkspaceAccessBySlugs(input.tenantSlug, input.workspaceSlug, input.userId);
+  async findByTenantSlug(input) {
+    const access = await getTenantAccessBySlug(input.tenantSlug, input.userId);
     return access ? {
       tenantId: access.tenant.id,
       workspaceId: access.workspace.id,

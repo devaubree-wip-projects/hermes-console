@@ -28,28 +28,32 @@ type HermesStatus = {
   version?: string;
 };
 
-const gatewayUrl = process.env.HERMES_DEFAULT_GATEWAY_URL?.trim() || "http://127.0.0.1:8787";
-const installationKey = process.env.HERMES_DEFAULT_INSTALLATION_ID?.trim() || "local-default";
 const serviceMasterSecret = process.env.HERMES_GATEWAY_SERVICE_SECRET?.trim()
   || process.env.HERMES_GATEWAY_TICKET_SECRET?.trim()
   || "hermes-console-local-development-service";
 const deriveSecrets = process.env.HERMES_GATEWAY_DERIVE_SECRETS !== "false";
 
-function serviceSecret() {
+export type LocalRuntimeIdentity = {
+  gatewayUrl: string;
+  installationKey: string;
+  capabilities: GatewayCapabilities;
+};
+
+function serviceSecret(installationKey: string) {
   if (!deriveSecrets) return serviceMasterSecret;
   return createHmac("sha256", serviceMasterSecret)
     .update(`hermes-console:service:${installationKey}`)
     .digest("base64url");
 }
 
-async function gatewayFetch<T>(requestUri: string, profile: string, init: RequestInit = {}) {
+async function gatewayFetch<T>(runtime: LocalRuntimeIdentity, requestUri: string, profile: string, init: RequestInit = {}) {
   const method = init.method?.toUpperCase() || "GET";
   const body = typeof init.body === "string" ? init.body : "";
   const timestamp = Date.now();
   const nonce = randomBytes(16).toString("hex");
   const digest = createHash("sha256").update(body).digest("hex");
   const canonical = [method, requestUri, String(timestamp), nonce, profile, digest].join("\n");
-  const signature = createHmac("sha256", serviceSecret()).update(canonical).digest("base64url");
+  const signature = createHmac("sha256", serviceSecret(runtime.installationKey)).update(canonical).digest("base64url");
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (body) headers.set("Content-Type", "application/json");
@@ -57,9 +61,9 @@ async function gatewayFetch<T>(requestUri: string, profile: string, init: Reques
   headers.set("X-Hermes-Nonce", nonce);
   headers.set("X-Hermes-Signature", signature);
   headers.set("X-Hermes-Profile", profile);
-  headers.set("X-Hermes-Installation-Id", installationKey);
+  headers.set("X-Hermes-Installation-Id", runtime.installationKey);
 
-  const response = await fetch(`${gatewayUrl}${requestUri}`, {
+  const response = await fetch(`${runtime.gatewayUrl}${requestUri}`, {
     ...init,
     method,
     headers,
@@ -72,7 +76,44 @@ async function gatewayFetch<T>(requestUri: string, profile: string, init: Reques
   return response.json() as Promise<T>;
 }
 
-async function main() {
+export async function discoverLocalRuntime(input: { gatewayUrl?: string } = {}): Promise<LocalRuntimeIdentity> {
+  const rawGatewayUrl = input.gatewayUrl?.trim()
+    || process.env.HERMES_DEFAULT_GATEWAY_URL?.trim()
+    || "http://127.0.0.1:8787";
+  const url = new URL(rawGatewayUrl);
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error("Le gateway Docker Hermes doit utiliser HTTP ou HTTPS.");
+  }
+  url.pathname = url.pathname.replace(/\/$/, "");
+  url.search = "";
+  url.hash = "";
+  const gatewayUrl = url.toString().replace(/\/$/, "");
+
+  let capabilitiesResponse: Response;
+  try {
+    capabilitiesResponse = await fetch(`${gatewayUrl}/v1/capabilities`, {
+      signal: AbortSignal.timeout(5_000),
+    });
+  } catch {
+    throw new Error(`Docker Hermes est injoignable sur ${gatewayUrl}. Démarrez-le avant le seed.`);
+  }
+  if (!capabilitiesResponse.ok) {
+    throw new Error(`Edge Hermes /v1/capabilities: HTTP ${capabilitiesResponse.status}`);
+  }
+  const capabilities = await capabilitiesResponse.json() as GatewayCapabilities;
+  const installationKey = typeof capabilities.installationId === "string"
+    ? capabilities.installationId.trim()
+    : "";
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/.test(installationKey)) {
+    throw new Error("L’Edge Docker n’a pas fourni d’identité d’installation valide.");
+  }
+
+  return { gatewayUrl, installationKey, capabilities };
+}
+
+export async function syncLocalRuntimeProfiles(input?: LocalRuntimeIdentity) {
+  const runtime = input ?? await discoverLocalRuntime();
+  const { gatewayUrl, installationKey, capabilities } = runtime;
   const localInstallations = await db.select({ id: runtimeInstallations.id })
     .from(runtimeInstallations)
     .where(and(
@@ -83,7 +124,7 @@ async function main() {
 
   if (localInstallations.length === 0) {
     console.log("Aucune installation locale enregistrée à synchroniser.");
-    return;
+    return { installations: 0, profiles: 0, created: 0 };
   }
 
   const localAgents = await db.select({
@@ -98,19 +139,12 @@ async function main() {
       isNull(runtimeInstallations.archivedAt),
     ));
 
-  const capabilitiesResponse = await fetch(`${gatewayUrl}/v1/capabilities`, {
-    signal: AbortSignal.timeout(5_000),
-  });
-  if (!capabilitiesResponse.ok) {
-    throw new Error(`Edge Hermes /v1/capabilities: HTTP ${capabilitiesResponse.status}`);
-  }
-  const capabilities = await capabilitiesResponse.json() as GatewayCapabilities;
   if (capabilities.installationId !== installationKey) {
     throw new Error(`Identité Edge inattendue : ${capabilities.installationId ?? "absente"}.`);
   }
 
   const profilesUri = "/v1/runtime/api/profiles";
-  let profiles = (await gatewayFetch<HermesProfilesResponse>(profilesUri, "default")).profiles ?? [];
+  let profiles = (await gatewayFetch<HermesProfilesResponse>(runtime, profilesUri, "default")).profiles ?? [];
   const existingProfiles = new Set(profiles.map((profile) => profile.name));
   const uniqueAgents = new Map(localAgents.map((agent) => [agent.profile, agent]));
   let created = 0;
@@ -120,7 +154,7 @@ async function main() {
     if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/.test(agent.profile)) {
       throw new Error(`Profil Hermes invalide en base : ${agent.profile}`);
     }
-    await gatewayFetch<{ ok: boolean }>(profilesUri, agent.profile, {
+    await gatewayFetch<{ ok: boolean }>(runtime, profilesUri, agent.profile, {
       method: "POST",
       body: JSON.stringify({
         name: agent.profile,
@@ -133,9 +167,9 @@ async function main() {
   }
 
   if (created > 0) {
-    profiles = (await gatewayFetch<HermesProfilesResponse>(profilesUri, "default")).profiles ?? [];
+    profiles = (await gatewayFetch<HermesProfilesResponse>(runtime, profilesUri, "default")).profiles ?? [];
   }
-  const status = await gatewayFetch<HermesStatus>("/v1/runtime/api/status", "default");
+  const status = await gatewayFetch<HermesStatus>(runtime, "/v1/runtime/api/status", "default");
   const now = new Date();
   const profileCapabilities = profiles.map((profile) => ({
     name: profile.name,
@@ -188,11 +222,14 @@ async function main() {
   });
 
   console.log(`${localInstallations.length} installation(s), ${profiles.length} profil(s), ${created} profil(s) créé(s).`);
+  return { installations: localInstallations.length, profiles: profiles.length, created };
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exit(1);
-  });
+if (import.meta.main) {
+  syncLocalRuntimeProfiles()
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    });
+}

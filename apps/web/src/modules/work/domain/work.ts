@@ -25,15 +25,20 @@ export const WORK_RUN_STATUSES: readonly WorkRunStatus[] = [
   "cancelled",
 ];
 
-const itemTransitions: Record<WorkItemStatus, readonly WorkItemStatus[]> = {
+export const WORK_ITEM_TRANSITIONS: Record<
+  WorkItemStatus,
+  readonly WorkItemStatus[]
+> = {
   backlog: ["todo", "cancelled"],
   todo: ["backlog", "in_progress", "blocked", "cancelled"],
-  in_progress: ["blocked", "review", "done", "cancelled"],
+  in_progress: ["blocked", "review", "done", "cancelled", "todo"],
   blocked: ["todo", "in_progress", "cancelled"],
-  review: ["in_progress", "done", "cancelled"],
+  review: ["in_progress", "done", "cancelled", "todo"],
   done: ["todo"],
   cancelled: ["backlog"],
 };
+
+const itemTransitions = WORK_ITEM_TRANSITIONS;
 
 const runTransitions: Record<WorkRunStatus, readonly WorkRunStatus[]> = {
   queued: ["preparing", "cancelling", "cancelled"],
@@ -53,6 +58,41 @@ export function canTransitionWorkItem(
   return from === to || itemTransitions[from].includes(to);
 }
 
+/** Shortest hop chain `from → … → to` (excludes `from`). `[]` if same status, `null` if unreachable. */
+export function resolveWorkItemTransitionPath(
+  from: WorkItemStatus,
+  to: WorkItemStatus,
+): WorkItemStatus[] | null {
+  if (from === to) return [];
+  const parent = new Map<WorkItemStatus, WorkItemStatus | null>([[from, null]]);
+  const queue: WorkItemStatus[] = [from];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const next of itemTransitions[current]) {
+      if (parent.has(next)) continue;
+      parent.set(next, current);
+      if (next === to) {
+        const path: WorkItemStatus[] = [];
+        let cursor: WorkItemStatus | null = to;
+        while (cursor && cursor !== from) {
+          path.push(cursor);
+          cursor = parent.get(cursor) ?? null;
+        }
+        return path.reverse();
+      }
+      queue.push(next);
+    }
+  }
+  return null;
+}
+
+export function canReachWorkItemStatus(
+  from: WorkItemStatus,
+  to: WorkItemStatus,
+) {
+  return resolveWorkItemTransitionPath(from, to) !== null;
+}
+
 export function canTransitionWorkRun(from: WorkRunStatus, to: WorkRunStatus) {
   return from === to || runTransitions[from].includes(to);
 }
@@ -67,6 +107,20 @@ export function assertWorkItemTransition(
       `Transition tâche interdite : ${from} → ${to}.`,
     );
   }
+}
+
+export function assertWorkItemReachable(
+  from: WorkItemStatus,
+  to: WorkItemStatus,
+) {
+  const path = resolveWorkItemTransitionPath(from, to);
+  if (!path) {
+    throw new WorkDomainError(
+      "invalid_work_item_transition",
+      `Transition tâche interdite : ${from} → ${to}.`,
+    );
+  }
+  return path;
 }
 
 export function assertWorkRunTransition(

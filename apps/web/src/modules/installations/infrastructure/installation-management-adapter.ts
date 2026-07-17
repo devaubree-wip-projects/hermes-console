@@ -18,10 +18,10 @@ import { requireUser } from "@/lib/auth";
 import { probeGateway, testGatewayProfile } from "@/lib/hermes/gateway-preflight";
 import { revokeEdgeTickets, revokeRelayFingerprints } from "@/lib/hermes/relay-admin";
 import { capacityRecommendationFromUsage, capacitySample } from "@/lib/hermes/runtime-policy";
-import { canConfigureRuntime, getWorkspaceAccessBySlugs } from "@/lib/workspace";
+import { canConfigureRuntime, getTenantAccessBySlug } from "@/lib/workspace";
 
-async function installationAccess(tenantSlug: string, workspaceSlug: string, installationId: string, userId: string) {
-  const access = await getWorkspaceAccessBySlugs(tenantSlug, workspaceSlug, userId);
+async function installationAccess(tenantSlug: string, installationId: string, userId: string) {
+  const access = await getTenantAccessBySlug(tenantSlug, userId);
   if (!access) return null;
   const [installation] = await db.select().from(runtimeInstallations).where(and(
     eq(runtimeInstallations.id, installationId),
@@ -31,11 +31,11 @@ async function installationAccess(tenantSlug: string, workspaceSlug: string, ins
 }
 
 export async function getInstallationDetails(
-  params: Promise<{ tenantSlug: string; workspaceSlug: string; installationId: string }>,
+  params: Promise<{ tenantSlug: string; installationId: string }>,
 ) {
-  const { tenantSlug, workspaceSlug, installationId } = await params;
+  const { tenantSlug, installationId } = await params;
   const user = await requireUser();
-  const context = await installationAccess(tenantSlug, workspaceSlug, installationId, user.id);
+  const context = await installationAccess(tenantSlug, installationId, user.id);
   if (!context) return NextResponse.json({ error: "Installation introuvable." }, { status: 404 });
   const [capability, assignedAgents, budget, latestUsage, operations, backups, identities] = await Promise.all([
     db.select().from(runtimeCapabilities).where(eq(runtimeCapabilities.installationId, installationId)).limit(1).then((rows) => rows[0] ?? null),
@@ -72,11 +72,11 @@ export async function updateInstallation(
     agentId?: unknown;
     profileName?: unknown;
   } | null,
-  params: Promise<{ tenantSlug: string; workspaceSlug: string; installationId: string }>,
+  params: Promise<{ tenantSlug: string; installationId: string }>,
 ) {
-  const { tenantSlug, workspaceSlug, installationId } = await params;
+  const { tenantSlug, installationId } = await params;
   const user = await requireUser();
-  const context = await installationAccess(tenantSlug, workspaceSlug, installationId, user.id);
+  const context = await installationAccess(tenantSlug, installationId, user.id);
   if (!context) return NextResponse.json({ error: "Installation introuvable." }, { status: 404 });
   if (!canConfigureRuntime(context.access.role)) {
     return NextResponse.json({ error: "Seul un Owner peut modifier une installation." }, { status: 403 });

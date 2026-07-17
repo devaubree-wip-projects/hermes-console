@@ -10,6 +10,7 @@ import { DotMatrix } from "@/components/shared/chat/assistant-ui/dot-matrix";
 import { MessageTiming } from "@/components/shared/chat/assistant-ui/message-timing";
 import { ToolFallback } from "@/components/shared/chat/assistant-ui/tool-fallback";
 import { ToolCallsByName } from "@/components/shared/chat/assistant-ui/tool-calls-by-name";
+import { ToolApprovalBanner } from "@/components/shared/chat/assistant-ui/tool-approval-banner";
 import {
   ArchivedThreadsButton,
   ThreadList,
@@ -1102,6 +1103,13 @@ const Composer: FC = () => {
         data-plan-mode={hermes.planMode || undefined}
         className="aui-composer-root relative mx-auto flex w-full max-w-3xl flex-col px-4 pt-2 pb-4"
       >
+        {hermes.pendingApproval ? (
+          <ToolApprovalBanner
+            className="mb-2"
+            request={hermes.pendingApproval}
+            onRespond={hermes.respondApproval}
+          />
+        ) : null}
         <div className="rounded-xl bg-muted p-1 shadow-sm">
           <div
             data-slot="aui_composer-shell"
@@ -1152,21 +1160,22 @@ const Composer: FC = () => {
                         className="data-checked:bg-[oklch(0.62_0.24_255)]"
                       />
                     </div>
-                    <div className="flex h-8 w-full items-center gap-2 rounded-lg px-2 text-sm">
-                      <GlobeIcon className="text-muted-foreground size-4" />
-                      <label htmlFor="composer-web-search" className="flex-1 cursor-pointer text-left">
-                        Recherche web
-                      </label>
-                      <Switch
-                        id="composer-web-search"
-                        size="sm"
-                        aria-label="Recherche web"
-                        checked={hermes.webSearch}
-                        disabled={!hermes.webSearchAvailable}
-                        onCheckedChange={hermes.setWebSearch}
-                        className="data-checked:bg-[oklch(0.62_0.24_255)]"
-                      />
-                    </div>
+                    {hermes.webSearchAvailable ? (
+                      <div className="flex h-8 w-full items-center gap-2 rounded-lg px-2 text-sm">
+                        <GlobeIcon className="text-muted-foreground size-4" />
+                        <label htmlFor="composer-web-search" className="flex-1 cursor-pointer text-left">
+                          Recherche web
+                        </label>
+                        <Switch
+                          id="composer-web-search"
+                          size="sm"
+                          aria-label="Recherche web"
+                          checked={hermes.webSearch}
+                          onCheckedChange={hermes.setWebSearch}
+                          className="data-checked:bg-[oklch(0.62_0.24_255)]"
+                        />
+                      </div>
+                    ) : null}
                     <div className="my-1 h-px bg-border" />
                     <div
                       className="relative"

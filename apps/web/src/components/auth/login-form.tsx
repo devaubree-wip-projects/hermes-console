@@ -3,16 +3,22 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FlaskConical, Loader2 } from "lucide-react";
+import { Check, FlaskConical, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type DevCredentials = { email: string; password: string };
+export type DemoAccount = {
+  role: string;
+  name: string;
+  email: string;
+  password: string;
+  description: string;
+};
 
-export function LoginForm({ devCredentials }: { devCredentials: DevCredentials | null }) {
+export function LoginForm({ demoAccounts }: { demoAccounts: DemoAccount[] | null }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,11 +55,10 @@ export function LoginForm({ devCredentials }: { devCredentials: DevCredentials |
     await login(email, password);
   }
 
-  async function handleDevelopmentLogin() {
-    if (!devCredentials) return;
-    setEmail(devCredentials.email);
-    setPassword(devCredentials.password);
-    await login(devCredentials.email, devCredentials.password);
+  function selectDemoAccount(account: DemoAccount) {
+    setError(null);
+    setEmail(account.email);
+    setPassword(account.password);
   }
 
   return (
@@ -105,20 +110,52 @@ export function LoginForm({ devCredentials }: { devCredentials: DevCredentials |
               Créer un compte
             </Link>
           </p>
-          {devCredentials ? (
+          {demoAccounts ? (
             <div className="mt-5 border-t pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-10 w-full"
-                disabled={pending}
-                onClick={handleDevelopmentLogin}
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <FlaskConical className="size-4 text-muted-foreground" aria-hidden="true" />
+                Comptes de démonstration
+              </div>
+              <div
+                className="mt-3 overflow-hidden rounded-md border"
+                role="group"
+                aria-label="Comptes de démonstration"
               >
-                {pending ? <Loader2 className="size-4 animate-spin" /> : <FlaskConical />}
-                Remplir et se connecter en mode dev
-              </Button>
-              <p className="mt-2 text-center font-mono text-[11px] text-muted-foreground">
-                {devCredentials.email}
+                {demoAccounts.map((account, index) => {
+                  const isSelected = email === account.email && password === account.password;
+
+                  return (
+                    <button
+                      key={account.email}
+                      type="button"
+                      aria-pressed={isSelected}
+                      disabled={pending}
+                      onClick={() => selectDemoAccount(account)}
+                      className={`flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:pointer-events-none disabled:opacity-50 ${
+                        index > 0 ? "border-t" : ""
+                      } ${isSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted/60"}`}
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-baseline gap-2">
+                          <span className="truncate text-sm font-medium">{account.name}</span>
+                          <span className="shrink-0 text-xs text-muted-foreground">{account.role}</span>
+                        </span>
+                        <span className="mt-0.5 block truncate font-mono text-[11px] text-muted-foreground">
+                          {account.email}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                          {account.description}
+                        </span>
+                      </span>
+                      <span className="flex size-5 shrink-0 items-center justify-center" aria-hidden="true">
+                        {isSelected ? <Check className="size-4 text-primary" /> : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-center text-xs text-muted-foreground">
+                Sélectionnez un rôle, puis connectez-vous.
               </p>
             </div>
           ) : null}

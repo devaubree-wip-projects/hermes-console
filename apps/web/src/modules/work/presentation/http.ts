@@ -2,7 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { canAtLeast, getWorkspaceAccessBySlugs } from "@/lib/workspace";
+import { canAtLeast, getTenantAccessBySlug } from "@/lib/workspace";
 import { WorkDomainError } from "@/modules/work/domain/work";
 import {
   WorkConflictError,
@@ -19,12 +19,11 @@ export class WorkHttpError extends Error {
 
 export async function resolveWorkContext(
   tenantSlug: string,
-  workspaceSlug: string,
   minimumRole: MembershipRole = "viewer",
 ): Promise<WorkContext> {
   const user = await getCurrentUser();
   if (!user) throw new WorkHttpError(401, "Non authentifié.");
-  const access = await getWorkspaceAccessBySlugs(tenantSlug, workspaceSlug, user.id);
+  const access = await getTenantAccessBySlug(tenantSlug, user.id);
   if (!access) throw new WorkHttpError(404, "Workspace introuvable.");
   if (!canAtLeast(access.role, minimumRole)) throw new WorkHttpError(403, "Accès en lecture seule.");
   return {

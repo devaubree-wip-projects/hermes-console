@@ -21,4 +21,36 @@ describe("normalizeStoredHistory", () => {
       { role: "tool", name: "terminal", result: "very large result", timestamp: 2 },
     ]);
   });
+
+  test("preserves assistant reasoning and tool context", () => {
+    expect(normalizeStoredHistory([
+      {
+        role: "assistant",
+        content: "Réponse",
+        reasoning_content: "Je réfléchis",
+        timestamp: 1,
+      },
+      {
+        role: "tool",
+        content: "{\"ok\":true}",
+        tool_name: "browser_navigate",
+        context: "https://example.com",
+        timestamp: 2,
+      },
+    ])).toEqual([
+      {
+        role: "assistant",
+        text: "Réponse",
+        reasoning: "Je réfléchis",
+        timestamp: 1,
+      },
+      {
+        role: "tool",
+        name: "browser_navigate",
+        result: "{\"ok\":true}",
+        context: "https://example.com",
+        timestamp: 2,
+      },
+    ]);
+  });
 });

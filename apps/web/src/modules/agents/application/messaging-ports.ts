@@ -27,6 +27,8 @@ export interface MessagingRuntimePort {
   ensureControlExtension(agentId: string, profile: string): Promise<void>;
   configure(input: { agentId: string; profile: string; platform: SupportedPlatform; enabled: boolean; env: Record<string, string> }): Promise<void>;
   lifecycle(agentId: string, profile: string, action: "start" | "restart"): Promise<unknown>;
+  reconcileTelegramLock(agentId: string, profile: string): Promise<{ status: "cleared" | "none" | "ambiguous" | "conflict" | "unsupported"; reason?: string; count?: number; profile?: string }>;
+  deleteCredential(agentId: string, profile: string, key: string): Promise<void>;
   test(agentId: string, profile: string, platform: SupportedPlatform): Promise<{ ok?: boolean; state?: string; message?: string }>;
   telegramStart(agentId: string, profile: string, botName: string): Promise<Record<string, unknown>>;
   telegramStatus(agentId: string, profile: string, pairingId: string): Promise<Record<string, unknown>>;

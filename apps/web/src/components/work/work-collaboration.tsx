@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
-export function WorkCommentComposer({ endpoint }: { endpoint: string }) {
+export function WorkCommentComposer({ endpoint, onChanged }: { endpoint: string; onChanged?: () => void }) {
   const router = useRouter();
   const [content, setContent] = useState("");
   const [pending, setPending] = useState(false);
@@ -18,14 +18,16 @@ export function WorkCommentComposer({ endpoint }: { endpoint: string }) {
       const data = await response.json();
       if (!response.ok) return toast.error(data.error ?? "Commentaire impossible.");
       toast.success(data.runs?.length ? "Commentaire ajouté, l’agent mentionné a reçu un run." : "Commentaire ajouté.");
-      setContent(""); router.refresh();
+      setContent("");
+      if (onChanged) onChanged();
+      else router.refresh();
     } catch { toast.error("La Console est momentanément inaccessible."); }
     finally { setPending(false); }
   }
   return <form onSubmit={submit} className="space-y-2"><Textarea aria-label="Ajouter un commentaire" value={content} onChange={(event) => setContent(event.target.value)} placeholder="Ajouter un commentaire. Mentionnez @slug-agent pour créer un run ciblé." rows={3} maxLength={20_000} disabled={pending} /><div className="flex justify-end"><Button type="submit" size="sm" disabled={pending || !content.trim()}>{pending ? <Loader2Icon className="animate-spin" /> : <MessageSquarePlusIcon />}Publier</Button></div></form>;
 }
 
-export function PromotePlanStepButton({ endpoint, taskBase }: { endpoint: string; taskBase: string }) {
+export function PromotePlanStepButton({ endpoint, taskBase, openInSheet = false, onPromoted }: { endpoint: string; taskBase: string; openInSheet?: boolean; onPromoted?: (taskId: string) => void }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   async function promote() {
@@ -35,7 +37,8 @@ export function PromotePlanStepButton({ endpoint, taskBase }: { endpoint: string
       const data = await response.json();
       if (!response.ok) return toast.error(data.error ?? "Promotion impossible.");
       toast.success("Étape promue en sous-tâche métier.");
-      router.push(`${taskBase}/${data.item.id}`);
+      if (onPromoted) onPromoted(data.item.id);
+      else router.push(openInSheet ? `${taskBase}?task=${encodeURIComponent(data.item.id)}` : `${taskBase}/${data.item.id}`, { scroll: false });
     } catch { toast.error("La Console est momentanément inaccessible."); }
     finally { setPending(false); }
   }

@@ -2,6 +2,7 @@ import {
   type AnyPgColumn,
   bigint,
   boolean,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -72,7 +73,10 @@ export const workspaces = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [uniqueIndex("workspaces_tenant_slug_uidx").on(t.tenantId, t.slug)],
+  (t) => [
+    uniqueIndex("workspaces_tenant_uidx").on(t.tenantId),
+    uniqueIndex("workspaces_tenant_slug_uidx").on(t.tenantId, t.slug),
+  ],
 );
 
 export type MembershipRole = "owner" | "member" | "viewer";
@@ -668,6 +672,7 @@ export const workItems = pgTable(
       .$type<WorkItemPriority>()
       .notNull()
       .default("none"),
+    boardPosition: doublePrecision("board_position").notNull().default(0),
     creatorUserId: uuid("creator_user_id")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
@@ -711,6 +716,11 @@ export const workItems = pgTable(
       t.workspaceId,
       t.status,
       t.updatedAt,
+    ),
+    index("work_items_workspace_board_position_idx").on(
+      t.workspaceId,
+      t.status,
+      t.boardPosition,
     ),
     index("work_items_workspace_assignee_idx").on(
       t.workspaceId,

@@ -41,7 +41,7 @@ export function GeneralSection({ workspaceId, name }: { workspaceId: string; nam
   return (
     <SettingsSection title="Espace de travail">
       <SettingsRow
-        label={<Label htmlFor="workspace-name">Nom du workspace</Label>}
+        label={<Label htmlFor="workspace-name">Nom de l’organisation</Label>}
         description="Ce nom apparaît dans la navigation et les écrans partagés avec votre équipe."
         control={(
           <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-72 sm:items-end">

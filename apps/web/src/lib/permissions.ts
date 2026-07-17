@@ -18,7 +18,7 @@ export const PERMISSION_LABELS: Record<
 > = {
   read_files: {
     label: "Lire mes fichiers",
-    description: "L'agent peut consulter les fichiers déposés dans le workspace.",
+    description: "L'agent peut consulter les fichiers déposés dans l’organisation.",
     sensitive: false,
   },
   web_search: {

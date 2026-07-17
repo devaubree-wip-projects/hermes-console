@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import {
   E,
   type AgentEvent,
+  type ApprovalChoice,
   type BridgeSessionInvalidatedFrame,
   type HermesModelOption,
   type HandoffLifecycleState,
@@ -51,15 +52,20 @@ import {
   isReasoningControlId,
   normalizeReasoningControlId,
 } from "@/components/shared/chat/constants/reasoning-config";
+import type { HermesApprovalRequest } from "@/components/shared/chat/assistant-ui/tool-approval-banner";
 import {
   appendAssistantReasoning,
   appendAssistantText,
   appendAssistantToolStart,
+  coerceToolResultText,
   ensureRunningAssistant,
   prepareMessagesForEdit,
   prepareMessagesForReload,
+  setAssistantReasoningIfEmpty,
   sliceMessagesUntil,
   textFromThreadUserMessage,
+  toolArgsFromPayload,
+  toolArgsTextFromPayload,
   updateAssistantTool,
 } from "@/components/shared/chat/runtime/hermes-message-updates";
 import {
@@ -625,6 +631,7 @@ class HermesSessionManager {
 function useHermesThreadRuntime(
   manager: HermesSessionManager,
   agentsEndpoint: string,
+  onApprovalRequest?: (request: HermesApprovalRequest | null) => void,
 ): AssistantRuntime {
   const router = useRouter();
   const threadId = useAuiState((state) => state.threadListItem.id);
@@ -736,8 +743,14 @@ function useHermesThreadRuntime(
           setIsRunning(true);
           setMessages((current) => appendAssistantReasoning(current, text));
           break;
+        case E.reasoningAvailable:
+          // Fallback when the model emits a full reasoning blob without deltas.
+          setIsRunning(true);
+          setMessages((current) => setAssistantReasoningIfEmpty(current, text));
+          break;
         case E.thinkingDelta:
-          // Hermes TUI status stream (kaomoji, "pondering…") — not assistant-ui reasoning.
+          // Hermes status stream (kaomoji, "pondering…") — not real reasoning.
+          // Matches desktop: ignore content, keep the run indicator alive.
           setIsRunning(true);
           setMessages((current) => ensureRunningAssistant(current));
           break;
@@ -751,10 +764,12 @@ function useHermesThreadRuntime(
           break;
         case E.messageComplete:
           setIsRunning(false);
+          onApprovalRequest?.(null);
           setMessages((current) => appendAssistantText(current, text, true));
           break;
         case E.error: {
           setIsRunning(false);
+          onApprovalRequest?.(null);
           const message = typeof payload?.message === "string" ? payload.message : "Erreur Hermes";
           setMessages((current) => appendAssistantText(current, `\n\nErreur Hermes : ${message}`, true));
           break;
@@ -762,8 +777,13 @@ function useHermesThreadRuntime(
         case E.toolStart: {
           const name = typeof payload?.name === "string" ? payload.name : "outil";
           const toolId = typeof payload?.tool_id === "string" ? payload.tool_id : undefined;
+          const argsText = toolArgsTextFromPayload(payload ?? undefined);
+          const args = toolArgsFromPayload(payload ?? undefined);
           setIsRunning(true);
-          setMessages((current) => appendAssistantToolStart(current, name, toolId));
+          setMessages((current) => appendAssistantToolStart(current, name, toolId, {
+            argsText,
+            args,
+          }));
           break;
         }
         case E.toolProgress: {
@@ -776,23 +796,39 @@ function useHermesThreadRuntime(
         }
         case E.toolComplete: {
           const toolId = typeof payload?.tool_id === "string" ? payload.tool_id : undefined;
-          const result = [
-            typeof payload?.summary === "string" ? payload.summary : "",
-            typeof payload?.result_text === "string" ? payload.result_text : "",
-            typeof payload?.result === "string" ? payload.result : "",
-          ].find((value) => value.length > 0);
+          const result = coerceToolResultText(payload ?? undefined);
+          const argsText = toolArgsTextFromPayload(payload ?? undefined);
+          const args = toolArgsFromPayload(payload ?? undefined);
+          onApprovalRequest?.(null);
           setMessages((current) => updateAssistantTool(
             current,
             toolId,
-            { result: result ?? "Terminé" },
+            {
+              result: result ?? "Terminé",
+              ...(argsText ? { argsText } : {}),
+              ...(args ? { args } : {}),
+            },
           ));
+          break;
+        }
+        case E.approvalRequest: {
+          if (!remoteId) break;
+          setIsRunning(true);
+          onApprovalRequest?.({
+            sessionId: remoteId,
+            command: typeof payload?.command === "string" ? payload.command : "",
+            description: typeof payload?.description === "string"
+              ? payload.description
+              : "Commande dangereuse / exécution de code",
+            allowPermanent: payload?.allow_permanent !== false,
+          });
           break;
         }
         default:
           break;
       }
     });
-  }, [manager, remoteId]);
+  }, [manager, onApprovalRequest, remoteId]);
 
   const onNew = useCallback(async (message: AppendMessage) => {
     const text = textFromContent(message);
@@ -986,11 +1022,13 @@ function createHermesThreadListAdapter(manager: HermesSessionManager): RemoteThr
 }
 
 export function useHermesChatRuntime({
+  active,
   threadId,
   sessionsEndpoint,
   inferenceEndpoint,
   agentsEndpoint,
 }: {
+  active: boolean;
   threadId?: string;
   sessionsEndpoint: string;
   inferenceEndpoint: string;
@@ -1009,6 +1047,7 @@ export function useHermesChatRuntime({
     planMode: false,
     webSearch: false,
     webSearchAvailable: false,
+    pendingApproval: null as HermesApprovalRequest | null,
     info: undefined as SessionInfo | undefined,
   });
   const preferencesRef = useRef<ComposerPreferences>({
@@ -1075,11 +1114,13 @@ export function useHermesChatRuntime({
   const adapter = useMemo(() => createHermesThreadListAdapter(manager), [manager]);
 
   useEffect(() => {
+    if (!active) return;
     let cancelled = false;
     void client.waitUntilOpen().then(async () => {
-      const [options, tools, inference] = await Promise.all([
+      const [options, tools, liveTools, inference] = await Promise.all([
         client.modelOptions(),
         client.toolsList(),
+        client.toolsShow().catch(() => ({ sections: [] as Array<{ name: string; tools?: Array<{ name: string }> }> })),
         fetch(inferenceEndpoint, { cache: "no-store" })
           .then(async (response) => {
             if (!response.ok) throw new Error(`Inference API ${response.status}`);
@@ -1121,12 +1162,21 @@ export function useHermesChatRuntime({
       modelsRef.current = models;
       const provider = inference.currentProvider ?? options.provider ?? models[0]?.provider ?? "";
       const model = inference.currentModel ?? options.model ?? models.find((item) => item.provider === provider)?.model ?? "";
-      const webSearchAvailable = (tools.toolsets ?? []).some((toolset) =>
-        toolset.enabled !== false && (
-          toolset.name.toLowerCase().includes("web")
-          || toolset.tools?.some((tool) => tool.includes("web_search"))
+      // Prefer tools.show (passes check_fn — e.g. Firecrawl key). Fall back to
+      // tools.list toolset flags when show is unavailable.
+      const liveToolNames = new Set(
+        (liveTools.sections ?? []).flatMap((section) =>
+          (section.tools ?? []).map((tool) => tool.name),
         ),
       );
+      const webSearchAvailable = liveToolNames.size > 0
+        ? liveToolNames.has("web_search")
+        : (tools.toolsets ?? []).some((toolset) =>
+          toolset.enabled !== false && (
+            toolset.name === "web"
+            || toolset.tools?.includes("web_search")
+          ),
+        );
       const defaultInference = {
         provider,
         model,
@@ -1138,8 +1188,17 @@ export function useHermesChatRuntime({
         ),
       } satisfies DefaultInferencePreferences;
       defaultInferenceRef.current = defaultInference;
-      updatePreferences(defaultInference);
-      setComposerState((current) => ({ ...current, ready: true, models, webSearchAvailable }));
+      updatePreferences({
+        ...defaultInference,
+        ...(webSearchAvailable ? {} : { webSearch: false }),
+      });
+      setComposerState((current) => ({
+        ...current,
+        ready: true,
+        models,
+        webSearchAvailable,
+        ...(webSearchAvailable ? {} : { webSearch: false }),
+      }));
     }).catch((error) => {
       if (!cancelled) {
         setComposerState((current) => ({ ...current, ready: true }));
@@ -1147,7 +1206,7 @@ export function useHermesChatRuntime({
       }
     });
     return () => { cancelled = true; };
-  }, [client, inferenceEndpoint, updatePreferences]);
+  }, [active, client, inferenceEndpoint, updatePreferences]);
 
   useEffect(() => {
     if (threadId) return;
@@ -1156,9 +1215,17 @@ export function useHermesChatRuntime({
     updatePreferences(defaultInference);
   }, [threadId, updatePreferences]);
 
+  const handleApprovalRequest = useCallback((request: HermesApprovalRequest | null) => {
+    setComposerState((current) => (
+      current.pendingApproval === request
+        ? current
+        : { ...current, pendingApproval: request }
+    ));
+  }, []);
+
   const runtime = useRemoteThreadListRuntime({
     runtimeHook: function useHermesRuntimeHook() {
-      return useHermesThreadRuntime(manager, agentsEndpoint);
+      return useHermesThreadRuntime(manager, agentsEndpoint, handleApprovalRequest);
     },
     adapter,
     threadId,
@@ -1166,7 +1233,7 @@ export function useHermesChatRuntime({
 
   const composer = useMemo<HermesComposerController>(() => ({
     ...composerState,
-    async setModel(remoteId, model) {
+    async setModel(_remoteId, model) {
       const provider = preferencesRef.current.provider;
       const selected = modelsRef.current.find(
         (item) => item.provider === provider && item.model === model,
@@ -1219,12 +1286,13 @@ export function useHermesChatRuntime({
         model,
         ...reasoning,
       };
-      await manager.configure(remoteId, "model", `${model} --provider ${provider} --session`);
-      if (reasoning.reasoningSupported) {
-        await manager.configure(remoteId, "reasoning", reasoning.effort);
-      }
-      toast.success("Modèle par défaut mis à jour", {
-        description: `${model} est maintenant utilisé par défaut.`,
+
+      // Match Settings → Models exactly: selecting a model persists the
+      // profile default through the inference endpoint. Do not issue a second
+      // session-scoped config.set, which would re-resolve OAuth credentials in
+      // the live TUI session and can reject an otherwise authenticated provider.
+      toast.success("Modèle enregistré", {
+        description: `${model} sera utilisé par les prochaines sessions de cet agent.`,
       });
     },
     async setEffort(remoteId, effort) {
@@ -1275,6 +1343,17 @@ export function useHermesChatRuntime({
     },
     setWebSearch(webSearch) {
       updatePreferences({ webSearch });
+    },
+    async respondApproval(choice: ApprovalChoice) {
+      const pending = composerState.pendingApproval;
+      if (!pending) return;
+      try {
+        await client.approvalRespondAsync(pending.sessionId, choice);
+        setComposerState((current) => ({ ...current, pendingApproval: null }));
+      } catch (error) {
+        toast.error("Approbation", { description: String(error) });
+        throw error;
+      }
     },
     async completePath(query) {
       return completionRows(await client.completePath(query, composerState.info?.cwd));

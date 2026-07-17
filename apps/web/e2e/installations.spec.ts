@@ -5,7 +5,7 @@ import { loginE2E } from "./hermes-mock";
 test("lists the local runtime and connects an existing Edge", async ({ page }) => {
   await loginE2E(page);
   let submitted: Record<string, unknown> | null = null;
-  await page.route("**/api/e2e/e2e/installations/preflight", async (route) => {
+  await page.route("**/api/e2e/installations/preflight", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -21,7 +21,7 @@ test("lists the local runtime and connects an existing Edge", async ({ page }) =
       }),
     });
   });
-  await page.route("**/api/e2e/e2e/installations", async (route) => {
+  await page.route("**/api/e2e/installations", async (route) => {
     submitted = route.request().postDataJSON() as Record<string, unknown>;
     await route.fulfill({
       status: 201,
@@ -30,11 +30,12 @@ test("lists the local runtime and connects an existing Edge", async ({ page }) =
     });
   });
 
-  await page.goto("/e2e/e2e/installations");
+  await page.goto("/e2e/installations");
   await expect(page.getByRole("heading", { name: "Installations Hermes" })).toBeVisible();
   await expect(page.getByTestId("installations-content").getByRole("link", { name: "Hermes E2E", exact: true })).toBeVisible();
-  await expect(page.getByText("http://127.0.0.1:8787", { exact: true })).toBeVisible();
+  await expect(page.getByText("http://127.0.0.1:8787", { exact: true }).first()).toBeVisible();
 
+  await page.getByRole("button", { name: "Ajouter une installation" }).click();
   await page.locator("#installation-name").fill("VPS production");
   await page.getByLabel("URL publique du Edge").fill("https://edge.example.com");
   await page.locator("#installation-key").fill("vps-production");
@@ -60,11 +61,11 @@ test("lists the local runtime and connects an existing Edge", async ({ page }) =
   expect(accessibility.violations).toEqual([]);
 });
 
-test("filters tenant installations to those used by the current workspace", async ({ page }) => {
+test("filters tenant installations to those used by the current organization", async ({ page }) => {
   await loginE2E(page);
-  await page.goto("/e2e/e2e/installations");
+  await page.goto("/e2e/installations");
   await expect(page.getByRole("link", { name: "Hermes sans agent", exact: true })).toBeVisible();
-  await page.getByLabel("Filtrer par workspace").selectOption("current");
+  await page.getByLabel("Filtrer par organisation").selectOption("current");
   await page.getByRole("button", { name: "Filtrer" }).click();
   await expect(page).toHaveURL(/workspace=current/);
   await expect(page.getByRole("link", { name: "Hermes E2E", exact: true })).toBeVisible();
@@ -75,7 +76,7 @@ test("manages an installation from its tenant-scoped detail page", async ({ page
   await loginE2E(page);
   const mutations: Array<Record<string, unknown>> = [];
   let lifecycleOperation: Record<string, unknown> | null = null;
-  await page.route("**/api/e2e/e2e/installations/*", async (route) => {
+  await page.route("**/api/e2e/installations/*", async (route) => {
     if (route.request().method() !== "PATCH") return route.continue();
     mutations.push(route.request().postDataJSON() as Record<string, unknown>);
     await route.fulfill({
@@ -84,7 +85,7 @@ test("manages an installation from its tenant-scoped detail page", async ({ page
       body: JSON.stringify({ installation: { id: "local-e2e" } }),
     });
   });
-  await page.route("**/api/e2e/e2e/installations/*/operations", async (route) => {
+  await page.route("**/api/e2e/installations/*/operations", async (route) => {
     lifecycleOperation = route.request().postDataJSON() as Record<string, unknown>;
     await route.fulfill({
       status: 200,
@@ -93,14 +94,14 @@ test("manages an installation from its tenant-scoped detail page", async ({ page
     });
   });
 
-  await page.goto("/e2e/e2e/installations");
+  await page.goto("/e2e/installations");
   await page.getByTestId("installations-content").getByRole("link", { name: "Hermes E2E", exact: true }).click();
   await expect(page.getByTestId("installation-detail").locator("h1")).toHaveText("Hermes E2E");
   await expect(page.getByText(/Hermes : 2026\.7\.7\.2/)).toBeVisible();
   await expect(page.getByRole("tab", { name: "Sécurité" })).toBeVisible();
 
   const installationId = new URL(page.url()).pathname.split("/").at(-1);
-  const unconfirmed = await page.request.post(`/api/e2e/e2e/installations/${installationId}/operations`, {
+  const unconfirmed = await page.request.post(`/api/e2e/installations/${installationId}/operations`, {
     data: { type: "restart", profile: "default" },
   });
   expect(unconfirmed.status()).toBe(400);
@@ -147,7 +148,7 @@ test("never exposes or mutates an installation from another tenant", async ({ pa
 test("creates a one-time Relay enrollment command without exposing the token twice", async ({ page }) => {
   await loginE2E(page);
   let requestBody: Record<string, unknown> | null = null;
-  await page.route("**/api/e2e/e2e/installations/enroll", async (route) => {
+  await page.route("**/api/e2e/installations/enroll", async (route) => {
     requestBody = await route.request().postDataJSON() as Record<string, unknown>;
     await route.fulfill({
       status: 201,
@@ -163,7 +164,7 @@ test("creates a one-time Relay enrollment command without exposing the token twi
       }),
     });
   });
-  await page.goto("/e2e/e2e/installations");
+  await page.goto("/e2e/installations");
   await page.locator("#relay-installation-name").fill("VPS Relay");
   await page.locator("#relay-installation-key").fill("vps-relay");
   await page.getByRole("button", { name: "Générer le jeton court" }).click();

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "599668e0e968385eaba878a9e1e4695a6da8c4ab",
+  "commit": "0faa7b92c50b267e69c938fe5da5b81d69bae2f5",
   "modules": [
     "apps/web/src/components/approvals/approval-actions.tsx",
     "apps/web/src/components/shared/chat/ui/skeleton.tsx",
@@ -9,7 +9,6 @@
     "apps/web/src/components/tasks/task-template-grid.tsx",
     "apps/web/src/components/ui/breadcrumb.tsx",
     "apps/web/src/components/ui/collapsible.tsx",
-    "apps/web/src/components/ui/popover.tsx",
     "apps/web/src/components/ui/scroll-area.tsx",
     "apps/web/src/components/ui/sidebar.tsx",
     "apps/web/src/db/seed.ts",

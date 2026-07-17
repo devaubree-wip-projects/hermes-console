@@ -14,7 +14,7 @@ export default async function OnboardingPage() {
 
   if (workspaces.length > 0) {
     const location = await getWorkspaceLocationForUser(workspaces[0].id, user.id);
-    if (location) redirect(`/${location.tenant.slug}/${location.workspace.slug}/dashboard`);
+    if (location) redirect(`/${location.tenant.slug}/dashboard`);
   }
 
   return <OnboardingFlow userName={user.name} />;

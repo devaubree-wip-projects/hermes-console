@@ -1,11 +1,17 @@
 import { ensureHermesConsoleControlExtension } from "@/lib/hermes/console-control-extension";
+import { clearTelegramTokenLock } from "@/lib/hermes/gateway-locks";
+import { runtimeInstallationForAgent } from "@/lib/hermes/installations";
 import {
   hermesFetch,
   HermesRuntimeError,
   readLocalProfileGatewayPlatforms,
   runLocalHermesGatewayCommand,
 } from "@/lib/hermes/server";
-import { isProfileGatewayRunning, resolvedPlatformState } from "@/lib/hermes/messaging-status";
+import {
+  isProfileGatewayRunning,
+  resolvedPlatformError,
+  resolvedPlatformState,
+} from "@/lib/hermes/messaging-status";
 import {
   isSupportedPlatform,
   type MessagingPlatform,
@@ -65,8 +71,18 @@ async function load(agentId: string, profile: string): Promise<MessagingState> {
           enabled: platform.enabled,
           configured: platform.configured,
         }),
-        error_code: runtimeState?.error_code ?? platform.error_code,
-        error_message: runtimeState?.error_message ?? platform.error_message,
+        error_code: resolvedPlatformError({
+          runtimeError: runtimeState?.error_code,
+          platformError: platform.error_code,
+          enabled: platform.enabled,
+          configured: platform.configured,
+        }),
+        error_message: resolvedPlatformError({
+          runtimeError: runtimeState?.error_message,
+          platformError: platform.error_message,
+          enabled: platform.enabled,
+          configured: platform.configured,
+        }),
         updated_at: runtimeState?.updated_at ?? platform.updated_at,
       };
     }),
@@ -95,6 +111,16 @@ export const hermesMessagingRuntime: MessagingRuntimePort = {
     }, { agentId: input.agentId, profile: input.profile });
   },
   lifecycle: runLocalHermesGatewayCommand,
+  async reconcileTelegramLock(agentId, profile) {
+    const installation = await runtimeInstallationForAgent(agentId);
+    return clearTelegramTokenLock(profile, installation);
+  },
+  async deleteCredential(agentId, profile, key) {
+    await hermesFetch("/api/env", {
+      method: "DELETE",
+      body: JSON.stringify({ key, profile }),
+    }, { agentId, profile });
+  },
   test(agentId, profile, platform) {
     return hermesFetch(scopedPath(`/api/messaging/platforms/${platform}/test`, profile), { method: "POST" }, { agentId, profile });
   },

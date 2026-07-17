@@ -27,8 +27,8 @@ export function ToolsSettingsPanel({
   return (
     <div className="space-y-8">
       <SettingsPanelHeader
-        title="Outils"
-        description="Activez ou désactivez les familles d’outils du profil Hermes principal."
+        title="Outils intégrés du runtime"
+        description="Familles d’outils fournies par le runtime Hermes (shell, fichiers, etc.) pour le profil principal. À ne pas confondre avec les serveurs MCP externes, qui se configurent par conversation depuis le composer."
       />
       <SettingsSection title="Toolsets disponibles">
         {items.length ? (
