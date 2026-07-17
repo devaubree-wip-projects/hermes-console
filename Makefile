@@ -5,7 +5,8 @@ DEV_LOG ?= .next/dev-stack.log
 COMPOSE_DEV = HERMES_UID=$(shell id -u) HERMES_GID=$(shell id -g) docker compose --project-directory . -f infra/dev/compose.yaml -f infra/dev/compose.override.yaml
 
 .PHONY: help install dev dev-fg stop dev-stop dev-fresh dev-next dev-gateway dev-system typecheck lint build check \
-	db-migrate db-push db-seed-demo db-reset logs logs-snapshot logs-errors logs-edge logs-hermes runtime-setup runtime-up runtime-logs runtime-status runtime-stop runtime-relay-cert runtime-relay-up runtime-relay-logs runtime-backups-maintain runtime-import runtime-import-rollback test-gateway
+	db-migrate db-push db-seed-demo db-reset logs logs-snapshot logs-errors logs-edge logs-hermes runtime-setup runtime-up runtime-logs runtime-status runtime-stop runtime-relay-cert runtime-relay-up runtime-relay-logs runtime-backups-maintain runtime-import runtime-import-rollback test-gateway \
+	prod-db-backup prod-db-restore
 
 help: ## Afficher cette aide
 	@printf '\nHermes Console\n\n'
@@ -46,6 +47,9 @@ help: ## Afficher cette aide
 	@printf '  make runtime-backups-maintain  Vérifier l’intégrité et appliquer la rétention\n'
 	@printf '  make runtime-import   Importer un profil systemwide sans écrasement\n'
 	@printf '  make runtime-import-rollback  Supprimer uniquement un profil importé vérifié\n\n'
+	@printf 'Production (infra/prod/compose.console.yaml — voir docs/operations/)\n'
+	@printf '  make prod-db-backup   Sauvegarder le Postgres de production (pg_dump)\n'
+	@printf '  make prod-db-restore  Restaurer une sauvegarde (FILE=nom-du-fichier requis)\n\n'
 
 install: ## Installer les dépendances
 	bun install
@@ -164,3 +168,13 @@ runtime-import: ## Importer un profil systemwide vers un nouveau profil Docker
 
 runtime-import-rollback: ## Annuler un import contrôlé après vérification du manifeste
 	bun run runtime:import-systemwide -- --target-profile "$(or $(TARGET_PROFILE),imported-default)" --rollback --confirm
+
+prod-db-backup: ## Sauvegarder le Postgres de production (voir docs/operations/backups.md)
+	infra/prod/backup-postgres.sh backup
+
+prod-db-restore: ## Restaurer une sauvegarde de production (FILE=nom-du-fichier requis)
+	@test -n "$(FILE)" || { \
+		printf 'Fichier requis. Relancez avec: make prod-db-restore FILE=hermes-console-....dump\n'; \
+		exit 1; \
+	}
+	infra/prod/backup-postgres.sh restore "$(FILE)"
