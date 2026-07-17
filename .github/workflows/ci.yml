@@ -17,8 +17,12 @@ jobs:
   web-shared:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # No DATABASE_URL here: this job runs unit tests + build with no Postgres
+    # service. DB-backed integration tests (e.g. *.integration.test.ts) key off
+    # DATABASE_URL and self-skip when it is unset; they are meant to run against
+    # a provisioned DB (locally, or a future CI job with a Postgres service).
+    # Setting DATABASE_URL without a reachable DB makes them fail (ECONNREFUSED).
     env:
-      DATABASE_URL: postgres://hermes:hermes@127.0.0.1:5432/hermes_console
       HERMES_GATEWAY_TICKET_SECRET: ci-ticket-secret-at-least-24-characters
       HERMES_GATEWAY_SERVICE_SECRET: ci-service-secret-at-least-24-characters
     steps:
