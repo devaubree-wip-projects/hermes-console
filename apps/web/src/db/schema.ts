@@ -33,6 +33,7 @@ export const users = pgTable("users", {
 });
 
 export const authSessions = pgTable("auth_sessions", {
+  // sha256 hash of the session token; the raw token lives only in the cookie.
   token: text("token").primaryKey(),
   userId: uuid("user_id")
     .notNull()
@@ -80,7 +81,6 @@ export const workspaces = pgTable(
     // Kept during the legacy chat migration. Hermes runtime configuration is
     // installation-level now; it no longer belongs to a workspace.
     hermesBaseUrl: text("hermes_base_url").notNull(),
-    hermesApiKey: text("hermes_api_key"),
     permissions: jsonb("permissions").$type<WorkspacePermissions>().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

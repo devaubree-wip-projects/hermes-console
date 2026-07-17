@@ -1822,6 +1822,7 @@
       "apps/web/src/components/product/capability-page.tsx",
       "apps/web/src/components/settings/settings-panel.tsx",
       "apps/web/src/db/seed.ts",
+      "apps/web/src/lib/auth.integration.test.ts",
       "apps/web/src/lib/auth.ts",
       "apps/web/src/lib/chat-agent-context.server.ts",
       "apps/web/src/lib/hermes/installations.ts",
@@ -1898,6 +1899,7 @@
       "apps/web/src/components/work/work-status-badge.tsx",
       "apps/web/src/db/index.ts",
       "apps/web/src/db/seed.ts",
+      "apps/web/src/lib/auth.integration.test.ts",
       "apps/web/src/lib/auth.ts",
       "apps/web/src/lib/chat-agent-context.server.ts",
       "apps/web/src/lib/hermes/gateway-preflight.ts",
@@ -1947,6 +1949,10 @@
       "apps/web/src/components/shared/chat/runtime/hermes-chat-runtime.tsx",
       "apps/web/src/lib/agents/agent-create-command.test.ts"
     ]
+  },
+  {
+    "module": "apps/web/src/lib/auth.integration.test.ts",
+    "incoming": []
   },
   {
     "module": "apps/web/src/lib/auth.ts",
@@ -2013,6 +2019,7 @@
       "apps/web/src/components/settings/settings-panel.tsx",
       "apps/web/src/components/work/task-detail-content.tsx",
       "apps/web/src/db/seed.ts",
+      "apps/web/src/lib/auth.integration.test.ts",
       "apps/web/src/modules/agents/infrastructure/agent-context-repository.ts",
       "apps/web/src/modules/auth/infrastructure/auth-adapters.ts",
       "apps/web/src/modules/installations/infrastructure/installation-context-repository.ts",
@@ -2381,6 +2388,20 @@
     ]
   },
   {
+    "module": "apps/web/src/lib/rate-limit.test.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/lib/rate-limit.ts",
+    "incoming": [
+      "apps/web/src/app/api/auth/forgot-password/route.ts",
+      "apps/web/src/app/api/auth/login/route.ts",
+      "apps/web/src/app/api/auth/register/route.ts",
+      "apps/web/src/app/api/auth/reset-password/route.ts",
+      "apps/web/src/lib/rate-limit.test.ts"
+    ]
+  },
+  {
     "module": "apps/web/src/lib/shared/chat/canvas-store.ts",
     "incoming": [
       "apps/web/src/components/shared/chat/canvas/canvas-panel.tsx"
@@ -2546,6 +2567,8 @@
       "apps/web/src/app/(auth)/invitations/accept/page.tsx",
       "apps/web/src/app/api/[tenantSlug]/invitations/route.ts",
       "apps/web/src/app/api/invitations/accept/route.ts",
+      "apps/web/src/lib/auth.integration.test.ts",
+      "apps/web/src/lib/auth.ts",
       "apps/web/src/modules/auth/application/reset-token.ts"
     ]
   },

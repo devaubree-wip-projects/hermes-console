@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "525a116a00890c79e26dcaff00a16efab4101644",
+  "commit": "311e167d215f9fa88940b1f6045ddca411904140",
   "layout": "monorepo",
   "endpoints": [
     {
@@ -532,7 +532,7 @@
         "POST"
       ],
       "path": "/api/auth/forgot-password",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {
@@ -541,7 +541,7 @@
         "POST"
       ],
       "path": "/api/auth/login",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {
@@ -559,7 +559,7 @@
         "POST"
       ],
       "path": "/api/auth/register",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {
@@ -568,7 +568,7 @@
         "POST"
       ],
       "path": "/api/auth/reset-password",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {
@@ -750,7 +750,7 @@
         "PATCH"
       ],
       "path": "/api/workspaces/:workspaceId",
-      "lines": 110,
+      "lines": 99,
       "critical": false
     }
   ],
@@ -903,6 +903,7 @@
         "apps/web/drizzle.config.ts",
         "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
         "apps/web/src/db/index.ts",
+        "apps/web/src/lib/auth.integration.test.ts",
         "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
         "scripts/migrate-product-db.ts",
         "scripts/migrate-product-model.ts",
@@ -1394,6 +1395,7 @@
     {
       "name": "NODE_ENV",
       "references": [
+        "apps/web/next.config.ts",
         "apps/web/src/app/(auth)/login/page.tsx",
         "apps/web/src/components/shared/chat/assistant-ui/composer-trigger-popover.tsx",
         "apps/web/src/db/index.ts",
@@ -1550,6 +1552,7 @@
     "apps/web/drizzle/0000_baseline.sql",
     "apps/web/drizzle/0001_work_runtime_functions.sql",
     "apps/web/drizzle/meta/0000_snapshot.json",
+    "apps/web/drizzle/meta/0001_snapshot.json",
     "apps/web/drizzle/meta/_journal.json",
     "scripts/migrate-product-db.ts",
     "scripts/migrate-product-model.ts",
@@ -1781,7 +1784,7 @@
         "POST"
       ],
       "path": "/api/auth/forgot-password",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {
@@ -1790,7 +1793,7 @@
         "POST"
       ],
       "path": "/api/auth/login",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {
@@ -1808,7 +1811,7 @@
         "POST"
       ],
       "path": "/api/auth/register",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {
@@ -1817,7 +1820,7 @@
         "POST"
       ],
       "path": "/api/auth/reset-password",
-      "lines": 20,
+      "lines": 24,
       "critical": true
     },
     {

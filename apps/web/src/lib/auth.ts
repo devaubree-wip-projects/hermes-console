@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { authSessions, users, type User } from "@/db/schema";
+import { sha256Token } from "@/lib/token-hash";
 
 export const SESSION_COOKIE = "hc_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
@@ -24,9 +25,11 @@ export function verifyPassword(password: string, stored: string): boolean {
 }
 
 export async function createAuthSession(userId: string) {
+  // The raw token lives only in the httpOnly cookie; the DB stores its sha256
+  // hash, so a database dump cannot be used to hijack live sessions.
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
-  await db.insert(authSessions).values({ token, userId, expiresAt });
+  await db.insert(authSessions).values({ token: sha256Token(token), userId, expiresAt });
   return { token, expiresAt };
 }
 
@@ -51,7 +54,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     .select({ user: users, session: authSessions })
     .from(authSessions)
     .innerJoin(users, eq(authSessions.userId, users.id))
-    .where(eq(authSessions.token, token))
+    .where(eq(authSessions.token, sha256Token(token)))
     .limit(1);
 
   const row = rows[0];
@@ -74,7 +77,7 @@ export async function destroyAuthSession() {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
   if (token) {
-    await db.delete(authSessions).where(eq(authSessions.token, token));
+    await db.delete(authSessions).where(eq(authSessions.token, sha256Token(token)));
   }
   store.delete(SESSION_COOKIE);
 }

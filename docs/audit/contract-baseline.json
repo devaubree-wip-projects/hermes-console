@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "525a116a00890c79e26dcaff00a16efab4101644",
+  "commit": "311e167d215f9fa88940b1f6045ddca411904140",
   "routes": [
     {
       "methods": [
@@ -515,6 +515,6 @@
   ],
   "databaseSchema": {
     "file": "apps/web/src/db/schema.ts",
-    "sha256": "8a2dd8458a2fbef03c4a532fa12ae940ee5fdb2394cf517b753f2e4badb68d35"
+    "sha256": "701024c5bd28e741051411b3599c96d068c12c8a7fd16b8aee50bf73a83160fa"
   }
 }

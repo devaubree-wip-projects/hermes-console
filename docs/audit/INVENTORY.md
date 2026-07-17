@@ -1,6 +1,6 @@
 # Architecture inventory
 
-Generated from commit `525a116a00890c79e26dcaff00a16efab4101644` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
+Generated from commit `311e167d215f9fa88940b1f6045ddca411904140` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
 
 ## Public API endpoints
 
@@ -131,7 +131,7 @@ Generated from commit `525a116a00890c79e26dcaff00a16efab4101644` with `bun run a
 
 | Variable | Tracked references |
 |---|---|
-| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-db.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
+| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-db.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
 | `E2E_BASE_URL` | `apps/web/playwright.config.ts` |
 | `E2E_REAL_WORK` | `apps/web/e2e/seed.ts`<br>`apps/web/e2e/work-real.spec.ts`<br>`apps/web/e2e/work.spec.ts` |
 | `HERMES_ALLOWED_ORIGINS` | `infra/dev/compose.yaml`<br>`infra/prod/compose.edge.yaml` |
@@ -202,7 +202,7 @@ Generated from commit `525a116a00890c79e26dcaff00a16efab4101644` with `bun run a
 | `NEXT_DIST_DIR` | `apps/web/next.config.ts` |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | `apps/web/src/lib/support.ts` |
 | `NEXT_RUNTIME` | `apps/web/src/instrumentation.ts` |
-| `NODE_ENV` | `apps/web/src/app/(auth)/login/page.tsx`<br>`apps/web/src/components/shared/chat/assistant-ui/composer-trigger-popover.tsx`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.ts`<br>`apps/web/src/lib/hermes/gateway-url.ts`<br>`apps/web/src/lib/hermes/relay-identity.ts`<br>`apps/web/src/lib/observability/logger.ts`<br>`apps/web/src/modules/auth/infrastructure/auth-service.ts`<br>`apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts`<br>`apps/web/src/proxy.ts` |
+| `NODE_ENV` | `apps/web/next.config.ts`<br>`apps/web/src/app/(auth)/login/page.tsx`<br>`apps/web/src/components/shared/chat/assistant-ui/composer-trigger-popover.tsx`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.ts`<br>`apps/web/src/lib/hermes/gateway-url.ts`<br>`apps/web/src/lib/hermes/relay-identity.ts`<br>`apps/web/src/lib/observability/logger.ts`<br>`apps/web/src/modules/auth/infrastructure/auth-service.ts`<br>`apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts`<br>`apps/web/src/proxy.ts` |
 | `POSTGRES_DB` | `infra/prod/compose.console.yaml` |
 | `POSTGRES_PASSWORD` | `infra/prod/compose.console.yaml` |
 | `POSTGRES_USER` | `infra/prod/compose.console.yaml` |
@@ -222,6 +222,7 @@ Generated from commit `525a116a00890c79e26dcaff00a16efab4101644` with `bun run a
 - `apps/web/drizzle/0000_baseline.sql`
 - `apps/web/drizzle/0001_work_runtime_functions.sql`
 - `apps/web/drizzle/meta/0000_snapshot.json`
+- `apps/web/drizzle/meta/0001_snapshot.json`
 - `apps/web/drizzle/meta/_journal.json`
 - `scripts/migrate-product-db.ts`
 - `scripts/migrate-product-model.ts`

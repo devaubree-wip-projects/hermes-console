@@ -573,7 +573,6 @@ CREATE TABLE "workspaces" (
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
 	"hermes_base_url" text NOT NULL,
-	"hermes_api_key" text,
 	"permissions" jsonb NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );

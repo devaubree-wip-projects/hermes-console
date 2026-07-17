@@ -1,7 +1,11 @@
+import { clientIp, rateLimit, tooManyRequestsResponse } from "@/lib/rate-limit";
 import { AuthApplicationError } from "@/modules/auth/domain/auth-errors";
 import { resetPassword } from "@/modules/auth/infrastructure/auth-service";
 
 export async function POST(request: Request) {
+  const limited = rateLimit(`reset-password:${clientIp(request)}`, { limit: 10, windowMs: 60_000 });
+  if (!limited.ok) return tooManyRequestsResponse(limited.retryAfterSeconds);
+
   let body: unknown;
   try {
     body = await request.json();

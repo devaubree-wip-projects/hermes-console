@@ -61,17 +61,6 @@ export async function PATCH(
     updates.hermesBaseUrl = value;
   }
 
-  if ("hermesApiKey" in body) {
-    if (body.hermesApiKey === null) {
-      updates.hermesApiKey = null;
-    } else if (typeof body.hermesApiKey === "string") {
-      const key = body.hermesApiKey.trim();
-      if (key.length > 0) updates.hermesApiKey = key;
-    } else {
-      return NextResponse.json({ error: "Clé API invalide." }, { status: 400 });
-    }
-  }
-
   if ("permissions" in body) {
     updates.permissions = normalizePermissions(body.permissions);
   }

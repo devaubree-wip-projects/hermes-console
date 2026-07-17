@@ -3,9 +3,6 @@
 -- `bun run db:migrate` reach parity with push+scripts databases:
 --   * notify_hermes_work_change: pg_notify fan-out feeding the SSE work-stream
 --   * reject_work_dependency_cycle: anti-cycle / cross-workspace guard
--- Deliberately omitted from the legacy script: tenants_slug_uidx (redundant
--- with the baseline unique constraint) and the duplicated *_fkey constraints
--- on work_item_comments (already created by the baseline under drizzle names).
 CREATE FUNCTION public.notify_hermes_work_change() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
