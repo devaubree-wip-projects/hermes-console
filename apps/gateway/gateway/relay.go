@@ -434,7 +434,11 @@ func (relay *Relay) roundTrip(ctx context.Context, peer *relayPeer, request rela
 	if err := peer.send(request); err != nil {
 		return relayFrame{}, err
 	}
-	timer := time.NewTimer(15 * time.Second)
+	timeout := relay.config.RelayRequestTimeout
+	if timeout <= 0 {
+		timeout = 120 * time.Second
+	}
+	timer := time.NewTimer(timeout)
 	defer timer.Stop()
 	select {
 	case frame, open := <-response:

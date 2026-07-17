@@ -50,6 +50,7 @@ type Config struct {
 	RelayMaxConnections          int
 	RelayMaxConnectionsPerTenant int
 	RelayMaxFrameBytes           int64
+	RelayRequestTimeout          time.Duration
 	RelayRevocationFile          string
 	BackupDirectory              string
 	BackupEncryptionKey          string
@@ -214,6 +215,7 @@ func LoadConfig() (Config, error) {
 		RelayMaxConnections:          int(int64Value("HERMES_RELAY_MAX_CONNECTIONS", 1024)),
 		RelayMaxConnectionsPerTenant: int(int64Value("HERMES_RELAY_MAX_CONNECTIONS_PER_TENANT", 128)),
 		RelayMaxFrameBytes:           int64Value("HERMES_RELAY_MAX_FRAME_BYTES", 4<<20),
+		RelayRequestTimeout:          time.Duration(int64Value("HERMES_RELAY_REQUEST_TIMEOUT_SECONDS", 120)) * time.Second,
 		RelayRevocationFile:          strings.TrimSpace(os.Getenv("HERMES_RELAY_REVOCATION_FILE")),
 		BackupDirectory:              strings.TrimSpace(os.Getenv("HERMES_BACKUP_DIR")),
 		BackupEncryptionKey:          strings.TrimSpace(os.Getenv("HERMES_BACKUP_ENCRYPTION_KEY")),
