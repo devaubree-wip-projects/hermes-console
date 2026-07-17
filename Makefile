@@ -19,7 +19,7 @@ help: ## Afficher cette aide
 	@printf '  make dev-next         Next.js uniquement\n'
 	@printf '  make dev-gateway      Edge Go local vers un Hermes systemwide existant\n'
 	@printf '  make dev-system       Next.js + Edge Go vers un Hermes systemwide\n'
-	@printf '  make install          Installer les dépendances avec Bun\n\n'
+	@printf '  make install          Installer le projet (dépendances, .env, base ; INSTALL_ARGS="--seed --with-e2e")\n\n'
 	@printf 'Qualité\n'
 	@printf '  make typecheck        Vérifier les types TypeScript\n'
 	@printf '  make lint             Lancer ESLint\n'
@@ -51,8 +51,8 @@ help: ## Afficher cette aide
 	@printf '  make prod-db-backup   Sauvegarder le Postgres de production (pg_dump)\n'
 	@printf '  make prod-db-restore  Restaurer une sauvegarde (FILE=nom-du-fichier requis)\n\n'
 
-install: ## Installer les dépendances
-	bun install
+install: ## Installer le projet (dépendances, .env, base de données)
+	./install.sh $(INSTALL_ARGS)
 
 dev: ## Lancer toute la stack en arrière-plan (containers détachés + Next.js) ; terminal libéré
 	@mkdir -p .next
