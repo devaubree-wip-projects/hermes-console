@@ -125,6 +125,8 @@ jobs:
         with:
           bun-version: 1.3.13
       - run: bun install --frozen-lockfile
-      - run: bun run db:push
-      - run: bun run db:migrate:product
+      # Provision via the versioned migrator (deterministic, no runtime drizzle-kit
+      # fetch — `db:push` pulled an incompatible drizzle-kit and failed). The e2e
+      # seed re-runs the legacy migration scripts idempotently on top.
+      - run: bun run db:migrate
       - run: bun run test:e2e
