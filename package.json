@@ -29,6 +29,8 @@
     "build:gateway": "bun --cwd=apps/gateway run build",
     "build:all": "bun run build:shared && bun run build:web && bun run build:gateway",
     "db:push": "bunx --bun drizzle-kit push --config=apps/web/drizzle.config.ts",
+    "db:generate": "bun --cwd=apps/web x --bun drizzle-kit generate --config=drizzle.config.ts",
+    "db:migrate": "bun run scripts/migrate-product-db.ts",
     "db:seed:demo": "bun run apps/web/src/db/seed.ts",
     "db:reset": "bun run scripts/reset-product-data.ts",
     "mock:hermes": "bun run scripts/mock-hermes.ts",
@@ -57,6 +59,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.9"
   }
 }

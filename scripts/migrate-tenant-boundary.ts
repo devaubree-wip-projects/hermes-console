@@ -3,6 +3,19 @@ import postgres from "postgres";
 const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
 
 async function migrate() {
+  // Idempotence guard: the unique index is created by this migration's final
+  // step, so its presence means the destructive statements below (notably the
+  // legacy workspace_memberships wipe) already ran and must not be replayed.
+  const [{ exists: alreadyApplied }] = await sql<{ exists: boolean }[]>`
+    SELECT EXISTS (
+      SELECT 1 FROM pg_indexes WHERE indexname = 'workspaces_tenant_uidx'
+    ) AS exists
+  `;
+  if (alreadyApplied) {
+    console.log("Tenant boundary migration already applied; skipping.");
+    return;
+  }
+
   const duplicates = await sql<{ tenant_id: string; workspace_count: number }[]>`
     SELECT tenant_id, count(*)::int AS workspace_count
     FROM workspaces
