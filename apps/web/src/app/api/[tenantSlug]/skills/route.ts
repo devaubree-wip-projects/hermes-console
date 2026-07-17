@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { agents } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { hermesFetch, HermesRuntimeError } from "@/lib/hermes/server";
+import { hermesFetch, HermesRuntimeError, runtimeErrorMessage } from "@/lib/hermes/server";
 import { canConfigureRuntime, getTenantAccessBySlug } from "@/lib/workspace";
 
 // Create a new custom skill for the workspace's primary Hermes profile. The
@@ -74,7 +74,7 @@ export async function POST(
     const status =
       error instanceof HermesRuntimeError && error.status ? error.status : 502;
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Runtime Hermes indisponible." },
+      { error: runtimeErrorMessage(error, "Runtime Hermes indisponible.") },
       { status },
     );
   }

@@ -20,6 +20,15 @@ export class HermesRuntimeError extends Error {
   }
 }
 
+/**
+ * Only surface curated HermesRuntimeError messages to clients. Any other error
+ * (raw fetch/DB/edge failure) is replaced by a generic message so internal
+ * hostnames, paths or infrastructure details never leak to the browser.
+ */
+export function runtimeErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof HermesRuntimeError ? error.message : fallback;
+}
+
 export function hermesRuntimeUrl() {
   return environmentRuntimeInstallation().gatewayHttpUrl;
 }

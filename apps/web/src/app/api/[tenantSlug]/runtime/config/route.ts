@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { agents } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
-import { HermesRuntimeError, updateRuntimeAccess, type ApprovalMode } from "@/lib/hermes/server";
+import { HermesRuntimeError, runtimeErrorMessage, updateRuntimeAccess, type ApprovalMode } from "@/lib/hermes/server";
 import { canConfigureRuntime, getTenantAccessBySlug } from "@/lib/workspace";
 
 const APPROVAL_MODES: ApprovalMode[] = ["manual", "smart", "off"];
@@ -60,7 +60,7 @@ export async function PUT(
   } catch (error) {
     const status = error instanceof HermesRuntimeError && error.status ? error.status : 502;
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Runtime Hermes indisponible." },
+      { error: runtimeErrorMessage(error, "Runtime Hermes indisponible.") },
       { status },
     );
   }

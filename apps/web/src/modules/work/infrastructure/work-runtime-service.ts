@@ -27,9 +27,13 @@ import {
   workRunPlanSteps,
   workRuns,
   workspaces,
+  users,
   type WorkInterventionType,
   type WorkRun,
 } from "@/db/schema";
+import { consoleBaseUrl } from "@/lib/console-url";
+import { sendMail } from "@/lib/mailer";
+import { interventionEmail } from "./intervention-notification";
 import {
   assertWorkRunTransition,
   isRetryableWorkFailure,
@@ -1095,7 +1099,10 @@ export async function createWorkIntervention(input: {
       "invalid_intervention",
       "Question d’intervention vide.",
     );
-  return db.transaction(async (tx) => {
+  // A run already waiting means the edge is re-posting the same request; only a
+  // fresh transition to waiting_input should trigger an out-of-app notification.
+  const isNewWait = run.status !== "waiting_input";
+  const outcome = await db.transaction(async (tx) => {
     const [intervention] = await tx
       .insert(workInterventions)
       .values({
@@ -1150,8 +1157,44 @@ export async function createWorkIntervention(input: {
         )
         .onConflictDoNothing();
     }
-    return intervention;
+    return { intervention, recipients };
   });
+
+  if (isNewWait && outcome.recipients.length) {
+    // Best-effort: an email failure must never fail the runtime's intervention.
+    await notifyPendingIntervention(run.workspaceId, input.type, outcome.recipients).catch(
+      () => {},
+    );
+  }
+  return outcome.intervention;
+}
+
+async function notifyPendingIntervention(
+  workspaceId: string,
+  type: WorkInterventionType,
+  recipientUserIds: string[],
+) {
+  const [meta] = await db.execute<{ tenant_name: string; tenant_slug: string }>(sql`
+    SELECT tenant.name AS tenant_name, tenant.slug AS tenant_slug
+    FROM workspaces workspace
+    INNER JOIN tenants tenant ON tenant.id = workspace.tenant_id
+    WHERE workspace.id = ${workspaceId}
+    LIMIT 1
+  `);
+  if (!meta) return;
+  const emails = await db
+    .select({ email: users.email })
+    .from(users)
+    .where(inArray(users.id, recipientUserIds));
+  if (!emails.length) return;
+  const { subject, text } = interventionEmail({
+    tenantName: meta.tenant_name,
+    type,
+    url: `${consoleBaseUrl()}/${meta.tenant_slug}/approvals`,
+  });
+  await Promise.all(
+    emails.map((row) => sendMail({ to: row.email, subject, text }).catch(() => {})),
+  );
 }
 
 async function workspaceAttentionUsers(
