@@ -8,6 +8,10 @@ type Bucket = { count: number; resetAt: number };
 const store = new Map<string, Bucket>();
 const MAX_KEYS = 10_000;
 
+// E2E drives dozens of logins from one IP; the limiter would flake the suite.
+// Only the e2e dev server sets this — never production.
+const DISABLED = process.env.HERMES_DISABLE_RATE_LIMIT === "1";
+
 export type RateLimitResult = { ok: true } | { ok: false; retryAfterSeconds: number };
 
 function sweep(now: number) {
@@ -21,6 +25,7 @@ export function rateLimit(
   options: { limit: number; windowMs: number },
   now: number = Date.now(),
 ): RateLimitResult {
+  if (DISABLED) return { ok: true };
   const existing = store.get(key);
   if (!existing || existing.resetAt <= now) {
     if (store.size >= MAX_KEYS) sweep(now);

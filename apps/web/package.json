@@ -5,7 +5,7 @@
   "description": "Application Next.js du cockpit Hermes Console : UI produit, auth/RBAC et APIs tenant.",
   "scripts": {
     "dev": "next dev --port 3010",
-    "dev:e2e": "NEXT_DIST_DIR=.next-e2e next dev --port 3198",
+    "dev:e2e": "NEXT_DIST_DIR=.next-e2e HERMES_DISABLE_RATE_LIMIT=1 next dev --port 3198",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
