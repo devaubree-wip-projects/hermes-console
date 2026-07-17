@@ -37,6 +37,13 @@ services:
       HERMES_DASHBOARD_HOST: 127.0.0.1
       HERMES_DASHBOARD_PORT: "9119"
       HERMES_DASHBOARD_SESSION_TOKEN: ${HERMES_RUNTIME_TOKEN:-hermes-console-local-runtime}
+      # Inference provider key(s). Set the one matching data/hermes/config.yaml
+      # (model.base_url). The default config uses OpenRouter -> OPENROUTER_API_KEY.
+      # Empty by default so the stack starts without a key (real runs then fail
+      # with "No inference provider configured" until you set it in .env).
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9119/api/status"]
       interval: 3s
