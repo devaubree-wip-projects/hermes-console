@@ -40,26 +40,17 @@ import { HermesStatusCard } from "@/components/v1-xulux/hermes-status-card"
 import { ThemeToggle } from "@/components/v1-xulux/theme-toggle"
 import { useSearchCommand } from "@/components/v1-xulux/search-command"
 import {
+  BriefcaseBusinessIcon,
   ChevronRightIcon,
   BotIcon,
-  CheckCircle2Icon,
-  Clock3Icon,
-  FileTextIcon,
   GaugeIcon,
-  FolderKanbanIcon,
-  InboxIcon,
   LibraryIcon,
   Loader2Icon,
   MessageCircleIcon,
-  PlugIcon,
   PlusIcon,
   SearchIcon,
-  ServerIcon,
   SettingsIcon,
   SparklesIcon,
-  UsersRoundIcon,
-  WorkflowIcon,
-  WrenchIcon,
 } from "lucide-react"
 
 export type SidebarNavItem = {
@@ -71,6 +62,8 @@ export type SidebarNavItem = {
 
 type SidebarSection = {
   label: string
+  /** When true, the section label is omitted — the first item is the tree root. */
+  tree?: boolean
   items: SidebarNavItem[]
 }
 
@@ -86,6 +79,20 @@ export type WorkspaceAgentOption = {
 
 function isActive(pathname: string, url: string) {
   return pathname === url || pathname.startsWith(`${url}/`)
+}
+
+function isSubItemActive(
+  pathname: string,
+  workspaceBase: string,
+  subItem: { title: string; url: string },
+) {
+  if (subItem.title === "Paramètres") {
+    return (
+      pathname.startsWith(`${workspaceBase}/settings`) &&
+      !pathname.startsWith(`${workspaceBase}/settings/tools`)
+    )
+  }
+  return isActive(pathname, subItem.url)
 }
 
 export function AppSidebar({
@@ -131,35 +138,67 @@ export function AppSidebar({
     },
     {
       label: "Travail",
+      tree: true,
       items: [
-        { title: "Inbox", url: `${workspaceBase}/inbox`, icon: <InboxIcon /> },
-        { title: "Tâches", url: `${workspaceBase}/tasks`, icon: <Clock3Icon /> },
-        { title: "Projets", url: `${workspaceBase}/projects`, icon: <FolderKanbanIcon /> },
-        { title: "Automatisations", url: `${workspaceBase}/automations`, icon: <WorkflowIcon /> },
-        { title: "Validations", url: `${workspaceBase}/approvals`, icon: <CheckCircle2Icon /> },
+        {
+          title: "Travail",
+          url: `${workspaceBase}/tasks`,
+          icon: <BriefcaseBusinessIcon />,
+          items: [
+            { title: "Inbox", url: `${workspaceBase}/inbox` },
+            { title: "Tâches", url: `${workspaceBase}/tasks` },
+            { title: "Projets", url: `${workspaceBase}/projects` },
+            { title: "Automatisations", url: `${workspaceBase}/automations` },
+            { title: "Validations", url: `${workspaceBase}/approvals` },
+          ],
+        },
       ],
     },
     {
       label: "Ressources",
+      tree: true,
       items: [
-        { title: "Fichiers", url: `${workspaceBase}/files`, icon: <FileTextIcon /> },
-        { title: "Connaissances", url: `${workspaceBase}/knowledge`, icon: <LibraryIcon /> },
+        {
+          title: "Ressources",
+          url: `${workspaceBase}/files`,
+          icon: <LibraryIcon />,
+          items: [
+            { title: "Fichiers", url: `${workspaceBase}/files` },
+            { title: "Connaissances", url: `${workspaceBase}/knowledge` },
+          ],
+        },
       ],
     },
     {
       label: "Capacités",
+      tree: true,
       items: [
-        { title: "Skills", url: `${workspaceBase}/skills`, icon: <SparklesIcon /> },
-        { title: "Agents et équipes", url: `${workspaceBase}/agents`, icon: <UsersRoundIcon /> },
+        {
+          title: "Capacités",
+          url: `${workspaceBase}/agents`,
+          icon: <SparklesIcon />,
+          items: [
+            { title: "Skills", url: `${workspaceBase}/skills` },
+            { title: "Agents et équipes", url: `${workspaceBase}/agents` },
+          ],
+        },
       ],
     },
     {
       label: "Administration",
+      tree: true,
       items: [
-        { title: "Installations", url: `${workspaceBase}/installations`, icon: <ServerIcon /> },
-        { title: "Intégrations", url: `${workspaceBase}/integrations`, icon: <PlugIcon /> },
-        { title: "Outils", url: `${workspaceBase}/settings/tools`, icon: <WrenchIcon /> },
-        { title: "Paramètres", url: `${workspaceBase}/settings/chat`, icon: <SettingsIcon /> },
+        {
+          title: "Administration",
+          url: `${workspaceBase}/settings/chat`,
+          icon: <SettingsIcon />,
+          items: [
+            { title: "Installations", url: `${workspaceBase}/installations` },
+            { title: "Intégrations", url: `${workspaceBase}/integrations` },
+            { title: "Outils", url: `${workspaceBase}/settings/tools` },
+            { title: "Paramètres", url: `${workspaceBase}/settings/chat` },
+          ],
+        },
       ],
     },
   ]
@@ -257,16 +296,19 @@ export function AppSidebar({
 
         {navSections.map((section) => (
           <SidebarGroup key={section.label}>
-            <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+            {section.tree ? null : <SidebarGroupLabel>{section.label}</SidebarGroupLabel>}
             <SidebarMenu>
               {section.items.map((item) => {
-                const active = item.title === "Paramètres"
-                  ? pathname.startsWith(`${workspaceBase}/settings`)
-                  : isActive(pathname, item.url)
+                const childActive =
+                  item.items?.some((sub) => isSubItemActive(pathname, workspaceBase, sub)) === true
+                const selfActive = item.items?.length
+                  ? false
+                  : item.title === "Paramètres"
+                    ? pathname.startsWith(`${workspaceBase}/settings`)
+                    : isActive(pathname, item.url)
+                const active = selfActive || childActive
                 const itemUrl = item.url === chatBase ? chatBaseWithAgent : item.url
-                const defaultOpen =
-                  active ||
-                  item.items?.some((sub) => pathname === sub.url) === true
+                const defaultOpen = Boolean(section.tree) || active
 
                 return (
                   <Collapsible asChild defaultOpen={defaultOpen} key={item.title}>
@@ -301,7 +343,7 @@ export function AppSidebar({
                                 <SidebarMenuSubItem key={subItem.title}>
                                   <SidebarMenuSubButton
                                     asChild
-                                    isActive={pathname === subItem.url}
+                                    isActive={isSubItemActive(pathname, workspaceBase, subItem)}
                                   >
                                     <Link href={subItem.url}>
                                       <span>{subItem.title}</span>

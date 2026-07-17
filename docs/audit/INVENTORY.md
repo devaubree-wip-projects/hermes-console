@@ -1,6 +1,6 @@
 # Architecture inventory
 
-Generated from commit `8e416cd5cf308420bb41b7b822caa2c21da1f6b5` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
+Generated from commit `073439a002801de16e41c971767ed40ab35736b6` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
 
 ## Public API endpoints
 
