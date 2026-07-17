@@ -1,13 +1,15 @@
 # Architecture inventory
 
-Generated from commit `0faa7b92c50b267e69c938fe5da5b81d69bae2f5` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
+Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
 
 ## Public API endpoints
 
 | Methods | Path | Route | Critical |
 |---|---|---|---|
 | GET, POST | `/api/:tenantSlug/agent-teams` | `apps/web/src/app/api/[tenantSlug]/agent-teams/route.ts` | no |
+| DELETE | `/api/:tenantSlug/agent-teams/:teamId` | `apps/web/src/app/api/[tenantSlug]/agent-teams/[teamId]/route.ts` | no |
 | POST | `/api/:tenantSlug/agents` | `apps/web/src/app/api/[tenantSlug]/agents/route.ts` | yes |
+| DELETE, PATCH | `/api/:tenantSlug/agents/:agentSlug` | `apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts` | yes |
 | DELETE, GET, PUT | `/api/:tenantSlug/agents/:agentSlug/inference` | `apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/inference/route.ts` | yes |
 | DELETE, GET, POST | `/api/:tenantSlug/agents/:agentSlug/inference/codex` | `apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/inference/codex/route.ts` | yes |
 | GET, POST, PUT | `/api/:tenantSlug/agents/:agentSlug/messaging` | `apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/messaging/route.ts` | yes |
@@ -36,7 +38,9 @@ Generated from commit `0faa7b92c50b267e69c938fe5da5b81d69bae2f5` with `bun run a
 | POST | `/api/:tenantSlug/projects/:projectId/resources` | `apps/web/src/app/api/[tenantSlug]/projects/[projectId]/resources/route.ts` | no |
 | DELETE | `/api/:tenantSlug/resources/:resourceId` | `apps/web/src/app/api/[tenantSlug]/resources/[resourceId]/route.ts` | no |
 | PUT | `/api/:tenantSlug/runtime/config` | `apps/web/src/app/api/[tenantSlug]/runtime/config/route.ts` | no |
-| GET | `/api/:tenantSlug/skills/content` | `apps/web/src/app/api/[tenantSlug]/skills/content/route.ts` | no |
+| POST | `/api/:tenantSlug/skills` | `apps/web/src/app/api/[tenantSlug]/skills/route.ts` | no |
+| GET, PUT | `/api/:tenantSlug/skills/content` | `apps/web/src/app/api/[tenantSlug]/skills/content/route.ts` | no |
+| PUT | `/api/:tenantSlug/skills/toggle` | `apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts` | no |
 | PUT | `/api/:tenantSlug/tools/toolsets/:name` | `apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts` | no |
 | GET, POST | `/api/:tenantSlug/work-items` | `apps/web/src/app/api/[tenantSlug]/work-items/route.ts` | no |
 | DELETE, GET, PATCH | `/api/:tenantSlug/work-items/:workItemId` | `apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/route.ts` | no |
@@ -123,7 +127,7 @@ Generated from commit `0faa7b92c50b267e69c938fe5da5b81d69bae2f5` with `bun run a
 | `HERMES_BACKUP_ENCRYPTION_KEY` | `apps/gateway/gateway/config.go`<br>`infra/dev/compose.yaml` |
 | `HERMES_BACKUP_RESTORE_ENABLED` | `apps/gateway/gateway/config.go`<br>`infra/dev/compose.yaml` |
 | `HERMES_CLI_PATH` | `scripts/install-hermes-console-control.ts` |
-| `HERMES_CONSOLE_URL` | `apps/gateway/gateway/config.go`<br>`infra/dev/compose.yaml` |
+| `HERMES_CONSOLE_URL` | `apps/gateway/gateway/config.go`<br>`apps/web/src/lib/site.ts`<br>`infra/dev/compose.yaml` |
 | `HERMES_CPU_LIMIT` | `infra/dev/compose.yaml` |
 | `HERMES_DASHBOARD_SESSION_TOKEN` | `scripts/install-hermes-console-control.ts` |
 | `HERMES_DATA_DIR` | `infra/dev/compose.yaml` |
@@ -210,7 +214,6 @@ Generated from commit `0faa7b92c50b267e69c938fe5da5b81d69bae2f5` with `bun run a
 - `bun.lock`
 - `infra/dev/compose.override.yaml`
 - `infra/dev/compose.yaml`
-- `infra/dev/data/hermes/skills/research/research-paper-writing/templates/neurips2025/Makefile`
 - `infra/prod/compose.edge.yaml`
 - `package.json`
 - `packages/shared/gatewaycontracts/go.mod`

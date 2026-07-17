@@ -17,6 +17,7 @@ const defaultAssistantMetadata = (): AssistantMessage["metadata"] =>
   defaultAssistantMessageMetadata();
 
 type ToolCallPart = Extract<AssistantContentPart, { type: "tool-call" }>;
+type ToolCallArgs = ToolCallPart["args"];
 
 function findRunningToolIndex(
   content: readonly AssistantContentPart[],
@@ -75,7 +76,9 @@ export function toolArgsTextFromPayload(payload: Record<string, unknown> | null 
 
 export function toolArgsFromPayload(payload: Record<string, unknown> | null | undefined) {
   if (!payload) return undefined;
-  if (isRecord(payload.args)) return payload.args;
+  // Tool args originate from parsed JSON payloads, so they are valid JSON
+  // objects; narrow into the runtime's readonly JSON type at this boundary.
+  if (isRecord(payload.args)) return payload.args as ToolCallArgs;
   return undefined;
 }
 
@@ -188,7 +191,7 @@ export function appendAssistantToolStart(
   messages: ThreadMessage[],
   toolName: string,
   toolId?: string,
-  options?: { argsText?: string; args?: Record<string, unknown> },
+  options?: { argsText?: string; args?: ToolCallArgs },
 ) {
   const toolCallId = toolId?.trim() || `hermes-tool-${crypto.randomUUID()}`;
   const argsText = options?.argsText?.trim() ?? "";
@@ -211,7 +214,7 @@ export function updateAssistantTool(
   patch: {
     preview?: string;
     result?: string;
-    args?: Record<string, unknown>;
+    args?: ToolCallArgs;
     argsText?: string;
   },
 ) {

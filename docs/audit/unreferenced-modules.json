@@ -1,7 +1,9 @@
 {
   "schemaVersion": 1,
-  "commit": "0faa7b92c50b267e69c938fe5da5b81d69bae2f5",
+  "commit": "76d1194179cb708591ff2d8b038e3a0b2157dc8b",
   "modules": [
+    "apps/web/src/app/robots.ts",
+    "apps/web/src/app/sitemap.ts",
     "apps/web/src/components/approvals/approval-actions.tsx",
     "apps/web/src/components/shared/chat/ui/skeleton.tsx",
     "apps/web/src/components/tasks/task-run-button.tsx",
@@ -11,6 +13,7 @@
     "apps/web/src/components/ui/collapsible.tsx",
     "apps/web/src/components/ui/scroll-area.tsx",
     "apps/web/src/components/ui/sidebar.tsx",
+    "apps/web/src/components/v1-xulux/event-logs-card.tsx",
     "apps/web/src/db/seed.ts",
     "apps/web/src/instrumentation.ts",
     "apps/web/src/lib/shared/chat/chat-request-context.ts",

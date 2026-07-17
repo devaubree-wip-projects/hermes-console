@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "0faa7b92c50b267e69c938fe5da5b81d69bae2f5",
+  "commit": "76d1194179cb708591ff2d8b038e3a0b2157dc8b",
   "routes": [
     {
       "methods": [
@@ -11,9 +11,22 @@
     },
     {
       "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/agent-teams/:teamId"
+    },
+    {
+      "methods": [
         "POST"
       ],
       "path": "/api/:tenantSlug/agents"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug"
     },
     {
       "methods": [
@@ -200,9 +213,22 @@
     },
     {
       "methods": [
-        "GET"
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/skills"
+    },
+    {
+      "methods": [
+        "GET",
+        "PUT"
       ],
       "path": "/api/:tenantSlug/skills/content"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/skills/toggle"
     },
     {
       "methods": [

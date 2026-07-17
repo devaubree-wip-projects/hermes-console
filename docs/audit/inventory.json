@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "0faa7b92c50b267e69c938fe5da5b81d69bae2f5",
+  "commit": "76d1194179cb708591ff2d8b038e3a0b2157dc8b",
   "layout": "monorepo",
   "endpoints": [
     {
@@ -14,12 +14,31 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/[tenantSlug]/agent-teams/[teamId]/route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/agent-teams/:teamId",
+      "lines": 22,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/[tenantSlug]/agents/route.ts",
       "methods": [
         "POST"
       ],
       "path": "/api/:tenantSlug/agents",
       "lines": 78,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug",
+      "lines": 152,
       "critical": true
     },
     {
@@ -290,12 +309,31 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/skills",
+      "lines": 82,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
       "methods": [
-        "GET"
+        "GET",
+        "PUT"
       ],
       "path": "/api/:tenantSlug/skills/content",
-      "lines": 55,
+      "lines": 99,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/skills/toggle",
+      "lines": 52,
       "critical": false
     },
     {
@@ -843,6 +881,7 @@
       "name": "HERMES_CONSOLE_URL",
       "references": [
         "apps/gateway/gateway/config.go",
+        "apps/web/src/lib/site.ts",
         "infra/dev/compose.yaml"
       ]
     },
@@ -1358,7 +1397,6 @@
     "bun.lock",
     "infra/dev/compose.override.yaml",
     "infra/dev/compose.yaml",
-    "infra/dev/data/hermes/skills/research/research-paper-writing/templates/neurips2025/Makefile",
     "infra/prod/compose.edge.yaml",
     "package.json",
     "packages/shared/gatewaycontracts/go.mod",
@@ -1373,6 +1411,16 @@
       ],
       "path": "/api/:tenantSlug/agents",
       "lines": 78,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug",
+      "lines": 152,
       "critical": true
     },
     {

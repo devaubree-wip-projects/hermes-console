@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, type KeyboardEventHandler, type PointerEventHandler } from "react";
+import { useCallback, useMemo, useRef, useState, type KeyboardEventHandler, type PointerEventHandler } from "react";
 import {
   closestCorners,
   DndContext,
@@ -124,33 +124,6 @@ function visualStatus(status: WorkItemStatus): WorkItemStatus {
 
 function isColumnDroppableId(id: UniqueIdentifier) {
   return String(id).startsWith("column:");
-}
-
-/** Prefer pointer hit-testing over closestCorners — tall columns make corner
- *  distance keep selecting the source column while the cursor is already over
- *  another lane. */
-function createKanbanCollisionDetection(lastOverId: { current: UniqueIdentifier | null }): CollisionDetection {
-  return (args) => {
-    const pointerCollisions = pointerWithin(args);
-    const intersections = pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
-
-    if (intersections.length > 0) {
-      // Cards nest inside column droppables; prefer the card under the pointer.
-      const overCards = intersections.filter((collision) => !isColumnDroppableId(collision.id));
-      const overId = getFirstCollision(overCards.length > 0 ? overCards : intersections, "id");
-      if (overId != null) {
-        lastOverId.current = overId;
-        return [{ id: overId }];
-      }
-    }
-
-    // Pointer in the gap between columns — keep the last valid target.
-    if (lastOverId.current != null) {
-      return [{ id: lastOverId.current }];
-    }
-
-    return closestCorners(args);
-  };
 }
 
 function StatusIcon({ status }: { status: WorkItemStatus }) {
@@ -301,7 +274,30 @@ export function WorkBoard({ apiBase, taskBase, items, canEdit }: { apiBase: stri
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const lastOverId = useRef<UniqueIdentifier | null>(null);
-  const collisionDetection = useMemo(() => createKanbanCollisionDetection(lastOverId), []);
+  // Prefer pointer hit-testing over closestCorners — tall columns make corner
+  // distance keep selecting the source column while the cursor is already over
+  // another lane. The ref is read at drag-time inside this callback, never during render.
+  const collisionDetection = useCallback<CollisionDetection>((args) => {
+    const pointerCollisions = pointerWithin(args);
+    const intersections = pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
+
+    if (intersections.length > 0) {
+      // Cards nest inside column droppables; prefer the card under the pointer.
+      const overCards = intersections.filter((collision) => !isColumnDroppableId(collision.id));
+      const overId = getFirstCollision(overCards.length > 0 ? overCards : intersections, "id");
+      if (overId != null) {
+        lastOverId.current = overId;
+        return [{ id: overId }];
+      }
+    }
+
+    // Pointer in the gap between columns — keep the last valid target.
+    if (lastOverId.current != null) {
+      return [{ id: lastOverId.current }];
+    }
+
+    return closestCorners(args);
+  }, []);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),

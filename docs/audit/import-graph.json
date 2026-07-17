@@ -128,6 +128,10 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/[tenantSlug]/agent-teams/[teamId]/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/[tenantSlug]/agent-teams/route.ts",
     "incoming": []
   },
@@ -141,6 +145,10 @@
   },
   {
     "module": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/messaging/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts",
     "incoming": []
   },
   {
@@ -249,6 +257,14 @@
   },
   {
     "module": "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
     "incoming": []
   },
   {
@@ -412,6 +428,26 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/robots.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/app/sitemap.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/components/agents/create-agent-dialog.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/agents/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/agents/edit-agent-dialog.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/agents/page.tsx"
+    ]
+  },
+  {
     "module": "apps/web/src/components/agents/inference-settings.tsx",
     "incoming": [
       "apps/web/src/components/settings/settings-panel.tsx"
@@ -420,7 +456,8 @@
   {
     "module": "apps/web/src/components/agents/new-agent-form.tsx",
     "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/agents/new/page.tsx"
+      "apps/web/src/app/(app)/[tenantSlug]/agents/new/page.tsx",
+      "apps/web/src/components/agents/create-agent-dialog.tsx"
     ]
   },
   {
@@ -458,15 +495,21 @@
     ]
   },
   {
-    "module": "apps/web/src/components/installations/connect-installation-form.tsx",
+    "module": "apps/web/src/components/installations/add-installation-dialog.tsx",
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/installations/page.tsx"
     ]
   },
   {
+    "module": "apps/web/src/components/installations/connect-installation-form.tsx",
+    "incoming": [
+      "apps/web/src/components/installations/add-installation-dialog.tsx"
+    ]
+  },
+  {
     "module": "apps/web/src/components/installations/enroll-installation-form.tsx",
     "incoming": [
-      "apps/web/src/app/(app)/[tenantSlug]/installations/page.tsx"
+      "apps/web/src/components/installations/add-installation-dialog.tsx"
     ]
   },
   {
@@ -533,6 +576,18 @@
       "apps/web/src/app/(app)/[tenantSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/installations/page.tsx",
       "apps/web/src/components/product/capability-page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/product/section-tabs.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/agents/page.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/settings/discord-setup-guide-dialog.tsx",
+    "incoming": [
+      "apps/web/src/components/settings/messaging-integrations-panel.tsx"
     ]
   },
   {
@@ -703,6 +758,14 @@
     "module": "apps/web/src/components/shared/chat/assistant-ui/thread-list.tsx",
     "incoming": [
       "apps/web/src/components/shared/chat/examples/base.tsx"
+    ]
+  },
+  {
+    "module": "apps/web/src/components/shared/chat/assistant-ui/tool-approval-banner.tsx",
+    "incoming": [
+      "apps/web/src/components/shared/chat/examples/base.tsx",
+      "apps/web/src/components/shared/chat/runtime/hermes-chat-runtime.tsx",
+      "apps/web/src/components/shared/chat/runtime/hermes-composer-context.tsx"
     ]
   },
   {
@@ -925,6 +988,7 @@
     "incoming": [
       "apps/web/src/components/shared/chat/assistant-ui/telegram-handoff-dialog.tsx",
       "apps/web/src/components/shared/chat/assistant-ui/thread-list.tsx",
+      "apps/web/src/components/shared/chat/assistant-ui/tool-approval-banner.tsx",
       "apps/web/src/components/shared/chat/canvas/canvas-panel.tsx",
       "apps/web/src/components/shared/chat/examples/base.tsx",
       "apps/web/src/components/shared/chat/ui/alert-dialog.tsx",
@@ -993,6 +1057,12 @@
     ]
   },
   {
+    "module": "apps/web/src/components/shared/delete-confirm-dialog.tsx",
+    "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/agents/page.tsx"
+    ]
+  },
+  {
     "module": "apps/web/src/components/tasks/task-run-button.tsx",
     "incoming": []
   },
@@ -1022,6 +1092,7 @@
       "apps/web/src/components/auth/register-form.tsx",
       "apps/web/src/components/installations/installation-actions.tsx",
       "apps/web/src/components/onboarding/onboarding-flow.tsx",
+      "apps/web/src/components/settings/discord-setup-guide-dialog.tsx",
       "apps/web/src/components/settings/messaging-integrations-panel.tsx",
       "apps/web/src/components/settings/permissions-section.tsx",
       "apps/web/src/components/settings/runtime-access-section.tsx",
@@ -1078,6 +1149,8 @@
       "apps/web/src/app/(app)/[tenantSlug]/installations/[installationId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/installations/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/integrations/page.tsx",
+      "apps/web/src/components/agents/create-agent-dialog.tsx",
+      "apps/web/src/components/agents/edit-agent-dialog.tsx",
       "apps/web/src/components/agents/inference-settings.tsx",
       "apps/web/src/components/agents/new-agent-form.tsx",
       "apps/web/src/components/approvals/approval-actions.tsx",
@@ -1086,15 +1159,19 @@
       "apps/web/src/components/events/event-logs-data-table.tsx",
       "apps/web/src/components/files/delete-file-dialog.tsx",
       "apps/web/src/components/files/upload-zone.tsx",
+      "apps/web/src/components/installations/add-installation-dialog.tsx",
       "apps/web/src/components/installations/connect-installation-form.tsx",
       "apps/web/src/components/installations/enroll-installation-form.tsx",
       "apps/web/src/components/installations/installation-actions.tsx",
       "apps/web/src/components/installations/installation-control-panel.tsx",
       "apps/web/src/components/onboarding/onboarding-flow.tsx",
+      "apps/web/src/components/product/capability-grid.tsx",
+      "apps/web/src/components/settings/discord-setup-guide-dialog.tsx",
       "apps/web/src/components/settings/general-section.tsx",
       "apps/web/src/components/settings/messaging-integrations-panel.tsx",
       "apps/web/src/components/settings/runtime-access-section.tsx",
       "apps/web/src/components/settings/settings-panel.tsx",
+      "apps/web/src/components/shared/delete-confirm-dialog.tsx",
       "apps/web/src/components/tasks/task-run-button.tsx",
       "apps/web/src/components/tasks/task-template-grid.tsx",
       "apps/web/src/components/ui/dialog.tsx",
@@ -1143,11 +1220,17 @@
   {
     "module": "apps/web/src/components/ui/dialog.tsx",
     "incoming": [
+      "apps/web/src/components/agents/create-agent-dialog.tsx",
+      "apps/web/src/components/agents/edit-agent-dialog.tsx",
       "apps/web/src/components/agents/inference-settings.tsx",
       "apps/web/src/components/files/delete-file-dialog.tsx",
+      "apps/web/src/components/installations/add-installation-dialog.tsx",
       "apps/web/src/components/product/capability-grid.tsx",
+      "apps/web/src/components/settings/discord-setup-guide-dialog.tsx",
       "apps/web/src/components/settings/runtime-access-section.tsx",
+      "apps/web/src/components/shared/delete-confirm-dialog.tsx",
       "apps/web/src/components/tasks/task-template-grid.tsx",
+      "apps/web/src/components/work/create-agent-team-form.tsx",
       "apps/web/src/components/work/create-work-item-form.tsx"
     ]
   },
@@ -1162,6 +1245,7 @@
     "module": "apps/web/src/components/ui/input.tsx",
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/installations/page.tsx",
+      "apps/web/src/components/agents/edit-agent-dialog.tsx",
       "apps/web/src/components/agents/inference-settings.tsx",
       "apps/web/src/components/agents/new-agent-form.tsx",
       "apps/web/src/components/auth/login-form.tsx",
@@ -1171,6 +1255,7 @@
       "apps/web/src/components/installations/installation-actions.tsx",
       "apps/web/src/components/installations/installation-control-panel.tsx",
       "apps/web/src/components/onboarding/onboarding-flow.tsx",
+      "apps/web/src/components/product/capability-grid.tsx",
       "apps/web/src/components/settings/general-section.tsx",
       "apps/web/src/components/settings/messaging-integrations-panel.tsx",
       "apps/web/src/components/settings/runtime-access-section.tsx",
@@ -1187,6 +1272,7 @@
   {
     "module": "apps/web/src/components/ui/label.tsx",
     "incoming": [
+      "apps/web/src/components/agents/edit-agent-dialog.tsx",
       "apps/web/src/components/agents/inference-settings.tsx",
       "apps/web/src/components/agents/new-agent-form.tsx",
       "apps/web/src/components/auth/login-form.tsx",
@@ -1196,6 +1282,7 @@
       "apps/web/src/components/installations/installation-actions.tsx",
       "apps/web/src/components/installations/installation-control-panel.tsx",
       "apps/web/src/components/onboarding/onboarding-flow.tsx",
+      "apps/web/src/components/product/capability-grid.tsx",
       "apps/web/src/components/settings/general-section.tsx",
       "apps/web/src/components/settings/messaging-integrations-panel.tsx",
       "apps/web/src/components/settings/permissions-section.tsx",
@@ -1256,6 +1343,7 @@
     "module": "apps/web/src/components/ui/skeleton.tsx",
     "incoming": [
       "apps/web/src/components/product/capability-grid.tsx",
+      "apps/web/src/components/settings/messaging-integrations-panel.tsx",
       "apps/web/src/components/ui/sidebar.tsx"
     ]
   },
@@ -1293,14 +1381,17 @@
     "module": "apps/web/src/components/ui/tabs.tsx",
     "incoming": [
       "apps/web/src/app/(app)/[tenantSlug]/installations/[installationId]/page.tsx",
-      "apps/web/src/app/(app)/[tenantSlug]/installations/page.tsx"
+      "apps/web/src/components/installations/add-installation-dialog.tsx",
+      "apps/web/src/components/product/section-tabs.tsx"
     ]
   },
   {
     "module": "apps/web/src/components/ui/textarea.tsx",
     "incoming": [
+      "apps/web/src/components/agents/edit-agent-dialog.tsx",
       "apps/web/src/components/agents/new-agent-form.tsx",
       "apps/web/src/components/onboarding/onboarding-flow.tsx",
+      "apps/web/src/components/product/capability-grid.tsx",
       "apps/web/src/components/tasks/task-template-grid.tsx",
       "apps/web/src/components/work/create-work-item-form.tsx",
       "apps/web/src/components/work/work-collaboration.tsx"
@@ -1335,9 +1426,7 @@
   },
   {
     "module": "apps/web/src/components/v1-xulux/event-logs-card.tsx",
-    "incoming": [
-      "apps/web/src/components/v1-xulux/app-sidebar.tsx"
-    ]
+    "incoming": []
   },
   {
     "module": "apps/web/src/components/v1-xulux/hermes-status-card.tsx",
@@ -1580,6 +1669,7 @@
       "apps/web/src/app/(app)/[tenantSlug]/knowledge/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/layout.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/tasks/page.tsx",
+      "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
@@ -1596,6 +1686,8 @@
       "apps/web/src/app/api/[tenantSlug]/installations/enroll/route.ts",
       "apps/web/src/app/api/[tenantSlug]/runtime/config/route.ts",
       "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
@@ -1645,6 +1737,7 @@
       "apps/web/src/app/(app)/[tenantSlug]/knowledge/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/layout.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/tasks/page.tsx",
+      "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
@@ -1661,6 +1754,8 @@
       "apps/web/src/app/api/[tenantSlug]/installations/enroll/route.ts",
       "apps/web/src/app/api/[tenantSlug]/runtime/config/route.ts",
       "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
@@ -1754,6 +1849,7 @@
       "apps/web/src/app/(app)/workspaces/new/page.tsx",
       "apps/web/src/app/(auth)/login/page.tsx",
       "apps/web/src/app/(auth)/register/page.tsx",
+      "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
@@ -1771,6 +1867,8 @@
       "apps/web/src/app/api/[tenantSlug]/installations/preflight/route.ts",
       "apps/web/src/app/api/[tenantSlug]/runtime/config/route.ts",
       "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
@@ -1963,6 +2061,7 @@
     "module": "apps/web/src/lib/hermes/protocol.ts",
     "incoming": [
       "apps/web/src/components/shared/chat/assistant-ui/telegram-handoff-dialog.tsx",
+      "apps/web/src/components/shared/chat/assistant-ui/tool-approval-banner.tsx",
       "apps/web/src/components/shared/chat/runtime/hermes-chat-runtime.tsx",
       "apps/web/src/components/shared/chat/runtime/hermes-composer-context.tsx",
       "apps/web/src/components/shared/chat/runtime/hermes-history-messages.ts",
@@ -2031,6 +2130,8 @@
       "apps/web/src/app/api/[tenantSlug]/installations/[installationId]/upgrades/route.ts",
       "apps/web/src/app/api/[tenantSlug]/runtime/config/route.ts",
       "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/onboarding/complete/route.ts",
       "apps/web/src/app/api/onboarding/runtime/route.ts",
@@ -2223,6 +2324,14 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/lib/site.ts",
+    "incoming": [
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/robots.ts",
+      "apps/web/src/app/sitemap.ts"
+    ]
+  },
+  {
     "module": "apps/web/src/lib/slugs.ts",
     "incoming": [
       "apps/web/src/lib/product-model.ts"
@@ -2264,6 +2373,7 @@
   {
     "module": "apps/web/src/lib/utils.ts",
     "incoming": [
+      "apps/web/src/app/(app)/[tenantSlug]/agents/page.tsx",
       "apps/web/src/components/files/upload-zone.tsx",
       "apps/web/src/components/onboarding/onboarding-flow.tsx",
       "apps/web/src/components/settings/settings-frame.tsx",
@@ -2279,6 +2389,7 @@
       "apps/web/src/components/shared/chat/assistant-ui/quote.tsx",
       "apps/web/src/components/shared/chat/assistant-ui/reasoning.tsx",
       "apps/web/src/components/shared/chat/assistant-ui/shiki-highlighter.tsx",
+      "apps/web/src/components/shared/chat/assistant-ui/tool-approval-banner.tsx",
       "apps/web/src/components/shared/chat/assistant-ui/tool-fallback.tsx",
       "apps/web/src/components/shared/chat/assistant-ui/tool-group.tsx",
       "apps/web/src/components/shared/chat/assistant-ui/tooltip-icon-button.tsx",
@@ -2359,6 +2470,7 @@
       "apps/web/src/app/(app)/onboarding/page.tsx",
       "apps/web/src/app/(app)/workspaces/new/page.tsx",
       "apps/web/src/app/(auth)/login/page.tsx",
+      "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-status/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/runtime-ticket/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agents/[agentSlug]/sessions/[sessionId]/metrics/route.ts",
@@ -2376,6 +2488,8 @@
       "apps/web/src/app/api/[tenantSlug]/installations/preflight/route.ts",
       "apps/web/src/app/api/[tenantSlug]/runtime/config/route.ts",
       "apps/web/src/app/api/[tenantSlug]/skills/content/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
+      "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
@@ -2675,6 +2789,7 @@
     "module": "apps/web/src/modules/work/domain/work.ts",
     "incoming": [
       "apps/web/src/components/work/task-detail-view.tsx",
+      "apps/web/src/components/work/work-board.tsx",
       "apps/web/src/modules/work/domain/work.test.ts",
       "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
       "apps/web/src/modules/work/infrastructure/work-service.ts",
@@ -2726,6 +2841,7 @@
       "apps/web/src/app/(app)/[tenantSlug]/projects/[projectId]/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/projects/page.tsx",
       "apps/web/src/app/(app)/[tenantSlug]/tasks/page.tsx",
+      "apps/web/src/app/api/[tenantSlug]/agent-teams/[teamId]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agent-teams/route.ts",
       "apps/web/src/app/api/[tenantSlug]/automations/[automationId]/run/route.ts",
       "apps/web/src/app/api/[tenantSlug]/automations/route.ts",
@@ -2762,6 +2878,7 @@
   {
     "module": "apps/web/src/modules/work/presentation/http.ts",
     "incoming": [
+      "apps/web/src/app/api/[tenantSlug]/agent-teams/[teamId]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/agent-teams/route.ts",
       "apps/web/src/app/api/[tenantSlug]/automations/[automationId]/run/route.ts",
       "apps/web/src/app/api/[tenantSlug]/automations/route.ts",

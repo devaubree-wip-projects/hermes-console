@@ -5,7 +5,9 @@ The path and method columns are the frozen public contract. Payload and authoriz
 | Priority | Methods | Route | Authentication | Contract smoke |
 |---|---|---|---|---|
 | standard | GET, POST | `/api/:tenantSlug/agent-teams` | preserve current guard | status + response shape + side effects |
+| standard | DELETE | `/api/:tenantSlug/agent-teams/:teamId` | preserve current guard | status + response shape + side effects |
 | critical | POST | `/api/:tenantSlug/agents` | preserve current guard | status + response shape + side effects |
+| critical | DELETE, PATCH | `/api/:tenantSlug/agents/:agentSlug` | preserve current guard | status + response shape + side effects |
 | critical | DELETE, GET, PUT | `/api/:tenantSlug/agents/:agentSlug/inference` | preserve current guard | status + response shape + side effects |
 | critical | DELETE, GET, POST | `/api/:tenantSlug/agents/:agentSlug/inference/codex` | preserve current guard | status + response shape + side effects |
 | critical | GET, POST, PUT | `/api/:tenantSlug/agents/:agentSlug/messaging` | preserve current guard | status + response shape + side effects |
@@ -34,7 +36,9 @@ The path and method columns are the frozen public contract. Payload and authoriz
 | standard | POST | `/api/:tenantSlug/projects/:projectId/resources` | preserve current guard | status + response shape + side effects |
 | standard | DELETE | `/api/:tenantSlug/resources/:resourceId` | preserve current guard | status + response shape + side effects |
 | standard | PUT | `/api/:tenantSlug/runtime/config` | preserve current guard | status + response shape + side effects |
-| standard | GET | `/api/:tenantSlug/skills/content` | preserve current guard | status + response shape + side effects |
+| standard | POST | `/api/:tenantSlug/skills` | preserve current guard | status + response shape + side effects |
+| standard | GET, PUT | `/api/:tenantSlug/skills/content` | preserve current guard | status + response shape + side effects |
+| standard | PUT | `/api/:tenantSlug/skills/toggle` | preserve current guard | status + response shape + side effects |
 | standard | PUT | `/api/:tenantSlug/tools/toolsets/:name` | preserve current guard | status + response shape + side effects |
 | standard | GET, POST | `/api/:tenantSlug/work-items` | preserve current guard | status + response shape + side effects |
 | standard | DELETE, GET, PATCH | `/api/:tenantSlug/work-items/:workItemId` | preserve current guard | status + response shape + side effects |
