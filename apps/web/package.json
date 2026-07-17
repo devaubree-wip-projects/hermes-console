@@ -2,6 +2,7 @@
   "name": "@hermes-console/web",
   "version": "0.1.0",
   "private": true,
+  "description": "Application Next.js du cockpit Hermes Console : UI produit, auth/RBAC et APIs tenant.",
   "scripts": {
     "dev": "next dev --port 3010",
     "dev:e2e": "NEXT_DIST_DIR=.next-e2e next dev --port 3198",

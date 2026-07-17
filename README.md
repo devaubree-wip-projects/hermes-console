@@ -1,7 +1,13 @@
 # Hermes Console
 
+> Le cockpit web qui transforme les conversations et automatisations d'agents Hermes en **travail
+> durable, assigné, observable et récupérable**.
+
 Cockpit web métier pour piloter une installation locale Hermes : organisations, agents, sessions,
-tâches, fichiers, connaissances, validations et capacités.
+tâches, fichiers, connaissances, validations et capacités. L'exécution reste traçable de bout en
+bout — de la demande métier au livrable — sans dépendre du cycle de vie d'un onglet de navigateur.
+
+**Stack :** Next.js (App Router) · PostgreSQL · broker Bun · runtime Hermes · monorepo Bun workspaces.
 
 ## Architecture
 
@@ -225,6 +231,22 @@ N'exposez jamais le dashboard Hermes directement : il peut exécuter des command
 autorisés du runtime. L'Edge Go est l'unique frontière publique ; il applique tickets courts, signature HMAC,
 RBAC, profils forcés et allowlist de routes. Une installation distante se déclare ensuite depuis
 `Infrastructure → Installations`, après ajout explicite de son hôte à `HERMES_GATEWAY_ALLOWED_HOSTS`.
+
+## SEO & métadonnées
+
+Les métadonnées publiques sont centralisées dans `apps/web/src/lib/site.ts` et consommées par :
+
+- `apps/web/src/app/layout.tsx` — `metadata` racine : titre + template, description, mots-clés,
+  canonical, Open Graph et Twitter Card (aperçus de lien Slack/Teams/Discord), directives `robots`
+  (`index`/`follow`).
+- `apps/web/src/app/robots.ts` — autorise `/`, exclut `/api/` et `/_next/`, référence le sitemap.
+- `apps/web/src/app/sitemap.ts` — n'expose que les routes **publiques** (`/`, `/login`,
+  `/register`). Les vues produit sous `/:tenantSlug/**` sont protégées par l'auth et volontairement
+  hors index.
+
+> En production, `HERMES_CONSOLE_URL` **doit** pointer vers le domaine public réel : il alimente
+> `metadataBase`, les URLs canoniques et l'hôte du sitemap. Le fallback `http://localhost:3010` est
+> réservé au développement.
 
 ## Validation
 

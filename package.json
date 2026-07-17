@@ -2,6 +2,7 @@
   "name": "hermes-console",
   "version": "0.1.0",
   "private": true,
+  "description": "Cockpit web pour piloter des agents Hermes : transforme conversations et automatisations en travail durable, assigné, observable et récupérable (tâches, sessions, fichiers, connaissances, validations, audit).",
   "workspaces": [
     "apps/*",
     "packages/*"
