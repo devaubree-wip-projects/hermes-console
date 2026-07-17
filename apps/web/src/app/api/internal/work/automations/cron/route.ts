@@ -3,6 +3,7 @@ import { and, eq, lte } from "drizzle-orm";
 import { db } from "@/db";
 import { workAutomations, workspaces } from "@/db/schema";
 import { triggerWorkspaceAutomation } from "@/modules/work/infrastructure/work-service";
+import { sweepExpiredLeases } from "@/modules/work/infrastructure/work-runtime-service";
 
 function authorized(request: Request) {
   const expected = process.env.WORK_AUTOMATION_CRON_SECRET?.trim() ?? "";
@@ -49,5 +50,7 @@ export async function POST(request: Request) {
       }).where(eq(workAutomations.id, row.automation.id));
     }
   }
-  return Response.json({ processed: results.length, results });
+  // Recover runs orphaned by an offline edge (no /claim call sweeps them otherwise).
+  const leasesSwept = await sweepExpiredLeases();
+  return Response.json({ processed: results.length, results, leasesSwept });
 }

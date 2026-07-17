@@ -15,6 +15,13 @@
       "when": 1784311812356,
       "tag": "0001_work_runtime_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784311813356,
+      "tag": "0002_audit_immutability",
+      "breakpoints": true
     }
   ]
 }

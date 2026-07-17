@@ -566,6 +566,74 @@ async function requireLease(
   return run;
 }
 
+/**
+ * Requeue or fail runs whose lease expired across ALL installations. claimWorkRuns
+ * only sweeps the installation it is called for, so a run stays "in progress"
+ * forever when its edge goes offline and stops calling /claim. This global sweep,
+ * driven by the scheduler, is what recovers those zombie runs.
+ */
+export async function sweepExpiredLeases(): Promise<{ failed: number; requeued: number }> {
+  return db.transaction(async (tx) => {
+    const exhausted = await tx.execute<{ id: string; work_item_id: string }>(sql`
+      UPDATE work_runs
+      SET status = 'failed',
+          claimed_by_edge_id = NULL,
+          lease_token_hash = NULL,
+          lease_expires_at = NULL,
+          failure_reason = 'lease_expired',
+          completed_at = now(),
+          updated_at = now()
+      WHERE status IN ('preparing', 'running', 'waiting_input')
+        AND lease_expires_at < now()
+        AND attempt >= max_attempts
+      RETURNING id, work_item_id
+    `);
+    if (exhausted.length) {
+      await tx
+        .update(workItems)
+        .set({ status: "blocked", updatedAt: new Date() })
+        .where(
+          inArray(
+            workItems.id,
+            exhausted.map((row) => row.work_item_id),
+          ),
+        );
+      for (const row of exhausted) {
+        await appendRunEvent(tx, row.id, {
+          sequence: await nextEventSequence(tx, row.id),
+          type: "run.failed",
+          payload: { reason: "lease_expired", retriesExhausted: true },
+          occurredAt: new Date().toISOString(),
+        });
+      }
+    }
+    const requeued = await tx.execute<{ id: string }>(sql`
+      UPDATE work_runs
+      SET status = 'queued',
+          attempt = attempt + 1,
+          claimed_by_edge_id = NULL,
+          lease_token_hash = NULL,
+          lease_expires_at = NULL,
+          failure_reason = 'lease_expired',
+          queued_at = now(),
+          updated_at = now()
+      WHERE status IN ('preparing', 'running', 'waiting_input')
+        AND lease_expires_at < now()
+        AND attempt < max_attempts
+      RETURNING id
+    `);
+    for (const row of requeued) {
+      await appendRunEvent(tx, row.id, {
+        sequence: await nextEventSequence(tx, row.id),
+        type: "run.requeued",
+        payload: { reason: "lease_expired" },
+        occurredAt: new Date().toISOString(),
+      });
+    }
+    return { failed: exhausted.length, requeued: requeued.length };
+  });
+}
+
 export async function claimWorkRuns(input: {
   installationId: string;
   edgeId: string;

@@ -98,6 +98,33 @@ services:
     networks:
       - console-net
 
+  # Minute scheduler: drives due cron automations AND the expired-lease sweep
+  # (recovers runs orphaned by an offline edge). The cron endpoint is authenticated
+  # by WORK_AUTOMATION_CRON_SECRET; the scheduler reaches web over console-net.
+  scheduler:
+    image: alpine:3
+    restart: unless-stopped
+    logging: *prod-logging
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      WORK_AUTOMATION_CRON_SECRET: ${WORK_AUTOMATION_CRON_SECRET:?set WORK_AUTOMATION_CRON_SECRET}
+    command:
+      - sh
+      - -c
+      - >-
+        apk add --no-cache curl >/dev/null &&
+        while true; do
+          curl -fsS -m 30 -X POST
+          -H "Authorization: Bearer $${WORK_AUTOMATION_CRON_SECRET}"
+          http://web:3000/api/internal/work/automations/cron >/dev/null
+          || echo "scheduler: cron tick failed";
+          sleep 60;
+        done
+    networks:
+      - console-net
+
   # One-shot schema migration. Gated behind a profile so it never runs on a plain
   # `up -d`. It reaches Postgres over console-net (the DB publishes no host port),
   # and the repo bind-mount gives it the versioned SQL in apps/web/drizzle:
