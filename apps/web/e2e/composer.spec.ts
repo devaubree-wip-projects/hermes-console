@@ -259,8 +259,14 @@ test("revalidates the saved model immediately when returning to chat without a h
   });
   expect(responseStatus).toBe(200);
 
+  // Await each navigation so the round-trip actually commits. Both links live
+  // in the persistent sidebar, so clicking them back-to-back lets the router
+  // coalesce the round-trip and never leave chat — the composer then has
+  // nothing to revalidate and the read count never grows.
   await page.getByRole("link", { name: "Dashboard", exact: true }).click();
+  await expect(page).toHaveURL(/\/e2e\/dashboard$/);
   await page.getByRole("link", { name: "Sessions", exact: true }).click();
+  await expect(page).toHaveURL(/\/e2e\/d\/chat$/);
 
   await expect.poll(
     () => calls.filter((call) => call.method === "inference.get").length,

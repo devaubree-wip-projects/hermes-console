@@ -46,7 +46,9 @@ test("lists the local runtime and connects an existing Edge", async ({ page }) =
   await page.getByRole("option", { name: "Connectée — configurer et redémarrer" }).click();
   await page.getByRole("button", { name: "Connecter l’installation" }).click();
 
-  await expect(page.getByText("Installation Hermes connectée.")).toBeVisible();
+  // The success message renders both inline (role="status") and as a toast;
+  // scope to the dialog to target the deterministic inline confirmation.
+  await expect(page.getByRole("dialog").getByText("Installation Hermes connectée.")).toBeVisible();
   expect(submitted).toMatchObject({
     name: "VPS production",
     gatewayUrl: "https://edge.example.com",
@@ -120,6 +122,12 @@ test("manages an installation from its tenant-scoped detail page", async ({ page
   await page.getByRole("button", { name: "Associer", exact: true }).click();
   await expect.poll(() => mutations.some((body) => body.profileName === "default")).toBe(true);
 
+  // The preceding success toasts stack bottom-right over the destructive
+  // action; Playwright's hover pauses their auto-dismiss. Make the toast layer
+  // click-through (no DOM removal, so React reconciliation stays intact).
+  await page.addStyleTag({
+    content: "[data-sonner-toaster], [data-sonner-toast] { pointer-events: none !important; }",
+  });
   await page.getByRole("button", { name: "Déconnecter" }).click();
   await page.getByRole("button", { name: "Confirmer" }).click();
   await expect.poll(() => mutations.some((body) => body.archived === true)).toBe(true);
@@ -165,6 +173,9 @@ test("creates a one-time Relay enrollment command without exposing the token twi
     });
   });
   await page.goto("/e2e/installations");
+  // The Relay enrollment form lives under the "Enrôler" tab of the add dialog.
+  await page.getByRole("button", { name: "Ajouter une installation" }).click();
+  await page.getByRole("tab", { name: "Enrôler" }).click();
   await page.locator("#relay-installation-name").fill("VPS Relay");
   await page.locator("#relay-installation-key").fill("vps-relay");
   await page.getByRole("button", { name: "Générer le jeton court" }).click();

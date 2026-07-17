@@ -65,6 +65,11 @@ test("executes a durable Work task and renders the live Hermes plan without open
   page,
 }) => {
   await loginE2E(page);
+  // Scope plan assertions to the detail's plan section so board cards left by
+  // earlier runs (promoted "Inspecter la demande" subtasks) can't shadow them.
+  const planSection = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Plan de l’agent" }) });
   await page.goto("/e2e/tasks");
   await expect(page.getByRole("link", { name: "Inbox" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Projets" })).toBeVisible();
@@ -140,9 +145,9 @@ test("executes a durable Work task and renders the live Hermes plan without open
       ],
     },
   );
-  await expect(page.getByText("Inspecter la demande")).toBeVisible();
-  await expect(page.getByText("Produire le livrable")).toBeVisible();
-  await expect(page.getByText("1/2")).toBeVisible();
+  await expect(planSection.getByText("Inspecter la demande")).toBeVisible();
+  await expect(planSection.getByText("Produire le livrable")).toBeVisible();
+  await expect(planSection.getByText("1/2")).toBeVisible();
 
   const approvalPrompt = `Autoriser la publication du livrable E2E ${Date.now()} ?`;
   const intervention = await runtimePost<{ intervention: { id: string } }>(
@@ -187,8 +192,8 @@ test("executes a durable Work task and renders the live Hermes plan without open
   await page.goto(originalTaskUrl);
 
   await page.reload();
-  await expect(page.getByText("Inspecter la demande")).toBeVisible();
-  await expect(page.getByText("1/2")).toBeVisible();
+  await expect(planSection.getByText("Inspecter la demande")).toBeVisible();
+  await expect(planSection.getByText("1/2")).toBeVisible();
   await page
     .getByRole("button", { name: "Promouvoir en sous-tâche" })
     .first()
@@ -230,7 +235,7 @@ test("executes a durable Work task and renders the live Hermes plan without open
       ],
     },
   );
-  await expect(page.getByText("2/2")).toBeVisible();
+  await expect(planSection.getByText("2/2")).toBeVisible();
   await page
     .getByLabel("Ajouter un commentaire")
     .fill("Contrôle humain E2E terminé.");
@@ -269,6 +274,8 @@ test("creates projects, agent teams and traceable automations from Work", async 
   await expect(page.getByText(`Projet fonctionnel ${suffix}`)).toBeVisible();
 
   await page.goto("/e2e/agents");
+  // Agents & teams now share a tabbed page; team creation lives under "Équipes".
+  await page.getByRole("tab", { name: /Équipes/ }).click();
   await page.getByRole("button", { name: "Nouvelle équipe" }).click();
   await page.getByLabel("Nom de l’équipe").fill(`Équipe ${suffix}`);
   await page.getByRole("combobox", { name: "Agent lead" }).click();
@@ -276,11 +283,13 @@ test("creates projects, agent teams and traceable automations from Work", async 
     .getByRole("option", { name: "Assistant principal", exact: true })
     .click();
   await page.getByRole("checkbox", { name: "Reviewer" }).click();
+  // Auto-delegation is checked by default; use check() (idempotent) so the team
+  // keeps it enabled instead of toggling it off with a raw click.
   await page
     .getByRole("checkbox", {
       name: "Déléguer automatiquement les étapes planifiées",
     })
-    .click();
+    .check();
   await page.getByRole("button", { name: "Créer", exact: true }).click();
   const createdTeamRow = page
     .locator("li")
