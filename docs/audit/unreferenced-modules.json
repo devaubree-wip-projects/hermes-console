@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "311e167d215f9fa88940b1f6045ddca411904140",
+  "commit": "426a1b8fddf8b07c3d841f3ce0a9b474a237daa7",
   "modules": [
     "apps/web/src/app/robots.ts",
     "apps/web/src/app/sitemap.ts",

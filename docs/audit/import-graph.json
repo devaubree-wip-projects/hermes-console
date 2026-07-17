@@ -380,6 +380,10 @@
     "incoming": []
   },
   {
+    "module": "apps/web/src/app/api/account/export/route.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/app/api/approvals/[approvalId]/route.ts",
     "incoming": []
   },
@@ -1807,6 +1811,7 @@
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
+      "apps/web/src/app/api/account/export/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
       "apps/web/src/app/api/files/route.ts",
@@ -1836,6 +1841,7 @@
       "apps/web/src/modules/installations/infrastructure/drizzle-installation-repository.ts",
       "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts",
       "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
+      "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts",
       "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
       "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
       "apps/web/src/modules/work/infrastructure/work-service.ts"
@@ -1881,6 +1887,7 @@
       "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
       "apps/web/src/app/api/[tenantSlug]/work-items/[workItemId]/route.ts",
+      "apps/web/src/app/api/account/export/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
       "apps/web/src/app/api/files/route.ts",
@@ -1917,7 +1924,9 @@
       "apps/web/src/modules/installations/infrastructure/drizzle-installation-repository.ts",
       "apps/web/src/modules/installations/infrastructure/installation-management-adapter.ts",
       "apps/web/src/modules/work/domain/work.ts",
+      "apps/web/src/modules/work/infrastructure/intervention-notification.ts",
       "apps/web/src/modules/work/infrastructure/runtime-auth.ts",
+      "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts",
       "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
       "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
       "apps/web/src/modules/work/infrastructure/work-service.ts",
@@ -2004,6 +2013,7 @@
       "apps/web/src/app/api/[tenantSlug]/skills/route.ts",
       "apps/web/src/app/api/[tenantSlug]/skills/toggle/route.ts",
       "apps/web/src/app/api/[tenantSlug]/tools/toolsets/[name]/route.ts",
+      "apps/web/src/app/api/account/export/route.ts",
       "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "apps/web/src/app/api/files/[fileId]/route.ts",
       "apps/web/src/app/api/files/route.ts",
@@ -2048,7 +2058,8 @@
       "apps/web/src/app/(auth)/register/page.tsx",
       "apps/web/src/app/api/[tenantSlug]/invitations/route.ts",
       "apps/web/src/lib/membership-policy.test.ts",
-      "apps/web/src/modules/auth/infrastructure/auth-service.ts"
+      "apps/web/src/modules/auth/infrastructure/auth-service.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts"
     ]
   },
   {
@@ -2332,7 +2343,8 @@
     "module": "apps/web/src/lib/mailer.ts",
     "incoming": [
       "apps/web/src/app/api/[tenantSlug]/invitations/route.ts",
-      "apps/web/src/modules/auth/infrastructure/auth-adapters.ts"
+      "apps/web/src/modules/auth/infrastructure/auth-adapters.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts"
     ]
   },
   {
@@ -2377,7 +2389,8 @@
       "apps/web/src/components/tasks/task-template-grid.tsx",
       "apps/web/src/db/schema.ts",
       "apps/web/src/db/seed.ts",
-      "apps/web/src/lib/task-templates.ts"
+      "apps/web/src/lib/task-templates.ts",
+      "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts"
     ]
   },
   {
@@ -3046,6 +3059,17 @@
     ]
   },
   {
+    "module": "apps/web/src/modules/work/infrastructure/intervention-notification.test.ts",
+    "incoming": []
+  },
+  {
+    "module": "apps/web/src/modules/work/infrastructure/intervention-notification.ts",
+    "incoming": [
+      "apps/web/src/modules/work/infrastructure/intervention-notification.test.ts",
+      "apps/web/src/modules/work/infrastructure/work-runtime-service.ts"
+    ]
+  },
+  {
     "module": "apps/web/src/modules/work/infrastructure/runtime-auth.test.ts",
     "incoming": []
   },
@@ -3056,8 +3080,13 @@
     ]
   },
   {
+    "module": "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts",
+    "incoming": []
+  },
+  {
     "module": "apps/web/src/modules/work/infrastructure/work-runtime-service.ts",
     "incoming": [
+      "apps/web/src/app/api/internal/work/automations/cron/route.ts",
       "apps/web/src/app/api/runtime/work/claim/route.ts",
       "apps/web/src/app/api/runtime/work/runs/[runId]/complete/route.ts",
       "apps/web/src/app/api/runtime/work/runs/[runId]/events/route.ts",
@@ -3065,6 +3094,7 @@
       "apps/web/src/app/api/runtime/work/runs/[runId]/interventions/route.ts",
       "apps/web/src/app/api/runtime/work/runs/[runId]/release/route.ts",
       "apps/web/src/app/api/runtime/work/runs/[runId]/start/route.ts",
+      "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts",
       "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts"
     ]
   },

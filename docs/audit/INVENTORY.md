@@ -1,6 +1,6 @@
 # Architecture inventory
 
-Generated from commit `311e167d215f9fa88940b1f6045ddca411904140` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
+Generated from commit `426a1b8fddf8b07c3d841f3ce0a9b474a237daa7` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
 
 ## Public API endpoints
 
@@ -60,6 +60,7 @@ Generated from commit `311e167d215f9fa88940b1f6045ddca411904140` with `bun run a
 | POST | `/api/:tenantSlug/work-runs/:runId/plan-steps/:stepId/promote` | `apps/web/src/app/api/[tenantSlug]/work-runs/[runId]/plan-steps/[stepId]/promote/route.ts` | no |
 | GET | `/api/:tenantSlug/work-stream` | `apps/web/src/app/api/[tenantSlug]/work-stream/route.ts` | no |
 | DELETE, GET, POST | `/api/:tenantSlug/work-views` | `apps/web/src/app/api/[tenantSlug]/work-views/route.ts` | no |
+| GET | `/api/account/export` | `apps/web/src/app/api/account/export/route.ts` | no |
 | PATCH | `/api/approvals/:approvalId` | `apps/web/src/app/api/approvals/[approvalId]/route.ts` | no |
 | POST | `/api/auth/forgot-password` | `apps/web/src/app/api/auth/forgot-password/route.ts` | yes |
 | POST | `/api/auth/login` | `apps/web/src/app/api/auth/login/route.ts` | yes |
@@ -131,7 +132,7 @@ Generated from commit `311e167d215f9fa88940b1f6045ddca411904140` with `bun run a
 
 | Variable | Tracked references |
 |---|---|
-| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-db.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
+| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-db.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
 | `E2E_BASE_URL` | `apps/web/playwright.config.ts` |
 | `E2E_REAL_WORK` | `apps/web/e2e/seed.ts`<br>`apps/web/e2e/work-real.spec.ts`<br>`apps/web/e2e/work.spec.ts` |
 | `HERMES_ALLOWED_ORIGINS` | `infra/dev/compose.yaml`<br>`infra/prod/compose.edge.yaml` |
@@ -213,7 +214,7 @@ Generated from commit `311e167d215f9fa88940b1f6045ddca411904140` with `bun run a
 | `SMTP_USER` | `apps/web/src/lib/mailer.ts` |
 | `TAVILY_API_KEY` | `apps/web/src/lib/shared/chat/web-search.ts` |
 | `UPLOAD_DIR` | `apps/web/src/app/api/files/route.ts`<br>`apps/web/src/app/api/workspaces/[workspaceId]/route.ts` |
-| `WORK_AUTOMATION_CRON_SECRET` | `apps/web/src/app/api/internal/work/automations/cron/route.ts` |
+| `WORK_AUTOMATION_CRON_SECRET` | `apps/web/src/app/api/internal/work/automations/cron/route.ts`<br>`infra/prod/compose.console.yaml` |
 | `XDG_STATE_HOME` | `apps/web/src/lib/hermes/gateway-locks.test.ts`<br>`apps/web/src/lib/hermes/gateway-locks.ts` |
 
 ## Migration artifacts
@@ -221,8 +222,10 @@ Generated from commit `311e167d215f9fa88940b1f6045ddca411904140` with `bun run a
 - `apps/web/drizzle.config.ts`
 - `apps/web/drizzle/0000_baseline.sql`
 - `apps/web/drizzle/0001_work_runtime_functions.sql`
+- `apps/web/drizzle/0002_audit_immutability.sql`
 - `apps/web/drizzle/meta/0000_snapshot.json`
 - `apps/web/drizzle/meta/0001_snapshot.json`
+- `apps/web/drizzle/meta/0002_snapshot.json`
 - `apps/web/drizzle/meta/_journal.json`
 - `scripts/migrate-product-db.ts`
 - `scripts/migrate-product-model.ts`

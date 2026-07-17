@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "311e167d215f9fa88940b1f6045ddca411904140",
+  "commit": "426a1b8fddf8b07c3d841f3ce0a9b474a237daa7",
   "layout": "monorepo",
   "endpoints": [
     {
@@ -518,6 +518,15 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/account/export/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/account/export",
+      "lines": 53,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/approvals/[approvalId]/route.ts",
       "methods": [
         "PATCH"
@@ -605,7 +614,7 @@
         "POST"
       ],
       "path": "/api/internal/work/automations/cron",
-      "lines": 54,
+      "lines": 57,
       "critical": false
     },
     {
@@ -904,6 +913,7 @@
         "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
         "apps/web/src/db/index.ts",
         "apps/web/src/lib/auth.integration.test.ts",
+        "apps/web/src/modules/work/infrastructure/work-lease-sweep.integration.test.ts",
         "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
         "scripts/migrate-product-db.ts",
         "scripts/migrate-product-model.ts",
@@ -1472,7 +1482,8 @@
     {
       "name": "WORK_AUTOMATION_CRON_SECRET",
       "references": [
-        "apps/web/src/app/api/internal/work/automations/cron/route.ts"
+        "apps/web/src/app/api/internal/work/automations/cron/route.ts",
+        "infra/prod/compose.console.yaml"
       ]
     },
     {
@@ -1551,8 +1562,10 @@
     "apps/web/drizzle.config.ts",
     "apps/web/drizzle/0000_baseline.sql",
     "apps/web/drizzle/0001_work_runtime_functions.sql",
+    "apps/web/drizzle/0002_audit_immutability.sql",
     "apps/web/drizzle/meta/0000_snapshot.json",
     "apps/web/drizzle/meta/0001_snapshot.json",
+    "apps/web/drizzle/meta/0002_snapshot.json",
     "apps/web/drizzle/meta/_journal.json",
     "scripts/migrate-product-db.ts",
     "scripts/migrate-product-model.ts",

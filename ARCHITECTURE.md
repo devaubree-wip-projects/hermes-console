@@ -69,8 +69,7 @@ Components: presentation adapters, application use-cases, domain policy/types an
 4. Domain is framework-free. It may import stable types from `@hermes-console/shared`, but never Next.js, Drizzle or infrastructure.
 5. Infrastructure implements ports and may import Drizzle, Hermes clients and telemetry. It must not import presentation.
 6. Cross-slice access goes through an exported application API or a shared contract, never through another slice's infrastructure internals.
-7. `archive/dead-code` is quarantined: production code must never import it.
-8. Public URL paths, HTTP methods, response payloads and the Drizzle schema are frozen by `docs/audit/contract-baseline.json` during this migration.
+7. Public URL paths, HTTP methods, response payloads and the Drizzle schema are tracked by `docs/audit/contract-baseline.json`; deliberate changes re-baseline it (see "Changing frozen contracts").
 
 ## Runtime and tooling invariants
 

@@ -58,6 +58,7 @@ The path and method columns are the frozen public contract. Payload and authoriz
 | standard | POST | `/api/:tenantSlug/work-runs/:runId/plan-steps/:stepId/promote` | preserve current guard | status + response shape + side effects |
 | standard | GET | `/api/:tenantSlug/work-stream` | preserve current guard | status + response shape + side effects |
 | standard | DELETE, GET, POST | `/api/:tenantSlug/work-views` | preserve current guard | status + response shape + side effects |
+| standard | GET | `/api/account/export` | preserve current guard | status + response shape + side effects |
 | standard | PATCH | `/api/approvals/:approvalId` | preserve current guard | status + response shape + side effects |
 | critical | POST | `/api/auth/forgot-password` | public/session mutation | status + response shape + side effects |
 | critical | POST | `/api/auth/login` | public/session mutation | status + response shape + side effects |
