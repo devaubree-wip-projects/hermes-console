@@ -129,4 +129,7 @@ jobs:
       # fetch — `db:push` pulled an incompatible drizzle-kit and failed). The e2e
       # seed re-runs the legacy migration scripts idempotently on top.
       - run: bun run db:migrate
+      # The e2e run needs the Playwright browser; the job never installed it, so
+      # every spec failed with "Executable doesn't exist".
+      - run: bun --cwd=apps/web x playwright install --with-deps chromium
       - run: bun run test:e2e
