@@ -2,11 +2,12 @@ import Link from "next/link"
 import { asc, eq } from "drizzle-orm"
 import { BotIcon, PlusIcon } from "lucide-react"
 import { db } from "@/db"
-import { agents, tenantMemberships, users } from "@/db/schema"
+import { agents, tenantInvitations, tenantMemberships, users } from "@/db/schema"
 import { InferenceSettings } from "@/components/agents/inference-settings"
 import { ChatSettingsPanel, DocumentsSettingsPanel } from "@/components/settings/settings-client-panels"
 import { ToolsSettingsPanel, type ToolsetItem } from "@/components/settings/tools-settings-panel"
 import { GeneralSection } from "@/components/settings/general-section"
+import { MembersSection } from "@/components/settings/members-section"
 import { PermissionsSection } from "@/components/settings/permissions-section"
 import { RuntimeAccessSection } from "@/components/settings/runtime-access-section"
 import { SettingsPanelHeader, SettingsRow, SettingsSection } from "@/components/settings/settings-row"
@@ -92,6 +93,68 @@ export async function SettingsPanel({
       .innerJoin(users, eq(users.id, tenantMemberships.userId))
       .where(eq(tenantMemberships.tenantId, access.tenant.id))
 
+    const roleCapabilities = (
+      <SettingsSection title="Droits par rôle">
+        {TENANT_CAPABILITIES.map((capability) => (
+          <SettingsRow
+            key={capability.key}
+            label={capability.label}
+            description="Ces droits sont contrôlés côté serveur sur toute l’organisation."
+            control={(
+              <div className="flex flex-wrap justify-end gap-1.5">
+                {TENANT_ROLES.map((role) => (
+                  <Badge
+                    key={role}
+                    variant={tenantRoleCan(role, capability.key) ? "secondary" : "outline"}
+                    className={!tenantRoleCan(role, capability.key) ? "text-muted-foreground line-through" : undefined}
+                  >
+                    {TENANT_ROLE_LABELS[role]}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          />
+        ))}
+      </SettingsSection>
+    )
+
+    if (owner) {
+      const invitationRows = await db
+        .select()
+        .from(tenantInvitations)
+        .where(eq(tenantInvitations.tenantId, access.tenant.id))
+        .orderBy(asc(tenantInvitations.createdAt))
+      const formatExpiry = (date: Date) =>
+        `${String(date.getDate()).padStart(2, "0")}-${String(date.getMonth() + 1).padStart(2, "0")}-${date.getFullYear()}`
+
+      return (
+        <div className="space-y-8">
+          <SettingsPanelHeader
+            title="Membres"
+            description="Un seul rôle par membre s’applique à toute l’organisation."
+          />
+          <MembersSection
+            tenantSlug={tenantSlug}
+            currentUserId={currentUser.id}
+            founderUserId={access.tenant.ownerUserId}
+            members={memberRows.map(({ user, role }) => ({
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role,
+            }))}
+            invitations={invitationRows.map((invitation) => ({
+              id: invitation.id,
+              email: invitation.email,
+              role: invitation.role,
+              expiresAtLabel: formatExpiry(invitation.expiresAt),
+            }))}
+          />
+          {roleCapabilities}
+        </div>
+      )
+    }
+
     return (
       <div className="space-y-8">
         <SettingsPanelHeader
@@ -112,33 +175,7 @@ export async function SettingsPanel({
             />
           ))}
         </SettingsSection>
-        <SettingsSection title="Droits par rôle">
-          {TENANT_CAPABILITIES.map((capability) => (
-            <SettingsRow
-              key={capability.key}
-              label={capability.label}
-              description="Ces droits sont contrôlés côté serveur sur toute l’organisation."
-              control={(
-                <div className="flex flex-wrap justify-end gap-1.5">
-                  {TENANT_ROLES.map((role) => (
-                    <Badge
-                      key={role}
-                      variant={tenantRoleCan(role, capability.key) ? "secondary" : "outline"}
-                      className={!tenantRoleCan(role, capability.key) ? "text-muted-foreground line-through" : undefined}
-                    >
-                      {TENANT_ROLE_LABELS[role]}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            />
-          ))}
-        </SettingsSection>
-        {owner ? (
-          <p className="text-sm text-muted-foreground">
-            Le modèle RBAC est actif. L’envoi d’invitations sera ajouté à cette surface ultérieurement.
-          </p>
-        ) : null}
+        {roleCapabilities}
       </div>
     )
   }

@@ -2,15 +2,22 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LoginForm, type DemoAccount } from "@/components/auth/login-form";
 import { getCurrentUser } from "@/lib/auth";
+import { isSafeInternalPath } from "@/lib/console-url";
 import { getConsoleDestinationForUser } from "@/lib/workspace";
 
 export const metadata: Metadata = {
   title: "Connexion",
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  const safeNext = isSafeInternalPath(next) ? next : null;
   const user = await getCurrentUser();
-  if (user) redirect(await getConsoleDestinationForUser(user.id));
+  if (user) redirect(safeNext ?? (await getConsoleDestinationForUser(user.id)));
 
   const demoAccounts: DemoAccount[] | null = process.env.NODE_ENV === "development"
     ? [
@@ -38,5 +45,5 @@ export default async function LoginPage() {
       ]
     : null;
 
-  return <LoginForm demoAccounts={demoAccounts} />;
+  return <LoginForm demoAccounts={demoAccounts} next={safeNext} />;
 }

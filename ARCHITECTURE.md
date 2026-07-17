@@ -77,5 +77,17 @@ Components: presentation adapters, application use-cases, domain policy/types an
 - Bun workspaces and Bun scripts are the only JavaScript package/build entrypoints; use `bunx` for package executables.
 - Root scripts remain compatibility aliases for the historical commands.
 - Go remains the native toolchain behind the Bun gateway scripts.
-- A route or database contract change requires an explicit product migration outside this refactor.
 - Architecture audit outputs are regenerated with `bun run audit:architecture` and checked with `bun run contracts:verify`.
+
+### Changing frozen contracts (routes / DB schema)
+
+`docs/audit/contract-baseline.json` freezes the public route surface and the `schema.ts` hash so accidental
+changes fail CI. A **deliberate** product change (new route, new table, schema edit) re-baselines it:
+
+1. Make the route/schema change and, for schema changes, generate the migration: `bun run db:generate`.
+2. Regenerate the snapshot: `bun run audit:architecture` (writes `docs/audit/contracts-current.json`).
+3. Review the route/schema diff between `contract-baseline.json` and `contracts-current.json` — every entry
+   must be intended.
+4. Adopt the snapshot as the new baseline: copy `contracts-current.json` over `contract-baseline.json`.
+5. Confirm `bun run contracts:verify` passes and commit the baseline alongside the code change, so the diff
+   documents the contract evolution.

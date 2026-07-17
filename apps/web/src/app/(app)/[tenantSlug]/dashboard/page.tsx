@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { and, count, desc, eq } from "drizzle-orm";
 import { Activity, ArrowRight, Bot, CheckCircle2, CircleDollarSign, MessageSquare, WifiOff } from "lucide-react";
 import { db } from "@/db";
-import { agents, approvals, files, tasks } from "@/db/schema";
+import { agents, files, workInterventions, workItems } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { getHermesDashboardData } from "@/lib/hermes/server";
 import { getTenantAccessBySlug } from "@/lib/workspace";
@@ -33,8 +33,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
     ? await getHermesDashboardData(primaryAgent.hermesProfileName, { agentId: primaryAgent.id })
     : null;
   const [[taskCount], [pendingCount], [fileCount]] = await Promise.all([
-    db.select({ value: count() }).from(tasks).where(eq(tasks.workspaceId, access.workspace.id)),
-    db.select({ value: count() }).from(approvals).where(and(eq(approvals.workspaceId, access.workspace.id), eq(approvals.status, "pending"))),
+    db.select({ value: count() }).from(workItems).where(eq(workItems.workspaceId, access.workspace.id)),
+    db.select({ value: count() }).from(workInterventions).where(and(eq(workInterventions.workspaceId, access.workspace.id), eq(workInterventions.status, "pending"))),
     db.select({ value: count() }).from(files).where(eq(files.workspaceId, access.workspace.id)),
   ]);
   const totals = runtime?.usage?.totals ?? {};

@@ -1,6 +1,6 @@
 # Architecture inventory
 
-Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
+Generated from commit `525a116a00890c79e26dcaff00a16efab4101644` with `bun run audit:architecture`. Secrets are never read; environment inventory uses tracked references only.
 
 ## Public API endpoints
 
@@ -34,6 +34,9 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 | POST | `/api/:tenantSlug/installations/preflight` | `apps/web/src/app/api/[tenantSlug]/installations/preflight/route.ts` | yes |
 | GET | `/api/:tenantSlug/interventions` | `apps/web/src/app/api/[tenantSlug]/interventions/route.ts` | no |
 | PATCH | `/api/:tenantSlug/interventions/:interventionId` | `apps/web/src/app/api/[tenantSlug]/interventions/[interventionId]/route.ts` | no |
+| POST | `/api/:tenantSlug/invitations` | `apps/web/src/app/api/[tenantSlug]/invitations/route.ts` | no |
+| DELETE | `/api/:tenantSlug/invitations/:invitationId` | `apps/web/src/app/api/[tenantSlug]/invitations/[invitationId]/route.ts` | no |
+| DELETE, PATCH | `/api/:tenantSlug/members/:memberUserId` | `apps/web/src/app/api/[tenantSlug]/members/[memberUserId]/route.ts` | no |
 | GET, POST | `/api/:tenantSlug/projects` | `apps/web/src/app/api/[tenantSlug]/projects/route.ts` | no |
 | POST | `/api/:tenantSlug/projects/:projectId/resources` | `apps/web/src/app/api/[tenantSlug]/projects/[projectId]/resources/route.ts` | no |
 | DELETE | `/api/:tenantSlug/resources/:resourceId` | `apps/web/src/app/api/[tenantSlug]/resources/[resourceId]/route.ts` | no |
@@ -58,12 +61,16 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 | GET | `/api/:tenantSlug/work-stream` | `apps/web/src/app/api/[tenantSlug]/work-stream/route.ts` | no |
 | DELETE, GET, POST | `/api/:tenantSlug/work-views` | `apps/web/src/app/api/[tenantSlug]/work-views/route.ts` | no |
 | PATCH | `/api/approvals/:approvalId` | `apps/web/src/app/api/approvals/[approvalId]/route.ts` | no |
+| POST | `/api/auth/forgot-password` | `apps/web/src/app/api/auth/forgot-password/route.ts` | yes |
 | POST | `/api/auth/login` | `apps/web/src/app/api/auth/login/route.ts` | yes |
 | POST | `/api/auth/logout` | `apps/web/src/app/api/auth/logout/route.ts` | yes |
 | POST | `/api/auth/register` | `apps/web/src/app/api/auth/register/route.ts` | yes |
+| POST | `/api/auth/reset-password` | `apps/web/src/app/api/auth/reset-password/route.ts` | yes |
 | POST | `/api/files` | `apps/web/src/app/api/files/route.ts` | no |
 | DELETE, GET | `/api/files/:fileId` | `apps/web/src/app/api/files/[fileId]/route.ts` | no |
+| GET | `/api/healthz` | `apps/web/src/app/api/healthz/route.ts` | no |
 | POST | `/api/internal/work/automations/cron` | `apps/web/src/app/api/internal/work/automations/cron/route.ts` | no |
+| POST | `/api/invitations/accept` | `apps/web/src/app/api/invitations/accept/route.ts` | no |
 | POST | `/api/onboarding/complete` | `apps/web/src/app/api/onboarding/complete/route.ts` | no |
 | GET | `/api/onboarding/runtime` | `apps/web/src/app/api/onboarding/runtime/route.ts` | no |
 | POST | `/api/runtime/enroll` | `apps/web/src/app/api/runtime/enroll/route.ts` | yes |
@@ -109,16 +116,22 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 | `/:tenantSlug/tasks/:taskId` | `apps/web/src/app/(app)/[tenantSlug]/tasks/[taskId]/page.tsx` |
 | `/:tenantSlug/team` | `apps/web/src/app/(app)/[tenantSlug]/team/page.tsx` |
 | `/:tenantSlug/tools` | `apps/web/src/app/(app)/[tenantSlug]/tools/page.tsx` |
+| `/cgu` | `apps/web/src/app/(legal)/cgu/page.tsx` |
+| `/confidentialite` | `apps/web/src/app/(legal)/confidentialite/page.tsx` |
+| `/forgot-password` | `apps/web/src/app/(auth)/forgot-password/page.tsx` |
+| `/invitations/accept` | `apps/web/src/app/(auth)/invitations/accept/page.tsx` |
 | `/login` | `apps/web/src/app/(auth)/login/page.tsx` |
+| `/mentions-legales` | `apps/web/src/app/(legal)/mentions-legales/page.tsx` |
 | `/onboarding` | `apps/web/src/app/(app)/onboarding/page.tsx` |
 | `/register` | `apps/web/src/app/(auth)/register/page.tsx` |
+| `/reset-password` | `apps/web/src/app/(auth)/reset-password/page.tsx` |
 | `/workspaces/new` | `apps/web/src/app/(app)/workspaces/new/page.tsx` |
 
 ## Environment variables
 
 | Variable | Tracked references |
 |---|---|
-| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
+| `DATABASE_URL` | `apps/web/drizzle.config.ts`<br>`apps/web/src/app/api/[tenantSlug]/work-stream/route.ts`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts`<br>`scripts/migrate-product-db.ts`<br>`scripts/migrate-product-model.ts`<br>`scripts/migrate-runtime-installations.ts`<br>`scripts/migrate-tenant-boundary.ts`<br>`scripts/migrate-work-control-plane.ts`<br>`scripts/reset-product-data.ts` |
 | `E2E_BASE_URL` | `apps/web/playwright.config.ts` |
 | `E2E_REAL_WORK` | `apps/web/e2e/seed.ts`<br>`apps/web/e2e/work-real.spec.ts`<br>`apps/web/e2e/work.spec.ts` |
 | `HERMES_ALLOWED_ORIGINS` | `infra/dev/compose.yaml`<br>`infra/prod/compose.edge.yaml` |
@@ -127,10 +140,13 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 | `HERMES_BACKUP_ENCRYPTION_KEY` | `apps/gateway/gateway/config.go`<br>`infra/dev/compose.yaml` |
 | `HERMES_BACKUP_RESTORE_ENABLED` | `apps/gateway/gateway/config.go`<br>`infra/dev/compose.yaml` |
 | `HERMES_CLI_PATH` | `scripts/install-hermes-console-control.ts` |
-| `HERMES_CONSOLE_URL` | `apps/gateway/gateway/config.go`<br>`apps/web/src/lib/site.ts`<br>`infra/dev/compose.yaml` |
+| `HERMES_CONSOLE_DOMAIN` | `infra/prod/compose.console.yaml` |
+| `HERMES_CONSOLE_URL` | `apps/gateway/gateway/config.go`<br>`apps/web/src/lib/console-url.ts`<br>`apps/web/src/lib/site.ts`<br>`infra/dev/compose.yaml` |
+| `HERMES_CONSOLE_WEB_IMAGE` | `infra/prod/compose.console.yaml` |
 | `HERMES_CPU_LIMIT` | `infra/dev/compose.yaml` |
 | `HERMES_DASHBOARD_SESSION_TOKEN` | `scripts/install-hermes-console-control.ts` |
 | `HERMES_DATA_DIR` | `infra/dev/compose.yaml` |
+| `HERMES_DB_BACKUP_DIR` | `infra/prod/compose.console.yaml` |
 | `HERMES_DEFAULT_GATEWAY_URL` | `apps/web/scripts/sync-local-runtime-profiles.ts`<br>`apps/web/src/app/api/onboarding/complete/route.ts`<br>`apps/web/src/lib/hermes/installations.ts`<br>`scripts/dev-stack.ts`<br>`scripts/migrate-runtime-installations.ts` |
 | `HERMES_DEFAULT_INSTALLATION_ID` | `apps/web/src/lib/hermes/installations.ts`<br>`infra/dev/compose.yaml`<br>`scripts/dev-stack.ts`<br>`scripts/migrate-runtime-installations.ts` |
 | `HERMES_DEFAULT_INSTALLATION_NAME` | `apps/web/src/lib/hermes/installations.ts`<br>`scripts/migrate-runtime-installations.ts` |
@@ -181,10 +197,20 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 | `HERMES_WORK_INSTALLATION_ID` | `apps/gateway/gateway/config.go` |
 | `HERMES_WORKSPACE_DIR` | `infra/dev/compose.yaml` |
 | `HERMES_WORKSPACE_READ_ONLY` | `infra/dev/compose.yaml` |
+| `MAIL_FROM` | `apps/web/src/lib/mailer.ts` |
 | `MOCK_HERMES_PORT` | `scripts/mock-hermes.ts` |
 | `NEXT_DIST_DIR` | `apps/web/next.config.ts` |
+| `NEXT_PUBLIC_SUPPORT_EMAIL` | `apps/web/src/lib/support.ts` |
 | `NEXT_RUNTIME` | `apps/web/src/instrumentation.ts` |
 | `NODE_ENV` | `apps/web/src/app/(auth)/login/page.tsx`<br>`apps/web/src/components/shared/chat/assistant-ui/composer-trigger-popover.tsx`<br>`apps/web/src/db/index.ts`<br>`apps/web/src/lib/auth.ts`<br>`apps/web/src/lib/hermes/gateway-url.ts`<br>`apps/web/src/lib/hermes/relay-identity.ts`<br>`apps/web/src/lib/observability/logger.ts`<br>`apps/web/src/modules/auth/infrastructure/auth-service.ts`<br>`apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts`<br>`apps/web/src/proxy.ts` |
+| `POSTGRES_DB` | `infra/prod/compose.console.yaml` |
+| `POSTGRES_PASSWORD` | `infra/prod/compose.console.yaml` |
+| `POSTGRES_USER` | `infra/prod/compose.console.yaml` |
+| `SMTP_HOST` | `apps/web/src/lib/mailer.ts` |
+| `SMTP_PASSWORD` | `apps/web/src/lib/mailer.ts` |
+| `SMTP_PORT` | `apps/web/src/lib/mailer.ts` |
+| `SMTP_SECURE` | `apps/web/src/lib/mailer.ts` |
+| `SMTP_USER` | `apps/web/src/lib/mailer.ts` |
 | `TAVILY_API_KEY` | `apps/web/src/lib/shared/chat/web-search.ts` |
 | `UPLOAD_DIR` | `apps/web/src/app/api/files/route.ts`<br>`apps/web/src/app/api/workspaces/[workspaceId]/route.ts` |
 | `WORK_AUTOMATION_CRON_SECRET` | `apps/web/src/app/api/internal/work/automations/cron/route.ts` |
@@ -193,6 +219,11 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 ## Migration artifacts
 
 - `apps/web/drizzle.config.ts`
+- `apps/web/drizzle/0000_baseline.sql`
+- `apps/web/drizzle/0001_work_runtime_functions.sql`
+- `apps/web/drizzle/meta/0000_snapshot.json`
+- `apps/web/drizzle/meta/_journal.json`
+- `scripts/migrate-product-db.ts`
 - `scripts/migrate-product-model.ts`
 - `scripts/migrate-runtime-installations.ts`
 - `scripts/migrate-tenant-boundary.ts`
@@ -205,6 +236,8 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 - `apps/gateway/go.mod`
 - `apps/gateway/go.sum`
 - `apps/gateway/package.json`
+- `apps/web/Dockerfile`
+- `apps/web/Dockerfile.dockerignore`
 - `apps/web/drizzle.config.ts`
 - `apps/web/eslint.config.mjs`
 - `apps/web/next.config.ts`
@@ -214,6 +247,7 @@ Generated from commit `76d1194179cb708591ff2d8b038e3a0b2157dc8b` with `bun run a
 - `bun.lock`
 - `infra/dev/compose.override.yaml`
 - `infra/dev/compose.yaml`
+- `infra/prod/compose.console.yaml`
 - `infra/prod/compose.edge.yaml`
 - `package.json`
 - `packages/shared/gatewaycontracts/go.mod`

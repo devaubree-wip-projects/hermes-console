@@ -54,8 +54,50 @@ jobs:
       - run: bun run test:gateway
       - run: bun run build:gateway
 
+  web-db-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: hermes
+          POSTGRES_PASSWORD: hermes
+          POSTGRES_DB: hermes_console
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hermes -d hermes_console"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://hermes:hermes@127.0.0.1:5432/hermes_console
+      HERMES_GATEWAY_TICKET_SECRET: ci-ticket-secret-at-least-24-characters
+      HERMES_GATEWAY_SERVICE_SECRET: ci-service-secret-at-least-24-characters
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.13
+      - run: bun install --frozen-lockfile
+      # Fresh database provisioned exclusively through the versioned migrations,
+      # so the production migration path is exercised on every PR.
+      - run: bun run db:migrate
+      - run: bun run test:web
+
+  telegram-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - run: python3 -m unittest apps/web/hermes-extensions/hermes-console-control/test_plugin.py
+
   canary-smoke:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/heads/integration/')
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/integration/')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:

@@ -32,6 +32,9 @@ The path and method columns are the frozen public contract. Payload and authoriz
 | critical | POST | `/api/:tenantSlug/installations/preflight` | preserve current guard | status + response shape + side effects |
 | standard | GET | `/api/:tenantSlug/interventions` | preserve current guard | status + response shape + side effects |
 | standard | PATCH | `/api/:tenantSlug/interventions/:interventionId` | preserve current guard | status + response shape + side effects |
+| standard | POST | `/api/:tenantSlug/invitations` | preserve current guard | status + response shape + side effects |
+| standard | DELETE | `/api/:tenantSlug/invitations/:invitationId` | preserve current guard | status + response shape + side effects |
+| standard | DELETE, PATCH | `/api/:tenantSlug/members/:memberUserId` | preserve current guard | status + response shape + side effects |
 | standard | GET, POST | `/api/:tenantSlug/projects` | preserve current guard | status + response shape + side effects |
 | standard | POST | `/api/:tenantSlug/projects/:projectId/resources` | preserve current guard | status + response shape + side effects |
 | standard | DELETE | `/api/:tenantSlug/resources/:resourceId` | preserve current guard | status + response shape + side effects |
@@ -56,12 +59,16 @@ The path and method columns are the frozen public contract. Payload and authoriz
 | standard | GET | `/api/:tenantSlug/work-stream` | preserve current guard | status + response shape + side effects |
 | standard | DELETE, GET, POST | `/api/:tenantSlug/work-views` | preserve current guard | status + response shape + side effects |
 | standard | PATCH | `/api/approvals/:approvalId` | preserve current guard | status + response shape + side effects |
+| critical | POST | `/api/auth/forgot-password` | public/session mutation | status + response shape + side effects |
 | critical | POST | `/api/auth/login` | public/session mutation | status + response shape + side effects |
 | critical | POST | `/api/auth/logout` | public/session mutation | status + response shape + side effects |
 | critical | POST | `/api/auth/register` | public/session mutation | status + response shape + side effects |
+| critical | POST | `/api/auth/reset-password` | public/session mutation | status + response shape + side effects |
 | standard | POST | `/api/files` | preserve current guard | status + response shape + side effects |
 | standard | DELETE, GET | `/api/files/:fileId` | preserve current guard | status + response shape + side effects |
+| standard | GET | `/api/healthz` | preserve current guard | status + response shape + side effects |
 | standard | POST | `/api/internal/work/automations/cron` | preserve current guard | status + response shape + side effects |
+| standard | POST | `/api/invitations/accept` | preserve current guard | status + response shape + side effects |
 | standard | POST | `/api/onboarding/complete` | preserve current guard | status + response shape + side effects |
 | standard | GET | `/api/onboarding/runtime` | preserve current guard | status + response shape + side effects |
 | critical | POST | `/api/runtime/enroll` | preserve current guard | status + response shape + side effects |

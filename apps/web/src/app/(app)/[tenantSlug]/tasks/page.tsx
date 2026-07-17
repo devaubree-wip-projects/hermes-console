@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ListTodoIcon } from "lucide-react";
 import { db } from "@/db";
-import { agents, projects } from "@/db/schema";
+import { agents, projects, tenantMemberships, users } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { canAtLeast, getTenantAccessBySlug } from "@/lib/workspace";
@@ -65,7 +65,7 @@ async function TasksBoardContent({ params, searchParams }: TasksPageProps) {
   const workspaceBase = `/${tenantSlug}`;
   const apiBase = `/api/${tenantSlug}`;
   const pageSize = 200;
-  const [rows, workspaceAgents, teams, workspaceProjects, labels, savedViews] = await Promise.all([
+  const [rows, workspaceAgents, teams, workspaceProjects, labels, savedViews, members] = await Promise.all([
     listWorkspaceWorkItems({
       workspaceId: access.workspace.id,
       query: filters.q,
@@ -88,6 +88,10 @@ async function TasksBoardContent({ params, searchParams }: TasksPageProps) {
       .where(eq(projects.workspaceId, access.workspace.id)),
     listWorkspaceWorkLabels(access.workspace.id),
     listWorkspaceSavedViews(access.workspace.id, user.id),
+    db.select({ id: users.id, name: users.name })
+      .from(tenantMemberships)
+      .innerJoin(users, eq(users.id, tenantMemberships.userId))
+      .where(eq(tenantMemberships.tenantId, access.tenant.id)),
   ]);
   const visibleRows = rows.slice(0, pageSize);
 
@@ -110,6 +114,7 @@ async function TasksBoardContent({ params, searchParams }: TasksPageProps) {
             taskBase={`${workspaceBase}/tasks`}
             agents={workspaceAgents.map((agent) => ({ id: agent.id, name: agent.name, ready: agent.runtimeState === "ready" }))}
             teams={teams.map((team) => ({ id: team.id, name: team.name }))}
+            members={members}
             projects={workspaceProjects}
           />
         ) : null}

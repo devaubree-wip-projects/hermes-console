@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 mock.module("server-only", () => ({}));
 
@@ -990,10 +990,26 @@ describe("Work control plane PostgreSQL integration", () => {
           workItemId: relayItem.item.id,
         });
       } finally {
-        if (tenantId)
+        if (tenantId) {
+          // Runs and agents hold `restrict` references to runtime_installations,
+          // so they must be removed before the tenant cascade reaches it.
+          const tenantWorkspaces = db
+            .select({ id: schema.workspaces.id })
+            .from(schema.workspaces)
+            .where(eq(schema.workspaces.tenantId, tenantId));
+          await db
+            .delete(schema.workRuns)
+            .where(inArray(schema.workRuns.workspaceId, tenantWorkspaces));
+          await db
+            .delete(schema.agentTeams)
+            .where(inArray(schema.agentTeams.workspaceId, tenantWorkspaces));
+          await db
+            .delete(schema.agents)
+            .where(inArray(schema.agents.workspaceId, tenantWorkspaces));
           await db
             .delete(schema.tenants)
             .where(eq(schema.tenants.id, tenantId));
+        }
         await db.delete(schema.users).where(eq(schema.users.id, user.id));
       }
     },

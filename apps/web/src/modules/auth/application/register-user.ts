@@ -3,7 +3,12 @@ import type { AuthRepository, PasswordService, SessionCookiePort } from "./ports
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export type RegisterInput = { name?: unknown; email?: unknown; password?: unknown };
+export type RegisterInput = {
+  name?: unknown;
+  email?: unknown;
+  password?: unknown;
+  acceptTerms?: unknown;
+};
 
 export function createRegisterUser(dependencies: {
   repository: AuthRepository;
@@ -22,6 +27,9 @@ export function createRegisterUser(dependencies: {
     }
     if (typeof input.password !== "string" || input.password.length < 8) {
       throw new AuthApplicationError(400, "Le mot de passe doit contenir au moins 8 caractères.");
+    }
+    if (input.acceptTerms !== true) {
+      throw new AuthApplicationError(400, "Vous devez accepter les CGU et la politique de confidentialité.");
     }
 
     const email = input.email.trim().toLowerCase();

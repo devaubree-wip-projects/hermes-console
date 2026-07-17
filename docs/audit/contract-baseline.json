@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "76d1194179cb708591ff2d8b038e3a0b2157dc8b",
+  "commit": "525a116a00890c79e26dcaff00a16efab4101644",
   "routes": [
     {
       "methods": [
@@ -188,6 +188,25 @@
     },
     {
       "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/invitations"
+    },
+    {
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/invitations/:invitationId"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/members/:memberUserId"
+    },
+    {
+      "methods": [
         "GET",
         "POST"
       ],
@@ -345,6 +364,12 @@
       "methods": [
         "POST"
       ],
+      "path": "/api/auth/forgot-password"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
       "path": "/api/auth/login"
     },
     {
@@ -363,6 +388,12 @@
       "methods": [
         "POST"
       ],
+      "path": "/api/auth/reset-password"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
       "path": "/api/files"
     },
     {
@@ -374,9 +405,21 @@
     },
     {
       "methods": [
+        "GET"
+      ],
+      "path": "/api/healthz"
+    },
+    {
+      "methods": [
         "POST"
       ],
       "path": "/api/internal/work/automations/cron"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/invitations/accept"
     },
     {
       "methods": [
@@ -472,6 +515,6 @@
   ],
   "databaseSchema": {
     "file": "apps/web/src/db/schema.ts",
-    "sha256": "3977ac15792f4002287ca0e2e16f694aee38c9deb19961f442fd7228a3686ed1"
+    "sha256": "8a2dd8458a2fbef03c4a532fa12ae940ee5fdb2394cf517b753f2e4badb68d35"
   }
 }

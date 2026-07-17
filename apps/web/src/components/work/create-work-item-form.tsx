@@ -23,12 +23,14 @@ export function CreateWorkItemForm({
   taskBase,
   agents,
   teams,
+  members,
   projects,
 }: {
   apiBase: string;
   taskBase: string;
   agents: Array<{ id: string; name: string; ready: boolean }>;
   teams: Array<{ id: string; name: string }>;
+  members: Array<{ id: string; name: string }>;
   projects: Array<{ id: string; name: string }>;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -55,8 +57,11 @@ export function CreateWorkItemForm({
           projectId: projectId === "none" ? null : projectId,
           assignee: agentId === "backlog" ? undefined : agentId.startsWith("team:")
             ? { type: "team", teamId: agentId.slice(5) }
-            : { type: "agent", agentId: agentId.replace(/^agent:/, "") },
-          enqueue: agentId !== "backlog",
+            : agentId.startsWith("user:")
+              ? { type: "user", userId: agentId.slice(5) }
+              : { type: "agent", agentId: agentId.replace(/^agent:/, "") },
+          // Only agent or team assignments start a durable run.
+          enqueue: agentId !== "backlog" && !agentId.startsWith("user:"),
         }),
       });
       const data = await response.json();
@@ -109,6 +114,7 @@ export function CreateWorkItemForm({
                   <SelectItem value="backlog">Backlog, non assignée</SelectItem>
                   {agents.map((agent) => <SelectItem key={agent.id} value={`agent:${agent.id}`} disabled={!agent.ready}>{agent.name}{agent.ready ? "" : " (runtime indisponible)"}</SelectItem>)}
                   {teams.map((team) => <SelectItem key={team.id} value={`team:${team.id}`}>Équipe · {team.name}</SelectItem>)}
+                  {members.map((member) => <SelectItem key={member.id} value={`user:${member.id}`}>Membre · {member.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

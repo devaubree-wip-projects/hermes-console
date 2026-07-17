@@ -18,7 +18,13 @@ export type DemoAccount = {
   description: string;
 };
 
-export function LoginForm({ demoAccounts }: { demoAccounts: DemoAccount[] | null }) {
+export function LoginForm({
+  demoAccounts,
+  next,
+}: {
+  demoAccounts: DemoAccount[] | null;
+  next?: string | null;
+}) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,7 +46,7 @@ export function LoginForm({ demoAccounts }: { demoAccounts: DemoAccount[] | null
         return;
       }
       router.push(
-        typeof data.redirectTo === "string" ? data.redirectTo : "/onboarding",
+        next ?? (typeof data.redirectTo === "string" ? data.redirectTo : "/onboarding"),
       );
       router.refresh();
     } catch {
@@ -88,7 +94,15 @@ export function LoginForm({ demoAccounts }: { demoAccounts: DemoAccount[] | null
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Mot de passe</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
+                >
+                  Mot de passe oublié ?
+                </Link>
+              </div>
               <Input
                 id="password"
                 name="password"

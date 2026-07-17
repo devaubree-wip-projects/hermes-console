@@ -12,6 +12,7 @@ import {
   SparklesIcon,
   WorkflowIcon,
 } from "lucide-react";
+import { SUPPORT_EMAIL } from "@/lib/support";
 import { RuntimeConsole } from "./runtime-console";
 import { Reveal, staggerContainer, staggerItem } from "./reveal";
 import { LandingThemeToggle } from "./theme-toggle";
@@ -374,18 +375,34 @@ function FinalCta({ consoleHref, isAuthenticated }: LandingProps) {
 function SiteFooter() {
   return (
     <footer className="border-t border-border">
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-4 px-5 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <p>Hermes Console</p>
-        <nav className="flex gap-6">
-          <a href="#produit" className="hover:text-foreground">
-            Produit
+      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-5 py-10 text-sm text-muted-foreground sm:px-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p>Hermes Console</p>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2">
+            <a href="#produit" className="hover:text-foreground">
+              Produit
+            </a>
+            <a href="#proof" className="hover:text-foreground">
+              Preuve en direct
+            </a>
+            <a href="#faq" className="hover:text-foreground">
+              FAQ
+            </a>
+          </nav>
+        </div>
+        <nav className="flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-6 text-xs">
+          <Link href="/mentions-legales" className="hover:text-foreground">
+            Mentions légales
+          </Link>
+          <Link href="/confidentialite" className="hover:text-foreground">
+            Confidentialité
+          </Link>
+          <Link href="/cgu" className="hover:text-foreground">
+            CGU
+          </Link>
+          <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-foreground">
+            Support
           </a>
-        <a href="#proof" className="hover:text-foreground">
-            Preuve en direct
-          </a>
-        <a href="#faq" className="hover:text-foreground">
-          FAQ
-        </a>
         </nav>
         <p className="text-xs text-muted-foreground/70">
           Conçu pour les équipes opérationnelles, avec des flux de travail de production.

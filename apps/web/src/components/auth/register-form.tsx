@@ -7,33 +7,39 @@ import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function RegisterForm() {
+export function RegisterForm({ next }: { next?: string | null }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    if (!acceptTerms) {
+      setError("Vous devez accepter les CGU et la politique de confidentialité pour créer un compte.");
+      return;
+    }
     setPending(true);
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, acceptTerms }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Une erreur est survenue. Réessayez.");
         return;
       }
-      router.push(data.redirectTo ?? "/");
+      router.push(next ?? data.redirectTo ?? "/");
       router.refresh();
     } catch {
       setError("Impossible de contacter le serveur. Réessayez.");
@@ -92,6 +98,31 @@ export function RegisterForm() {
             />
             <p className="text-xs text-muted-foreground">Au moins 8 caractères.</p>
           </div>
+          <label className="flex items-start gap-3 rounded-lg border bg-muted/30 px-3 py-3 text-sm">
+            <Checkbox
+              checked={acceptTerms}
+              onCheckedChange={(checked) => setAcceptTerms(checked === true)}
+              aria-invalid={!acceptTerms && error !== null}
+              className="mt-0.5"
+            />
+            <span className="text-muted-foreground">
+              J&apos;accepte les{" "}
+              <Link
+                href="/cgu"
+                className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
+              >
+                CGU
+              </Link>{" "}
+              et la{" "}
+              <Link
+                href="/confidentialite"
+                className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
+              >
+                politique de confidentialité
+              </Link>
+              .
+            </span>
+          </label>
           <Button type="submit" disabled={pending} className="h-11 w-full">
             {pending && <Loader2 className="size-4 animate-spin" />}
             Créer mon compte

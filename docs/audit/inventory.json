@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "commit": "76d1194179cb708591ff2d8b038e3a0b2157dc8b",
+  "commit": "525a116a00890c79e26dcaff00a16efab4101644",
   "layout": "monorepo",
   "endpoints": [
     {
@@ -272,6 +272,34 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/[tenantSlug]/invitations/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/invitations",
+      "lines": 103,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/invitations/[invitationId]/route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/invitations/:invitationId",
+      "lines": 40,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/[tenantSlug]/members/[memberUserId]/route.ts",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/members/:memberUserId",
+      "lines": 96,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/[tenantSlug]/projects/route.ts",
       "methods": [
         "GET",
@@ -499,6 +527,15 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/auth/forgot-password/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/forgot-password",
+      "lines": 20,
+      "critical": true
+    },
+    {
       "file": "apps/web/src/app/api/auth/login/route.ts",
       "methods": [
         "POST"
@@ -526,6 +563,15 @@
       "critical": true
     },
     {
+      "file": "apps/web/src/app/api/auth/reset-password/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/reset-password",
+      "lines": 20,
+      "critical": true
+    },
+    {
       "file": "apps/web/src/app/api/files/route.ts",
       "methods": [
         "POST"
@@ -545,12 +591,30 @@
       "critical": false
     },
     {
+      "file": "apps/web/src/app/api/healthz/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/healthz",
+      "lines": 13,
+      "critical": false
+    },
+    {
       "file": "apps/web/src/app/api/internal/work/automations/cron/route.ts",
       "methods": [
         "POST"
       ],
       "path": "/api/internal/work/automations/cron",
       "lines": 54,
+      "critical": false
+    },
+    {
+      "file": "apps/web/src/app/api/invitations/accept/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/invitations/accept",
+      "lines": 69,
       "critical": false
     },
     {
@@ -792,8 +856,28 @@
       "path": "/:tenantSlug/tools"
     },
     {
+      "file": "apps/web/src/app/(legal)/cgu/page.tsx",
+      "path": "/cgu"
+    },
+    {
+      "file": "apps/web/src/app/(legal)/confidentialite/page.tsx",
+      "path": "/confidentialite"
+    },
+    {
+      "file": "apps/web/src/app/(auth)/forgot-password/page.tsx",
+      "path": "/forgot-password"
+    },
+    {
+      "file": "apps/web/src/app/(auth)/invitations/accept/page.tsx",
+      "path": "/invitations/accept"
+    },
+    {
       "file": "apps/web/src/app/(auth)/login/page.tsx",
       "path": "/login"
+    },
+    {
+      "file": "apps/web/src/app/(legal)/mentions-legales/page.tsx",
+      "path": "/mentions-legales"
     },
     {
       "file": "apps/web/src/app/(app)/onboarding/page.tsx",
@@ -802,6 +886,10 @@
     {
       "file": "apps/web/src/app/(auth)/register/page.tsx",
       "path": "/register"
+    },
+    {
+      "file": "apps/web/src/app/(auth)/reset-password/page.tsx",
+      "path": "/reset-password"
     },
     {
       "file": "apps/web/src/app/(app)/workspaces/new/page.tsx",
@@ -816,6 +904,7 @@
         "apps/web/src/app/api/[tenantSlug]/work-stream/route.ts",
         "apps/web/src/db/index.ts",
         "apps/web/src/modules/work/infrastructure/work-runtime.integration.test.ts",
+        "scripts/migrate-product-db.ts",
         "scripts/migrate-product-model.ts",
         "scripts/migrate-runtime-installations.ts",
         "scripts/migrate-tenant-boundary.ts",
@@ -878,11 +967,24 @@
       ]
     },
     {
+      "name": "HERMES_CONSOLE_DOMAIN",
+      "references": [
+        "infra/prod/compose.console.yaml"
+      ]
+    },
+    {
       "name": "HERMES_CONSOLE_URL",
       "references": [
         "apps/gateway/gateway/config.go",
+        "apps/web/src/lib/console-url.ts",
         "apps/web/src/lib/site.ts",
         "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_CONSOLE_WEB_IMAGE",
+      "references": [
+        "infra/prod/compose.console.yaml"
       ]
     },
     {
@@ -901,6 +1003,12 @@
       "name": "HERMES_DATA_DIR",
       "references": [
         "infra/dev/compose.yaml"
+      ]
+    },
+    {
+      "name": "HERMES_DB_BACKUP_DIR",
+      "references": [
+        "infra/prod/compose.console.yaml"
       ]
     },
     {
@@ -1254,6 +1362,12 @@
       ]
     },
     {
+      "name": "MAIL_FROM",
+      "references": [
+        "apps/web/src/lib/mailer.ts"
+      ]
+    },
+    {
       "name": "MOCK_HERMES_PORT",
       "references": [
         "scripts/mock-hermes.ts"
@@ -1263,6 +1377,12 @@
       "name": "NEXT_DIST_DIR",
       "references": [
         "apps/web/next.config.ts"
+      ]
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPPORT_EMAIL",
+      "references": [
+        "apps/web/src/lib/support.ts"
       ]
     },
     {
@@ -1284,6 +1404,54 @@
         "apps/web/src/modules/auth/infrastructure/auth-service.ts",
         "apps/web/src/modules/work/infrastructure/ephemeral-interventions.ts",
         "apps/web/src/proxy.ts"
+      ]
+    },
+    {
+      "name": "POSTGRES_DB",
+      "references": [
+        "infra/prod/compose.console.yaml"
+      ]
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "references": [
+        "infra/prod/compose.console.yaml"
+      ]
+    },
+    {
+      "name": "POSTGRES_USER",
+      "references": [
+        "infra/prod/compose.console.yaml"
+      ]
+    },
+    {
+      "name": "SMTP_HOST",
+      "references": [
+        "apps/web/src/lib/mailer.ts"
+      ]
+    },
+    {
+      "name": "SMTP_PASSWORD",
+      "references": [
+        "apps/web/src/lib/mailer.ts"
+      ]
+    },
+    {
+      "name": "SMTP_PORT",
+      "references": [
+        "apps/web/src/lib/mailer.ts"
+      ]
+    },
+    {
+      "name": "SMTP_SECURE",
+      "references": [
+        "apps/web/src/lib/mailer.ts"
+      ]
+    },
+    {
+      "name": "SMTP_USER",
+      "references": [
+        "apps/web/src/lib/mailer.ts"
       ]
     },
     {
@@ -1339,6 +1507,8 @@
       "build:web": "bun --cwd=apps/web run build",
       "check": "bun run contracts:verify && bun run typecheck && bun run lint && bun run test && bun run test:gateway && bun run build:all",
       "contracts:verify": "bun run tools/verify-contracts.ts",
+      "db:generate": "bun --cwd=apps/web x --bun drizzle-kit generate --config=drizzle.config.ts",
+      "db:migrate": "bun run scripts/migrate-product-db.ts",
       "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts && bun run scripts/migrate-work-control-plane.ts && bun run scripts/migrate-tenant-boundary.ts",
       "db:migrate:runtime": "bun run scripts/migrate-runtime-installations.ts",
       "db:migrate:work": "bun run scripts/migrate-work-control-plane.ts",
@@ -1377,6 +1547,11 @@
   },
   "migrations": [
     "apps/web/drizzle.config.ts",
+    "apps/web/drizzle/0000_baseline.sql",
+    "apps/web/drizzle/0001_work_runtime_functions.sql",
+    "apps/web/drizzle/meta/0000_snapshot.json",
+    "apps/web/drizzle/meta/_journal.json",
+    "scripts/migrate-product-db.ts",
     "scripts/migrate-product-model.ts",
     "scripts/migrate-runtime-installations.ts",
     "scripts/migrate-tenant-boundary.ts",
@@ -1388,6 +1563,8 @@
     "apps/gateway/go.mod",
     "apps/gateway/go.sum",
     "apps/gateway/package.json",
+    "apps/web/Dockerfile",
+    "apps/web/Dockerfile.dockerignore",
     "apps/web/drizzle.config.ts",
     "apps/web/eslint.config.mjs",
     "apps/web/next.config.ts",
@@ -1397,6 +1574,7 @@
     "bun.lock",
     "infra/dev/compose.override.yaml",
     "infra/dev/compose.yaml",
+    "infra/prod/compose.console.yaml",
     "infra/prod/compose.edge.yaml",
     "package.json",
     "packages/shared/gatewaycontracts/go.mod",
@@ -1598,6 +1776,15 @@
       "critical": true
     },
     {
+      "file": "apps/web/src/app/api/auth/forgot-password/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/forgot-password",
+      "lines": 20,
+      "critical": true
+    },
+    {
       "file": "apps/web/src/app/api/auth/login/route.ts",
       "methods": [
         "POST"
@@ -1621,6 +1808,15 @@
         "POST"
       ],
       "path": "/api/auth/register",
+      "lines": 20,
+      "critical": true
+    },
+    {
+      "file": "apps/web/src/app/api/auth/reset-password/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/reset-password",
       "lines": 20,
       "critical": true
     },
