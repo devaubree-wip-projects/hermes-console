@@ -24,9 +24,11 @@ test("executes through the real Docker Edge and Hermes while the browser is clos
   await page.getByLabel("Assignation").click();
   await page.getByRole("option", { name: "Assistant principal" }).click();
   await page.getByRole("button", { name: "Créer", exact: true }).click();
-  await expect(page).toHaveURL(/\/e2e\/tasks\/[0-9a-f-]+$/);
+  // Creating a task opens its detail via the ?task=<id> query param (the shared
+  // CreateWorkItemForm navigation), not a /tasks/<id> path segment.
+  await expect(page).toHaveURL(/\/e2e\/tasks\?task=[0-9a-f-]+$/);
   const taskUrl = page.url();
-  const taskId = taskUrl.split("/").at(-1)!;
+  const taskId = new URL(taskUrl).searchParams.get("task")!;
   const request = context.request;
   await page.close();
 

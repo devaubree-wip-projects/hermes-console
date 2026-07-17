@@ -12,6 +12,7 @@
     "test": "bun test --path-ignore-patterns=e2e/**",
     "test:e2e:seed": "bun --env-file=../../.env run ../../scripts/migrate-runtime-installations.ts && bun --env-file=../../.env run ../../scripts/migrate-work-control-plane.ts && bun --env-file=../../.env run ../../scripts/migrate-tenant-boundary.ts && bun --env-file=../../.env run e2e/seed.ts",
     "test:e2e": "bun run test:e2e:seed && bun --env-file=../../.env x playwright test",
+    "test:e2e:real": "E2E_REAL_WORK=1 bun run test:e2e:seed && E2E_REAL_WORK=1 bun --env-file=../../.env x playwright test work-real.spec.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

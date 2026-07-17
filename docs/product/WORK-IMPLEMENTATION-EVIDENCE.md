@@ -85,9 +85,20 @@ projections synthétiques.
   symlink ou traversal.
 - Hermes Agent n'a pas été modifié : la Console et l'Edge consomment uniquement son protocole public.
 
-## Validation réelle à terminer dans un environnement configuré
+## Validation réelle
 
-1. configurer un fournisseur d'inférence dans le profil Hermes `default` ;
-2. lancer `E2E_REAL_WORK=1 bun --env-file=../../.env x playwright test work-real.spec.ts` depuis `apps/web` ;
-3. exécuter le même scénario sur une installation Relay distante ;
-4. vérifier le redémarrage Edge en cours de run et la reprise de la session sur l'infrastructure cible.
+Le parcours agentique réel de bout en bout est **prouvé** (17-07-2026) : `work-real.spec.ts`
+passe contre le stack Docker (Edge + Hermes), navigateur fermé — la tâche est créée, l'Edge
+réclame le run, une **vraie inférence OpenAI** s'exécute et l'agent répond `REAL_WORK_OK`, le
+run passant à `done`. Reproductible via `bun run test:e2e:real` depuis `apps/web`, avec :
+
+- `OPENAI_API_KEY` renseigné dans le `.env` racine (passé au conteneur Hermes) ;
+- `data/hermes/config.yaml` : `model.base_url: https://api.openai.com/v1`, `model.default: gpt-4o`,
+  et `agent.reasoning_effort: none` (les modèles non-raisonnement rejettent `reasoning.effort`) ;
+- l'installation de l'agent alignée sur celle de l'Edge (`local-default`) — géré automatiquement
+  par le seed quand `E2E_REAL_WORK=1`.
+
+Validations restantes (infrastructure distante) :
+
+1. exécuter le même scénario sur une installation Relay distante ;
+2. vérifier le redémarrage Edge en cours de run et la reprise de la session sur l'infrastructure cible.

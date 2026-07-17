@@ -21,6 +21,7 @@
     "test:shared": "bun --cwd=packages/shared run test",
     "test:e2e:seed": "bun --cwd=apps/web run test:e2e:seed",
     "test:e2e": "bun --cwd=apps/web run test:e2e",
+    "test:e2e:real": "bun --cwd=apps/web run test:e2e:real",
     "typecheck": "bun run typecheck:web && bun run typecheck:shared",
     "typecheck:web": "bun --cwd=apps/web run typecheck",
     "typecheck:shared": "bun --cwd=packages/shared run typecheck",
