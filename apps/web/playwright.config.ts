@@ -4,7 +4,9 @@ export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.spec.ts",
   timeout: 30_000,
-  expect: { timeout: 8_000 },
+  // 15s (up from 8s) gives the heavy server-rendered Work flows headroom on the
+  // slower 2-vCPU CI runner; passing assertions still resolve immediately.
+  expect: { timeout: 15_000 },
   fullyParallel: false,
   retries: 0,
   reporter: [["list"]],
