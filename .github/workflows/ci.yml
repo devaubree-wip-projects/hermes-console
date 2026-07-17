@@ -97,7 +97,12 @@ jobs:
       - run: python3 -m unittest apps/web/hermes-extensions/hermes-console-control/test_plugin.py
 
   canary-smoke:
-    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/integration/')
+    # Pre-merge browser-e2e gate on integration/** and on-demand. Kept off main
+    # pushes: the suite has pre-existing flakiness (composer/installations/work
+    # specs) and adds ~7min; per-push DB + migration coverage lives in
+    # web-db-integration instead. Address the e2e debt on an integration branch,
+    # then re-enable on main.
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/heads/integration/')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
