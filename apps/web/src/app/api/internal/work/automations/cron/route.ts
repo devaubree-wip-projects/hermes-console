@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { workAutomations, workspaces } from "@/db/schema";
 import { triggerWorkspaceAutomation } from "@/modules/work/infrastructure/work-service";
 import { sweepExpiredLeases } from "@/modules/work/infrastructure/work-runtime-service";
+import { purgeExpiredArtifacts } from "@/lib/maintenance";
 
 function authorized(request: Request) {
   const expected = process.env.WORK_AUTOMATION_CRON_SECRET?.trim() ?? "";
@@ -52,5 +53,7 @@ export async function POST(request: Request) {
   }
   // Recover runs orphaned by an offline edge (no /claim call sweeps them otherwise).
   const leasesSwept = await sweepExpiredLeases();
-  return Response.json({ processed: results.length, results, leasesSwept });
+  // Drop already-expired security artifacts so these tables don't grow unbounded.
+  const purged = await purgeExpiredArtifacts();
+  return Response.json({ processed: results.length, results, leasesSwept, purged });
 }
