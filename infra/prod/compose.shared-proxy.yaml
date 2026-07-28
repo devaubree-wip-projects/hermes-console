@@ -1,0 +1,53 @@
+name: hermes-console-product
+
+# Variante pour un hôte qui a DÉJÀ un reverse proxy détenant 80/443 — typiquement
+# un Caddy partagé qui sert d'autres applications sur la même machine. Démarrer
+# notre propre Caddy y provoquerait un conflit de ports et couperait ces
+# applications.
+#
+# Ici, la Console rejoint en plus le réseau du proxy existant, qui l'atteint par
+# son nom de service. Le service caddy de compose.console.yaml reste sur son
+# profil `standalone-proxy` et n'est donc pas démarré.
+#
+# ⚠️ Le service s'appelle `hermes-console-web`, pas `web` : Compose enregistre le
+# nom de service comme alias DNS sur CHAQUE réseau rejoint. Si une autre stack du
+# proxy partagé expose déjà un service `web`, un second répondant sur le même
+# alias peut détourner son trafic.
+#
+#   docker compose --project-directory . \
+#     -f infra/prod/compose.console.yaml \
+#     -f infra/prod/compose.runtime.yaml \
+#     -f infra/prod/compose.shared-proxy.yaml up -d
+#
+# Le proxy partagé reçoit alors un fichier dans son conf.d (voir
+# infra/prod/caddy-snippet.example.caddy), qui porte l'allowlist d'IP.
+
+services:
+  hermes-console-web:
+    networks:
+      - console-net
+      - shared-proxy
+
+  # Le navigateur ouvre le WebSocket de l'agent sur l'Edge, qui n'est joignable
+  # que par le nom de service Docker : le proxy doit donc l'atteindre lui aussi.
+  # Seul /v1/ws est publié côté Caddy — les routes de contrôle (gateway, backup,
+  # upgrade, revoke, telegram) restent sur console-net.
+  #
+  # ⚠️ Caddy vise l'alias explicite `hermes-console-gateway`, jamais `hermes`.
+  # Compose ajoute malgré tout le nom de service comme alias sur chaque réseau
+  # rejoint : `hermes`, un nom générique, se retrouve donc aussi enregistré sur
+  # cet overlay partagé. Il y était libre au moment de l'écriture (seul
+  # hermes-console-web y figurait pour nous), mais une pile future qui nommerait
+  # un service `hermes` entrerait en conflit. Le supprimer imposerait de renommer
+  # le service, ce à quoi `network_mode: service:hermes` est accroché.
+  hermes:
+    networks:
+      console-net: {}
+      shared-proxy:
+        aliases:
+          - hermes-console-gateway
+
+networks:
+  shared-proxy:
+    external: true
+    name: ${HERMES_SHARED_PROXY_NETWORK:-edge}

@@ -1,0 +1,318 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "tw-shimmer";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  Merged token set:
+  - shadcn semantic tokens use the xulux chat's neutral oklch values (chat is pixel-iso)
+  - BoardUI extras (brand/viz scales, gradients, elevation, navbar-h) are kept for the
+    remaining pages (login/register/workspaces) that still use them
+  Fonts: Inter / JetBrains Mono via next/font
+*/
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo,
+    Consolas, monospace;
+  --font-heading: var(--font-inter);
+
+  /* BoardUI brand (blue) scale — primary buttons + active nav */
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bedbff;
+  --color-brand-300: #90c5ff;
+  --color-brand-400: #3392ff;
+  --color-brand-500: #3080ff;
+  --color-brand-600: #155dfc;
+  --color-brand-700: #1447e6;
+
+  /* BoardUI data-viz (Tailwind lime) — the signature chart accent */
+  --color-viz-200: #d9f99d; /* lime-200 */
+  --color-viz-400: #a3e635; /* lime-400 — bars + area */
+  --color-viz-500: #84cc16; /* lime-500 — revenue line */
+  --color-viz-600: #65a30d; /* lime-600 */
+
+  /* semantic status (measured from boardui.com) */
+  --color-pos-100: #d9f99d; /* lime-200 */
+  --color-pos-600: #4d7c0f;
+  --color-pos-700: #3c6300;
+  --color-warn-100: #fff085; /* yellow-200 */
+  --color-warn-600: #a65f00;
+  --color-warn-700: #894b00;
+  --color-neg-100: #ffccd3; /* rose-200 */
+  --color-neg-600: #c70036;
+  --color-neg-700: #a50036;
+
+  /* contribution heatmap (Tailwind violet, empty = neutral-300) */
+  --color-heat-0: #d4d4d4;
+  --color-heat-1: #ddd6ff; /* violet-200 */
+  --color-heat-2: #a684ff; /* violet-400 */
+  --color-heat-3: #8e51ff; /* violet-500 */
+  --color-heat-4: #7f22fe; /* violet-600 */
+  --color-heat-5: #7008e7; /* violet-700 */
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground-soft: var(--foreground-soft);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-secondary-hover: var(--secondary-hover);
+
+  /* radius: 10px dominant container radius */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* BoardUI elevation tokens */
+  --shadow-xs: 0 1px 2px 0 #0000000d;
+  --shadow-card: 0 1px 1px 0 #0000000a, 0 4px 4px 0 #00000005;
+  --shadow-elevated: 0 1px 0 0 #00000005, 0 1px 12px 0 #0000000f,
+    0 0 1px 0 #00000052;
+}
+
+:root {
+  --radius: 0.625rem; /* 10px */
+
+  /* agent-pilot status accents */
+  --ok: oklch(0.62 0.17 145);
+  --warn: oklch(0.75 0.16 70);
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --foreground-soft: oklch(0.556 0 0);
+  --foreground-muted: oklch(0.439 0 0);
+  --secondary-hover: oklch(0.955 0 0);
+
+  --navbar-h: 3.5rem; /* fixed header height for sticky offsets */
+
+  /* signature primary-button gradients (auth/workspaces pages) */
+  --gradient-primary: linear-gradient(180deg, #3080ff 0%, #155dfc 100%);
+  --gradient-primary-hover: linear-gradient(180deg, #3392ff 0%, #3080ff 100%);
+  --gradient-primary-active: linear-gradient(180deg, #155dfc 0%, #1447e6 100%);
+}
+
+.dark {
+  --ok: oklch(0.7 0.16 145);
+  --warn: oklch(0.8 0.16 70);
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --foreground-soft: oklch(0.708 0 0);
+  --foreground-muted: oklch(0.556 0 0);
+  --secondary-hover: oklch(0.32 0 0);
+
+  --gradient-primary: linear-gradient(180deg, #3392ff 0%, #155dfc 100%);
+  --gradient-primary-hover: linear-gradient(180deg, #3392ff 0%, #3080ff 100%);
+  --gradient-primary-active: linear-gradient(180deg, #155dfc 0%, #1447e6 100%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans antialiased;
+  }
+}
+
+/* toast auto-dismiss progress bar (drains left→right, ends → dismiss) */
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* sonner loading spinner — 12 bars, verbatim geometry from sonner (assets + styles.css) */
+.sonner-loader {
+  --spinner-size: 16px;
+  position: relative;
+  height: var(--spinner-size);
+  width: var(--spinner-size);
+}
+.sonner-loader .sonner-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: var(--spinner-size);
+  width: var(--spinner-size);
+}
+.sonner-loader .sonner-bar {
+  position: absolute;
+  top: -3.9%;
+  left: -10%;
+  height: 8%;
+  width: 24%;
+  border-radius: 6px;
+  background: currentColor;
+  animation: sonner-spin 1.2s linear infinite;
+}
+@keyframes sonner-spin {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * Chat setting `wrapCode` (store `v1-xulux-chat-tools`): when the message group
+ * carries `data-wrap-code="true"`, wrap long code lines instead of forcing a
+ * horizontal scroll. `white-space` is inherited by the shiki <code>/<span>
+ * children, so no change is needed in the memoized markdown components.
+ * When "false", no rule applies → default `overflow-x-auto` scroll is kept.
+ */
+[data-wrap-code="true"] .aui-md-pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+}
+
+/* agent-pilot markdown output (react-markdown) — compact, readable defaults */
+.md :where(p, ul, ol, pre, blockquote, table) {
+  margin-block: 0.5rem;
+}
+.md :where(ul, ol) {
+  padding-inline-start: 1.25rem;
+}
+.md ul {
+  list-style: disc;
+}
+.md ol {
+  list-style: decimal;
+}
+.md :where(code):not(pre code) {
+  background: var(--muted);
+  padding: 0.1em 0.35em;
+  border-radius: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.md pre {
+  background: var(--muted);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+.md a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md h1,
+.md h2,
+.md h3 {
+  font-weight: 600;
+  margin-block: 0.75rem 0.35rem;
+}

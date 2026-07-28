@@ -1,0 +1,25 @@
+# Fichier à déposer dans le conf.d du reverse proxy partagé, en suivant la
+# convention de nommage de cet hôte (par exemple
+# <CONF_D>/50-hermes-console.caddy, à côté des autres sites qu'il sert).
+#
+# ⚠️ Si ce Caddy est géré par une automatisation (Ansible, Salt…), un fichier
+# déposé à la main sera écrasé au prochain run. Le porter dans le rôle
+# correspondant, pas seulement ici.
+#
+# Appliquer sans redémarrage — un reload est atomique, une config invalide est
+# refusée et l'ancienne reste active, donc les autres sites ne risquent rien :
+#   docker exec <caddy> caddy validate --config /etc/caddy/Caddyfile
+#   docker exec <caddy> caddy reload   --config /etc/caddy/Caddyfile
+#
+# Remplacer <DOMAINE>, <IP_AUTORISEE> et <CONTENEUR_WEB>.
+
+<DOMAINE> {
+	# Déploiement privé : seules ces sources joignent la Console, tout le reste
+	# reçoit 403 sans jamais atteindre l'application. Liste séparée par des
+	# espaces, IP ou CIDR.
+	@blocked not remote_ip <IP_AUTORISEE>
+	respond @blocked "Forbidden" 403
+
+	reverse_proxy <CONTENEUR_WEB>:3000
+	encode gzip zstd
+}

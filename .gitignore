@@ -1,0 +1,73 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+**/node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+__pycache__/
+*.py[cod]
+
+# next.js
+/.next/
+/.next-e2e/
+/.next-build/
+**/.next/
+**/.next-e2e/
+**/.next-build/
+/out/
+
+# production
+/apps/gateway/build/
+
+# misc
+.DS_Store
+playwright-report/
+test-results/
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# workspace uploads + hermes runtime data (session debris, never committed)
+/data/
+
+# images are session debris, never deliverables
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+!apps/web/src/app/favicon.ico
+
+!.env.example
+
+# ghostchrome/playwright session dumps
+.playwright-cli/
+
+# audit d'architecture régénérable (bun run audit:architecture)
+# contract-baseline.json reste versionné : il est vérifié en CI.
+docs/audit/INVENTORY.md
+
+# journal local (changelogs du jour) — jamais commité
+/.journal/

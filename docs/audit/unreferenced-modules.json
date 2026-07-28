@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "commit": "56f4e5e5600ea26e184bfef199870b15aa5325dc",
+  "modules": [
+    "apps/web/src/app/robots.ts",
+    "apps/web/src/app/sitemap.ts",
+    "apps/web/src/db/seed.ts",
+    "apps/web/src/instrumentation.ts",
+    "apps/web/src/proxy.ts"
+  ]
+}

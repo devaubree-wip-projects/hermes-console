@@ -1,0 +1,32 @@
+# One shared Docker build context for the web and gateway production images.
+# Start closed, then expose only the workspace sources each Dockerfile copies.
+**
+
+!.dockerignore
+!package.json
+!bun.lock
+
+!apps/
+!apps/web/
+!apps/web/**
+!apps/gateway/
+!apps/gateway/package.json
+!apps/gateway/go.mod
+!apps/gateway/go.sum
+!apps/gateway/cmd/
+!apps/gateway/cmd/**
+!apps/gateway/gateway/
+!apps/gateway/gateway/**
+
+!packages/
+!packages/shared/
+!packages/shared/**
+
+# Generated output and Go tests are not needed by either image build.
+**/.env
+**/.env.*
+apps/web/.next/
+apps/web/node_modules/
+packages/shared/node_modules/
+apps/gateway/build/
+**/*_test.go

@@ -1,0 +1,3 @@
+ALTER TABLE "work_resources" ADD COLUMN "source_run_id" uuid;--> statement-breakpoint
+ALTER TABLE "work_resources" ADD CONSTRAINT "work_resources_source_run_id_work_runs_id_fk" FOREIGN KEY ("source_run_id") REFERENCES "public"."work_runs"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "work_resources_source_run_idx" ON "work_resources" USING btree ("source_run_id");

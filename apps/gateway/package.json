@@ -1,0 +1,10 @@
+{
+  "name": "@hermes-console/gateway",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "go run ./cmd/hermes-gateway",
+    "build": "mkdir -p build && go build -trimpath -o build/hermes-gateway ./cmd/hermes-gateway",
+    "test": "go test -race ./..."
+  }
+}

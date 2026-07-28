@@ -1,0 +1,99 @@
+name: hermes-console-edge
+
+x-logging: &prod-logging
+  driver: json-file
+  options:
+    max-size: "25m"
+    max-file: "5"
+    compress: "true"
+
+services:
+  edge-work-init:
+    image: alpine:3
+    user: "0:0"
+    network_mode: none
+    command:
+      - sh
+      - -c
+      - chown ${HERMES_UID:?set HERMES_UID}:${HERMES_GID:?set HERMES_GID} /work && chmod 700 /work
+    volumes:
+      - type: bind
+        source: ${HERMES_HOST_WORK_ROOT:-${HERMES_SYSTEM_HOME:?set HERMES_SYSTEM_HOME explicitly}/.hermes-console/work}
+        target: /work
+        bind:
+          create_host_path: true
+    restart: "no"
+
+  edge:
+    build:
+      context: .
+      dockerfile: infra/prod/gateway.Dockerfile
+    restart: unless-stopped
+    logging: *prod-logging
+    depends_on:
+      edge-work-init:
+        condition: service_completed_successfully
+    # Linux host networking reaches a systemwide Hermes dashboard still bound to 127.0.0.1.
+    network_mode: host
+    user: "${HERMES_UID:?set HERMES_UID}:${HERMES_GID:?set HERMES_GID}"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/hermes-gateway", "healthcheck", "http://127.0.0.1:8787/readyz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - type: bind
+        source: ${HERMES_SYSTEM_HOME:?set HERMES_SYSTEM_HOME explicitly}
+        target: /opt/hermes-data
+        read_only: true
+      - type: bind
+        source: ${HERMES_EDGE_IDENTITY_DIR:-./data/edge-identity}
+        target: /var/lib/hermes-console/identity
+      # The target deliberately equals the absolute host path. Hermes runs on
+      # the host and receives this cwd over RPC, while the containerised Edge
+      # materializes the same directory through the bind.
+      - type: bind
+        source: ${HERMES_HOST_WORK_ROOT:-${HERMES_SYSTEM_HOME:?set HERMES_SYSTEM_HOME explicitly}/.hermes-console/work}
+        target: ${HERMES_HOST_WORK_ROOT:-${HERMES_SYSTEM_HOME:?set HERMES_SYSTEM_HOME explicitly}/.hermes-console/work}
+        bind:
+          # Fail closed instead of letting Docker create a root-owned directory
+          # that the configured Hermes UID/GID cannot write.
+          create_host_path: false
+      # Disabled by policy unless HERMES_FS_GRANTS_ENABLED=true. The mount stays
+      # read-only and is never exposed directly to Hermes.
+      - type: bind
+        source: ${HERMES_HOST_GRANT_ROOT:-./data/grants/disabled}
+        target: /var/lib/hermes-console/grants
+        read_only: true
+        bind:
+          create_host_path: true
+    environment:
+      HERMES_GATEWAY_MODE: edge
+      HERMES_GATEWAY_ENV: ${HERMES_GATEWAY_ENV:-production}
+      HERMES_LOG_LEVEL: ${HERMES_LOG_LEVEL:-info}
+      HERMES_LOG_FORMAT: ${HERMES_LOG_FORMAT:-json}
+      HERMES_GATEWAY_LISTEN: 127.0.0.1:8787
+      HERMES_EDGE_LOCAL_URL: http://127.0.0.1:8787
+      HERMES_RUNTIME_URL: ${HERMES_RUNTIME_URL:-http://127.0.0.1:9119}
+      HERMES_RUNTIME_WS: ${HERMES_RUNTIME_WS:-ws://127.0.0.1:9119/api/ws}
+      HERMES_RUNTIME_TOKEN: ${HERMES_RUNTIME_TOKEN:?set HERMES_RUNTIME_TOKEN}
+      HERMES_RUNTIME_KIND: systemwide
+      HERMES_HOME: /opt/hermes-data
+      HERMES_IDENTITY_DIR: /var/lib/hermes-console/identity
+      HERMES_ALLOWED_ORIGINS: ${HERMES_ALLOWED_ORIGINS:?set HERMES_ALLOWED_ORIGINS}
+      HERMES_GATEWAY_CONTROL_MODE: disabled
+      HERMES_WORK_ROOT: ${HERMES_HOST_WORK_ROOT:-${HERMES_SYSTEM_HOME:?set HERMES_SYSTEM_HOME explicitly}/.hermes-console/work}
+      HERMES_FS_GRANTS_ENABLED: ${HERMES_FS_GRANTS_ENABLED:-false}
+      HERMES_FS_GRANT_ROOT: /var/lib/hermes-console/grants
+      HERMES_WORK_RESOURCE_MAX_BYTES: ${HERMES_WORK_RESOURCE_MAX_BYTES:-20971520}
+      HERMES_WORK_RESOURCE_TOTAL_MAX_BYTES: ${HERMES_WORK_RESOURCE_TOTAL_MAX_BYTES:-104857600}
+      HERMES_WORK_RESOURCE_MAX_COUNT: ${HERMES_WORK_RESOURCE_MAX_COUNT:-32}
+      HERMES_SESSION_CHANGE_DEBOUNCE_MS: ${HERMES_SESSION_CHANGE_DEBOUNCE_MS:-200}
+      HERMES_SESSION_RECONCILE_MS: ${HERMES_SESSION_RECONCILE_MS:-30000}
+      HERMES_RELAY_SERVER_CA: ${HERMES_RELAY_SERVER_CA:-}

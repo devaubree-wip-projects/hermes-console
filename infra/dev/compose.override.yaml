@@ -1,0 +1,13 @@
+# `unless-stopped` from the base file would also resurrect the stack on every Docker
+# daemon start, which is unwanted on a dev machine. `on-failure` keeps a crashed
+# runtime coming back — the "Gateway shutting down" case — without that side effect.
+# `make stop` still tears everything down: `compose down` ignores the restart policy.
+services:
+  hermes:
+    restart: on-failure:3
+
+  edge:
+    restart: on-failure:3
+
+  relay:
+    restart: on-failure:3

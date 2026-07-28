@@ -1,0 +1,609 @@
+{
+  "schemaVersion": 1,
+  "commit": "56f4e5e5600ea26e184bfef199870b15aa5325dc",
+  "routes": [
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/agent-teams"
+    },
+    {
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/agent-teams/:teamId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/agents"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/inference/codex"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/mcp"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/messaging"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-status"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/runtime-ticket"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/agents/:agentSlug/sessions/:sessionId/metrics"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/automations"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/automations/:automationId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/automations/:automationId/run"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/events"
+    },
+    {
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/inbox"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/installations"
+    },
+    {
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/installations/:installationId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/installations/:installationId/backups"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/installations/:installationId/budget"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/installations/:installationId/capacity-policy"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/installations/:installationId/enrollment"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/installations/:installationId/operations"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/installations/:installationId/upgrades"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/installations/enroll"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/installations/preflight"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/interventions"
+    },
+    {
+      "methods": [
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/interventions/:interventionId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/invitations"
+    },
+    {
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/invitations/:invitationId"
+    },
+    {
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/mail/relays"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/mail/send"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/mail/suppressions"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/members/:memberUserId"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/projects"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/projects/:projectId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/projects/:projectId/resources"
+    },
+    {
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/:tenantSlug/resources/:resourceId"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/runtime/config"
+    },
+    {
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/settings/instance"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/skills"
+    },
+    {
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/skills/content"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/skills/toggle"
+    },
+    {
+      "methods": [
+        "PUT"
+      ],
+      "path": "/api/:tenantSlug/tools/toolsets/:name"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/assign"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/cancel"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/comments"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/dependencies"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/labels"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/resources"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/runs"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/work-items/:workItemId/timeline"
+    },
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-labels"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-runs/:runId/cancel"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-runs/:runId/plan-steps/:stepId/promote"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/:tenantSlug/work-stream"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "path": "/api/:tenantSlug/work-views"
+    },
+    {
+      "methods": [
+        "DELETE"
+      ],
+      "path": "/api/account"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/account/export"
+    },
+    {
+      "methods": [
+        "PATCH"
+      ],
+      "path": "/api/approvals/:approvalId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/forgot-password"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/login"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/logout"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/register"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/auth/reset-password"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/files"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "path": "/api/files/:fileId"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/healthz"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/internal/work/automations/cron"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/invitations/accept"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/onboarding/complete"
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "path": "/api/onboarding/runtime"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/agents/create"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/agents/mission"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/enroll"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/mail/send"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/claim"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/resources/download"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/complete"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/events"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/heartbeat"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/interventions"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/release"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/runs/:runId/start"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/runtime/work/telegram"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/tasks"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/tasks/:taskId/run"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/work-hooks/:automationId"
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "path": "/api/workspaces"
+    },
+    {
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "path": "/api/workspaces/:workspaceId"
+    }
+  ],
+  "databaseSchema": {
+    "file": "apps/web/src/db/schema.ts",
+    "sha256": "5391466b541484d1122363b8c605a3dea90db7a2be63efd670a1f1cb07fd4a4d"
+  }
+}

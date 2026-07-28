@@ -1,0 +1,42 @@
+{
+  "protocolVersion": 1,
+  "paths": {
+    "capabilities": "/v1/capabilities",
+    "preflight": "/v1/preflight",
+    "runtimePrefix": "/v1/runtime",
+    "gatewayControl": "/v1/control/gateway",
+    "profileTest": "/v1/control/profile-test",
+    "backupControl": "/v1/control/backup",
+    "upgradeControl": "/v1/control/upgrade",
+    "revokeControl": "/v1/control/revoke",
+    "telegramWork": "/v1/work/telegram",
+    "telegramMission": "/v1/agents/mission/telegram",
+    "telegramAgent": "/v1/agents/create/telegram",
+    "mailSend": "/v1/mail/send",
+    "websocket": "/v1/ws"
+  },
+  "serviceHeaders": {
+    "timestamp": "X-Hermes-Timestamp",
+    "nonce": "X-Hermes-Nonce",
+    "signature": "X-Hermes-Signature",
+    "profile": "X-Hermes-Profile",
+    "installation": "X-Hermes-Installation-Id",
+    "requestId": "X-Request-Id"
+  },
+  "work": {
+    "protocolVersion": 1,
+    "paths": {
+      "claim": "/api/runtime/work/claim",
+      "telegramCommand": "/api/runtime/work/telegram",
+      "telegramMissionCommand": "/api/runtime/agents/mission",
+      "telegramAgentCommand": "/api/runtime/agents/create",
+      "mailSendCommand": "/api/runtime/mail/send",
+      "runStart": "/api/runtime/work/runs/{runId}/start",
+      "runHeartbeat": "/api/runtime/work/runs/{runId}/heartbeat",
+      "runEvents": "/api/runtime/work/runs/{runId}/events",
+      "runInterventions": "/api/runtime/work/runs/{runId}/interventions",
+      "runComplete": "/api/runtime/work/runs/{runId}/complete",
+      "runRelease": "/api/runtime/work/runs/{runId}/release"
+    }
+  }
+}

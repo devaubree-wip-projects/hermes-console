@@ -1,0 +1,179 @@
+name: hermes-console-product
+
+# Hermes runtime + Edge, containerised, for a single-host install.
+# Always used together with compose.console.yaml so both land in the same project
+# and share console-net:
+#   docker compose --project-directory . \
+#     -f infra/prod/compose.console.yaml -f infra/prod/compose.runtime.yaml up -d
+#
+# compose.edge.yaml is the other topology: an Edge in host networking talking to a
+# Hermes installed on the machine. Use one or the other, never both.
+
+x-logging: &prod-logging
+  driver: json-file
+  options:
+    max-size: "25m"
+    max-file: "5"
+    compress: "true"
+
+services:
+  work-init:
+    image: alpine:3
+    user: "0:0"
+    network_mode: none
+    command: ["sh", "-c", "chown 10000:10000 /work && chmod 700 /work"]
+    volumes:
+      - type: volume
+        source: hermes-work
+        target: /work
+    restart: "no"
+
+  # Fragment merged into the service defined by compose.console.yaml. The Console
+  # owns two plugin files inside each Hermes profile (the Telegram commands), and
+  # the runtime exposes no API to write them: its only write endpoint takes an
+  # absolute path, so allowlisting it through the Edge would hand the Console a
+  # write-anywhere primitive on the runtime. The narrower option is this mount.
+  # It lives here, next to the volume declaration, so compose.console.yaml stays
+  # usable without a containerised runtime.
+  hermes-console-web:
+    volumes:
+      - type: volume
+        source: hermes-data
+        target: /opt/data
+    environment:
+      # Without this the sync writes into the container's own ~/.hermes, which
+      # the runtime never reads — a silent no-op until someone checks the disk.
+      HERMES_HOME: /opt/data
+
+  hermes:
+    image: nousresearch/hermes-agent:${HERMES_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    logging: *prod-logging
+    command: ["gateway", "run"]
+    depends_on:
+      work-init:
+        condition: service_completed_successfully
+    shm_size: 1gb
+    # No "ports:" on purpose: the dashboard stays inside this network namespace and
+    # the Edge is the only thing that talks to it.
+    environment:
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_HOST: 127.0.0.1
+      HERMES_DASHBOARD_PORT: "9119"
+      HERMES_DASHBOARD_SESSION_TOKEN: ${HERMES_RUNTIME_TOKEN:?set HERMES_RUNTIME_TOKEN}
+      # Inference is bring-your-own-key and lives in each agent's Hermes profile
+      # (/opt/data/profiles/<name>/.env), written by the Console's integrations page.
+      # These are only a fallback for a fresh install with no profile yet.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - type: volume
+        source: hermes-data
+        target: /opt/data
+      - type: volume
+        source: hermes-work
+        target: /work
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9119/api/status"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: ${HERMES_CPU_LIMIT:-2.0}
+          memory: ${HERMES_MEMORY_LIMIT:-4G}
+    networks:
+      - console-net
+
+  edge:
+    build:
+      context: .
+      dockerfile: infra/prod/gateway.Dockerfile
+    image: ${HERMES_CONSOLE_EDGE_IMAGE:-hermes-console-edge:latest}
+    restart: unless-stopped
+    # Hermes and Edge must agree on the owner of the shared per-run work volume.
+    user: "10000:10000"
+    logging: *prod-logging
+    # Sharing the runtime's namespace is what makes its loopback-only dashboard
+    # reachable without exposing 9119 to any network. The Console reaches the Edge
+    # at http://hermes:8787 because that namespace belongs to the hermes service.
+    network_mode: service:hermes
+    depends_on:
+      hermes:
+        condition: service_healthy
+      work-init:
+        condition: service_completed_successfully
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test:
+        ["CMD", "/usr/local/bin/hermes-gateway", "healthcheck", "http://127.0.0.1:8787/readyz"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    volumes:
+      - type: volume
+        source: hermes-data
+        target: /opt/data
+      - type: volume
+        source: hermes-work
+        target: /work
+      - type: volume
+        source: hermes-backups
+        target: /var/lib/hermes-console/backups
+      # Disabled by default. To expose one deliberately bounded host tree to
+      # read-only grant staging, set HERMES_HOST_GRANT_ROOT and
+      # HERMES_FS_GRANTS_ENABLED=true. Hermes never receives this mount.
+      - type: bind
+        source: ${HERMES_HOST_GRANT_ROOT:-./data/grants/disabled}
+        target: /var/lib/hermes-console/grants
+        read_only: true
+        bind:
+          create_host_path: true
+    environment:
+      HERMES_GATEWAY_ENV: production
+      HERMES_LOG_LEVEL: ${HERMES_LOG_LEVEL:-info}
+      HERMES_LOG_FORMAT: ${HERMES_LOG_FORMAT:-json}
+      HERMES_GATEWAY_LISTEN: 0.0.0.0:8787
+      HERMES_RUNTIME_URL: http://127.0.0.1:9119
+      HERMES_RUNTIME_WS: ws://127.0.0.1:9119/api/ws
+      HERMES_RUNTIME_TOKEN: ${HERMES_RUNTIME_TOKEN:?set HERMES_RUNTIME_TOKEN}
+      HERMES_RUNTIME_KIND: docker
+      HERMES_HOME: /opt/data
+      HERMES_INSTALLATION_ID: ${HERMES_INSTALLATION_ID:-local-default}
+      # UUID de la ligne runtime_installations servie par cet Edge. La Console résout
+      # l'installation par clé primaire et rejette une requête Work qui n'en nomme
+      # aucune. Vide au premier démarrage (la ligne naît à l'onboarding) : l'Edge
+      # démarre, le Work reste désactivé et le journal le dit, jusqu'à ce qu'on la pose.
+      HERMES_WORK_INSTALLATION_ID: ${HERMES_WORK_INSTALLATION_ID:-}
+      # Service name, not 127.0.0.1: loopback here is this namespace, where the
+      # Console does not run, and the work executor would claim nothing.
+      HERMES_CONSOLE_URL: http://hermes-console-web:3000
+      HERMES_ALLOWED_ORIGINS: https://${HERMES_CONSOLE_DOMAIN:?set HERMES_CONSOLE_DOMAIN}
+      HERMES_WORK_ENABLED: ${HERMES_WORK_ENABLED:-true}
+      HERMES_WORK_CAPACITY: ${HERMES_WORK_CAPACITY:-1}
+      HERMES_WORK_ROOT: /work
+      HERMES_GATEWAY_CONTROL_MODE: dashboard
+      HERMES_GATEWAY_TICKET_SECRET: ${HERMES_GATEWAY_TICKET_SECRET:?set HERMES_GATEWAY_TICKET_SECRET}
+      HERMES_GATEWAY_SERVICE_SECRET: ${HERMES_GATEWAY_SERVICE_SECRET:?set HERMES_GATEWAY_SERVICE_SECRET}
+      HERMES_GATEWAY_DERIVE_SECRETS: "true"
+      HERMES_BACKUP_DIR: /var/lib/hermes-console/backups
+      HERMES_BACKUP_ENCRYPTION_KEY: ${HERMES_BACKUP_ENCRYPTION_KEY:?set HERMES_BACKUP_ENCRYPTION_KEY}
+      HERMES_BACKUP_RESTORE_ENABLED: ${HERMES_BACKUP_RESTORE_ENABLED:-true}
+      HERMES_FS_GRANTS_ENABLED: ${HERMES_FS_GRANTS_ENABLED:-false}
+      HERMES_FS_GRANT_ROOT: /var/lib/hermes-console/grants
+      HERMES_WORK_RESOURCE_MAX_BYTES: ${HERMES_WORK_RESOURCE_MAX_BYTES:-20971520}
+      HERMES_WORK_RESOURCE_TOTAL_MAX_BYTES: ${HERMES_WORK_RESOURCE_TOTAL_MAX_BYTES:-104857600}
+      HERMES_WORK_RESOURCE_MAX_COUNT: ${HERMES_WORK_RESOURCE_MAX_COUNT:-32}
+
+volumes:
+  hermes-data:
+  hermes-work:
+  hermes-backups:

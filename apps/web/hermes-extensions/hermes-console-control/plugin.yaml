@@ -1,0 +1,10 @@
+name: hermes-console-control
+version: 0.4.0
+description: "Hermes Console-owned Telegram controls for model, reasoning, Work, mission and agent commands. Extends the gateway without modifying Hermes Agent."
+author: Hermes Console
+kind: standalone
+platforms:
+  - linux
+  - macos
+hooks:
+  - pre_gateway_dispatch

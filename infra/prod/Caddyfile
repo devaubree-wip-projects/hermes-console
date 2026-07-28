@@ -1,0 +1,15 @@
+{$HERMES_CONSOLE_DOMAIN} {
+	# Private deployment: only the operator networks listed in HERMES_ALLOWED_IPS
+	# reach the Console. Anything else gets a 403 without ever touching `web`.
+	# The value is a space-separated list of IPs or CIDRs, written by
+	# install-server.sh — widen it with --allow-ip rather than editing this file.
+	#
+	# Certificate issuance is unaffected: Caddy answers the ACME HTTP challenge
+	# from a route registered ahead of this site's, and TLS-ALPN runs during the
+	# handshake, before any of these matchers.
+	@blocked not remote_ip {$HERMES_ALLOWED_IPS}
+	respond @blocked "Forbidden" 403
+
+	reverse_proxy hermes-console-web:3000
+	encode gzip zstd
+}

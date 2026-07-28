@@ -1,0 +1,27 @@
+# Build-context allowlist for apps/web/Dockerfile only (Docker picks this file up
+# automatically because it is named "<path-to-Dockerfile>.dockerignore" from the
+# context root). The root .dockerignore keeps governing the
+# Go gateway build and is left untouched.
+**
+
+!package.json
+!bun.lock
+
+!apps/web/
+!apps/web/**
+
+# Workspace bookkeeping only: bun install needs this package.json to resolve the
+# lockfile's "apps/gateway" workspace entry. The Go sources themselves are not copied.
+!apps/gateway/package.json
+
+!packages/shared/
+!packages/shared/**
+
+# Re-exclude local/dev-only artifacts pulled back in by the allowlist above.
+apps/web/node_modules
+apps/web/.next
+apps/web/.next-e2e
+apps/web/test-results
+apps/web/data
+apps/web/.env*
+packages/shared/node_modules

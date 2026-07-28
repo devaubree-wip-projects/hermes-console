@@ -1,0 +1,64 @@
+{
+  "name": "hermes-console",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cockpit web pour piloter des agents Hermes : transforme conversations et automatisations en travail durable, assigné, observable et récupérable (tâches, sessions, fichiers, connaissances, validations, audit).",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "audit:architecture": "bun run tools/audit-architecture.ts",
+    "contracts:verify": "bun run tools/verify-contracts.ts",
+    "dev": "bun --cwd=apps/web run dev",
+    "build": "bun --cwd=apps/web run build",
+    "start": "bun --cwd=apps/web run start",
+    "lint": "bun run lint:web && bun run lint:shared",
+    "lint:web": "bun --cwd=apps/web run lint",
+    "lint:shared": "bun --cwd=packages/shared run lint",
+    "test": "bun run test:web && bun run test:shared",
+    "test:web": "bun --cwd=apps/web run test",
+    "test:shared": "bun --cwd=packages/shared run test",
+    "test:e2e:seed": "bun --cwd=apps/web run test:e2e:seed",
+    "test:e2e": "bun --cwd=apps/web run test:e2e",
+    "test:e2e:real": "bun --cwd=apps/web run test:e2e:real",
+    "typecheck": "bun run typecheck:web && bun run typecheck:shared",
+    "typecheck:web": "bun --cwd=apps/web run typecheck",
+    "typecheck:shared": "bun --cwd=packages/shared run typecheck",
+    "build:web": "bun --cwd=apps/web run build",
+    "build:shared": "bun --cwd=packages/shared run build",
+    "build:gateway": "bun --cwd=apps/gateway run build",
+    "build:all": "bun run build:shared && bun run build:web && bun run build:gateway",
+    "db:push": "cd apps/web && bunx --bun drizzle-kit push --config=drizzle.config.ts",
+    "db:generate": "cd apps/web && bunx --bun drizzle-kit generate --config=drizzle.config.ts",
+    "db:migrate": "bun run scripts/migrate-product-db.ts",
+    "db:seed:demo": "bun run apps/web/src/db/seed.ts",
+    "db:reset": "bun run scripts/reset-product-data.ts",
+    "mock:hermes": "bun run scripts/mock-hermes.ts",
+    "test:telegram-control": "python3 -m unittest apps/web/hermes-extensions/hermes-console-control/test_plugin.py",
+    "telegram-control:install": "bun run scripts/install-hermes-console-control.ts",
+    "runtime:maintain-backups": "bun run scripts/maintain-runtime-backups.ts",
+    "dev:gateway": "bun --cwd=apps/gateway run dev",
+    "test:gateway": "bun --cwd=apps/gateway run test",
+    "db:migrate:product": "bun run scripts/migrate-product-model.ts && bun run scripts/migrate-runtime-installations.ts && bun run scripts/migrate-work-control-plane.ts && bun run scripts/migrate-tenant-boundary.ts && bun run scripts/migrate-mail.ts",
+    "db:migrate:mail": "bun run scripts/migrate-mail.ts",
+    "db:migrate:runtime": "bun run scripts/migrate-runtime-installations.ts",
+    "db:migrate:work": "bun run scripts/migrate-work-control-plane.ts",
+    "check": "bun run contracts:verify && bun run typecheck && bun run lint && bun run test && bun run test:gateway && bun run build:all"
+  },
+  "ignoreScripts": [
+    "sharp",
+    "unrs-resolver"
+  ],
+  "trustedDependencies": [
+    "sharp",
+    "unrs-resolver"
+  ],
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9"
+  }
+}

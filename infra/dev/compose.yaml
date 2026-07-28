@@ -1,0 +1,168 @@
+name: hermes-console-runtime
+
+x-logging: &dev-logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  hermes:
+    image: nousresearch/hermes-agent:${HERMES_IMAGE_TAG:-latest}
+    pull_policy: always
+    command: ["gateway", "run"]
+    restart: unless-stopped
+    logging: *dev-logging
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    shm_size: 1gb
+    ports:
+      # The Edge shares this network namespace and is the only published listener.
+      - "127.0.0.1:${HERMES_GATEWAY_PORT:-8787}:8787"
+    volumes:
+      - type: bind
+        source: ${HERMES_DATA_DIR:-./data/hermes}
+        target: /opt/data
+      - type: bind
+        source: ${HERMES_WORKSPACE_DIR:-./data/workspace}
+        target: /workspace
+        read_only: ${HERMES_WORKSPACE_READ_ONLY:-true}
+      - type: bind
+        source: ${HERMES_WORK_DIR:-./data/work}
+        target: /work
+    environment:
+      HERMES_UID: ${HERMES_UID:-1000}
+      HERMES_GID: ${HERMES_GID:-1000}
+      HERMES_DASHBOARD: "1"
+      # Loopback remains safe because the Edge joins this exact network namespace.
+      HERMES_DASHBOARD_HOST: 127.0.0.1
+      HERMES_DASHBOARD_PORT: "9119"
+      HERMES_DASHBOARD_SESSION_TOKEN: ${HERMES_RUNTIME_TOKEN:-hermes-console-local-runtime}
+      # Inference provider key(s). Set the one matching data/hermes/config.yaml
+      # (model.base_url). The default config uses OpenRouter -> OPENROUTER_API_KEY.
+      # Empty by default so the stack starts without a key (real runs then fail
+      # with "No inference provider configured" until you set it in .env).
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:9119/api/status"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: ${HERMES_CPU_LIMIT:-2.0}
+          memory: ${HERMES_MEMORY_LIMIT:-4G}
+
+  edge:
+    build:
+      context: .
+      dockerfile: infra/dev/gateway.Dockerfile
+    restart: unless-stopped
+    logging: *dev-logging
+    # This makes 127.0.0.1:9119 reachable without exposing it to another network.
+    network_mode: service:hermes
+    user: "${HERMES_UID:-1000}:${HERMES_GID:-1000}"
+    depends_on:
+      hermes:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/hermes-gateway", "healthcheck", "http://127.0.0.1:8787/readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - type: bind
+        source: ${HERMES_DATA_DIR:-./data/hermes}
+        target: /opt/data
+      - type: bind
+        source: ${HERMES_BACKUP_DIR:-./data/backups}
+        target: /var/lib/hermes-console/backups
+      - type: bind
+        source: ${HERMES_WORKSPACE_DIR:-./data/workspace}
+        target: /workspace
+        read_only: true
+      - type: bind
+        source: ${HERMES_WORK_DIR:-./data/work}
+        target: /work
+    environment:
+      HERMES_GATEWAY_ENV: ${HERMES_GATEWAY_ENV:-development}
+      HERMES_LOG_LEVEL: ${HERMES_LOG_LEVEL:-info}
+      HERMES_LOG_FORMAT: ${HERMES_LOG_FORMAT:-text}
+      HERMES_GATEWAY_LISTEN: 0.0.0.0:8787
+      HERMES_RUNTIME_URL: http://127.0.0.1:9119
+      HERMES_RUNTIME_WS: ws://127.0.0.1:9119/api/ws
+      HERMES_RUNTIME_TOKEN: ${HERMES_RUNTIME_TOKEN:-hermes-console-local-runtime}
+      HERMES_INSTALLATION_ID: ${HERMES_DEFAULT_INSTALLATION_ID:-local-default}
+      # UUID de la ligne runtime_installations (visible après l'onboarding). Vide au
+      # premier démarrage : le Work reste désactivé jusqu'à ce qu'on renseigne la valeur.
+      HERMES_WORK_INSTALLATION_ID: ${HERMES_WORK_INSTALLATION_ID:-}
+      # Not HERMES_CONSOLE_URL: that one is the browser-facing URL used in emails and
+      # is routinely set to 127.0.0.1, which resolves inside this network namespace
+      # where Next.js does not run. The Edge needs the host route, so it gets its own
+      # variable whose default already works without any .env entry.
+      HERMES_CONSOLE_URL: ${HERMES_EDGE_CONSOLE_URL:-http://host.docker.internal:3010}
+      HERMES_WORK_ENABLED: ${HERMES_WORK_ENABLED:-true}
+      HERMES_WORK_CAPACITY: ${HERMES_WORK_CAPACITY:-1}
+      HERMES_WORK_ROOT: /work
+      HERMES_RUNTIME_KIND: docker
+      HERMES_GATEWAY_TICKET_SECRET: ${HERMES_GATEWAY_TICKET_SECRET:-hermes-console-local-development-ticket}
+      HERMES_GATEWAY_SERVICE_SECRET: ${HERMES_GATEWAY_SERVICE_SECRET:-hermes-console-local-development-service}
+      HERMES_GATEWAY_DERIVE_SECRETS: "true"
+      HERMES_ALLOWED_ORIGINS: ${HERMES_ALLOWED_ORIGINS:-http://127.0.0.1:3010,http://localhost:3010}
+      HERMES_HOME: /opt/data
+      HERMES_SESSION_CHANGE_DEBOUNCE_MS: ${HERMES_SESSION_CHANGE_DEBOUNCE_MS:-200}
+      HERMES_SESSION_RECONCILE_MS: ${HERMES_SESSION_RECONCILE_MS:-30000}
+      # Use the authenticated official lifecycle API; no PID namespace or Docker socket.
+      HERMES_GATEWAY_CONTROL_MODE: dashboard
+      HERMES_BACKUP_DIR: /var/lib/hermes-console/backups
+      HERMES_BACKUP_ENCRYPTION_KEY: ${HERMES_BACKUP_ENCRYPTION_KEY:-local-backup-encryption-key-change-before-production}
+      HERMES_BACKUP_RESTORE_ENABLED: ${HERMES_BACKUP_RESTORE_ENABLED:-true}
+
+  relay:
+    profiles: ["relay"]
+    build:
+      context: .
+      dockerfile: infra/dev/gateway.Dockerfile
+    restart: unless-stopped
+    logging: *dev-logging
+    user: "${HERMES_UID:-1000}:${HERMES_GID:-1000}"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - "127.0.0.1:${HERMES_RELAY_PORT:-8790}:8790"
+    volumes:
+      - type: bind
+        source: ${HERMES_RELAY_CERT_DIR:-./data/relay/certs}
+        target: /var/lib/hermes-console/certs
+        read_only: true
+      - type: bind
+        source: ${HERMES_RELAY_STATE_DIR:-./data/relay/state}
+        target: /var/lib/hermes-console/state
+    environment:
+      HERMES_GATEWAY_MODE: relay
+      HERMES_GATEWAY_ENV: ${HERMES_GATEWAY_ENV:-development}
+      HERMES_LOG_LEVEL: ${HERMES_LOG_LEVEL:-info}
+      HERMES_LOG_FORMAT: ${HERMES_LOG_FORMAT:-text}
+      HERMES_GATEWAY_LISTEN: 0.0.0.0:8790
+      HERMES_RELAY_SERVER_CERT: /var/lib/hermes-console/certs/relay.crt
+      HERMES_RELAY_SERVER_KEY: /var/lib/hermes-console/certs/relay.key
+      HERMES_RELAY_REVOCATION_FILE: /var/lib/hermes-console/state/revocations.json
+      HERMES_RELAY_IDENTITY_SECRET: ${HERMES_RELAY_IDENTITY_SECRET:-hermes-console-local-relay-identity-secret}
+      HERMES_GATEWAY_SERVICE_SECRET: ${HERMES_GATEWAY_SERVICE_SECRET:-hermes-console-local-development-service}
+      HERMES_GATEWAY_TICKET_SECRET: ${HERMES_GATEWAY_TICKET_SECRET:-hermes-console-local-development-ticket}
+      HERMES_RELAY_MAX_CONNECTIONS: ${HERMES_RELAY_MAX_CONNECTIONS:-1024}
+      HERMES_RELAY_MAX_CONNECTIONS_PER_TENANT: ${HERMES_RELAY_MAX_CONNECTIONS_PER_TENANT:-128}
+      HERMES_RELAY_MAX_FRAME_BYTES: ${HERMES_RELAY_MAX_FRAME_BYTES:-4194304}

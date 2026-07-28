@@ -1,0 +1,440 @@
+import Link from "next/link"
+import { asc, eq } from "drizzle-orm"
+import { BotIcon, PlusIcon } from "lucide-react"
+import { db } from "@/db"
+import { agents, tenantInvitations, tenantMemberships, users } from "@/db/schema"
+import { InferenceSettings } from "@/components/agents/inference-settings"
+import { ChatSettingsPanel, DocumentsSettingsPanel } from "@/components/settings/settings-client-panels"
+import { ToolsSettingsPanel, type ToolsetItem } from "@/components/settings/tools-settings-panel"
+import { GeneralSection } from "@/components/settings/general-section"
+import { InstanceSettingsPanel } from "@/components/settings/instance-settings-panel"
+import {
+  McpServersPanel,
+  type McpCatalogView,
+  type McpServerView,
+} from "@/components/settings/mcp-servers-panel"
+import { MembersSection } from "@/components/settings/members-section"
+import { PermissionsSection } from "@/components/settings/permissions-section"
+import { RuntimeAccessSection } from "@/components/settings/runtime-access-section"
+import { SettingsPanelHeader, SettingsRow, SettingsSection } from "@/components/settings/settings-row"
+import type { SettingsPanelId } from "@/components/settings/settings-routes"
+import { Alert } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { requireUser } from "@/lib/auth"
+import { getRuntimeAccess, hermesFetch } from "@/lib/hermes/server"
+import { runtimeInstallationForAgent } from "@/lib/hermes/installations"
+import { mcpService } from "@/modules/agents/infrastructure/mcp-service"
+import { normalizePermissions } from "@/lib/permissions"
+import {
+  TENANT_CAPABILITIES,
+  TENANT_ROLES,
+  TENANT_ROLE_LABELS,
+  tenantRoleCan,
+} from "@/lib/tenant-rbac"
+import { CONSOLE_SETTING_KEYS } from "@/lib/settings/catalog"
+import { overridesDisabled, resolveAllSettings } from "@/lib/settings/resolve"
+import { canConfigureRuntime, getTenantAccessBySlug } from "@/lib/workspace"
+
+type CapabilityRecord = Record<string, unknown>
+
+function toToolsetItems(value: unknown): ToolsetItem[] {
+  const list = Array.isArray(value) ? value : []
+  return list
+    .filter((item): item is CapabilityRecord => Boolean(item) && typeof item === "object")
+    .map((item) => ({
+      name: String(item.name ?? ""),
+      label: String(item.label ?? item.name ?? "Outil"),
+      description: String(item.description ?? "Configuré dans le profil Hermes."),
+      enabled: item.enabled !== false,
+    }))
+    .filter((item) => item.name)
+}
+
+function ReadOnlyNotice({ role }: { role: string }) {
+  return (
+    <Alert variant="info" title="Accès en lecture seule">
+      Votre rôle {role} permet de consulter cette configuration. Seul un Owner peut la modifier.
+    </Alert>
+  )
+}
+
+export async function SettingsPanel({
+  panel,
+  tenantSlug,
+  agentId,
+}: {
+  panel: SettingsPanelId
+  tenantSlug: string
+  agentId?: string
+}) {
+  const currentUser = await requireUser()
+  const access = await getTenantAccessBySlug(tenantSlug, currentUser.id)
+  if (!access) return null
+
+  const workspaceBase = `/${tenantSlug}`
+  const owner = canConfigureRuntime(access.role)
+
+  if (panel === "chat") return <ChatSettingsPanel />
+  if (panel === "documents") return <DocumentsSettingsPanel />
+
+  if (panel === "general") {
+    return (
+      <div className="space-y-8">
+        <SettingsPanelHeader
+          title="Général"
+          description="Gérez l’identité visible de votre organisation."
+        />
+        {owner ? (
+          <GeneralSection workspaceId={access.workspace.id} name={access.workspace.name} />
+        ) : <ReadOnlyNotice role={access.role} />}
+      </div>
+    )
+  }
+
+  if (panel === "members") {
+    const memberRows = await db
+      .select({
+        user: users,
+        role: tenantMemberships.role,
+      })
+      .from(tenantMemberships)
+      .innerJoin(users, eq(users.id, tenantMemberships.userId))
+      .where(eq(tenantMemberships.tenantId, access.tenant.id))
+
+    const roleCapabilities = (
+      <SettingsSection title="Droits par rôle">
+        {TENANT_CAPABILITIES.map((capability) => (
+          <SettingsRow
+            key={capability.key}
+            label={capability.label}
+            description="Ces droits sont contrôlés côté serveur sur toute l’organisation."
+            control={(
+              <div className="flex flex-wrap justify-end gap-1.5">
+                {TENANT_ROLES.map((role) => (
+                  <Badge
+                    key={role}
+                    variant={tenantRoleCan(role, capability.key) ? "secondary" : "outline"}
+                    className={!tenantRoleCan(role, capability.key) ? "text-muted-foreground line-through" : undefined}
+                  >
+                    {TENANT_ROLE_LABELS[role]}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          />
+        ))}
+      </SettingsSection>
+    )
+
+    if (owner) {
+      const invitationRows = await db
+        .select()
+        .from(tenantInvitations)
+        .where(eq(tenantInvitations.tenantId, access.tenant.id))
+        .orderBy(asc(tenantInvitations.createdAt))
+      const formatExpiry = (date: Date) =>
+        `${String(date.getDate()).padStart(2, "0")}-${String(date.getMonth() + 1).padStart(2, "0")}-${date.getFullYear()}`
+
+      return (
+        <div className="space-y-8">
+          <SettingsPanelHeader
+            title="Membres"
+            description="Un seul rôle par membre s’applique à toute l’organisation."
+          />
+          <MembersSection
+            tenantSlug={tenantSlug}
+            currentUserId={currentUser.id}
+            founderUserId={access.tenant.ownerUserId}
+            members={memberRows.map(({ user, role }) => ({
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role,
+            }))}
+            invitations={invitationRows.map((invitation) => ({
+              id: invitation.id,
+              email: invitation.email,
+              role: invitation.role,
+              expiresAtLabel: formatExpiry(invitation.expiresAt),
+            }))}
+          />
+          {roleCapabilities}
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-8">
+        <SettingsPanelHeader
+          title="Membres"
+          description="Un seul rôle par membre s’applique à toute l’organisation."
+        />
+        <SettingsSection title="Équipe">
+          {memberRows.map(({ user, role }) => (
+            <SettingsRow
+              key={user.id}
+              label={`${user.name}${user.id === currentUser.id ? " (vous)" : ""}`}
+              description={user.email}
+              control={(
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="outline">{TENANT_ROLE_LABELS[role]}</Badge>
+                </div>
+              )}
+            />
+          ))}
+        </SettingsSection>
+        {roleCapabilities}
+      </div>
+    )
+  }
+
+  const agentRows = await db
+    .select({
+      id: agents.id,
+      name: agents.name,
+      slug: agents.slug,
+      runtimeState: agents.runtimeState,
+      hermesProfileName: agents.hermesProfileName,
+    })
+    .from(agents)
+    .where(eq(agents.workspaceId, access.workspace.id))
+    .orderBy(asc(agents.createdAt))
+
+  if (panel === "models") {
+    const activeAgent = agentRows.find((agent) => agent.id === agentId) ?? agentRows[0]
+    return (
+      <div className="space-y-8">
+        <SettingsPanelHeader
+          title="Modèles"
+          description="Connectez un fournisseur et choisissez le modèle utilisé par les nouvelles sessions de chaque agent."
+        />
+        {activeAgent ? (
+          <InferenceSettings
+            agents={agentRows}
+            activeAgent={activeAgent}
+            modelsBase={`${workspaceBase}/settings/models`}
+            apiEndpoint={`/api/${tenantSlug}/agents/${activeAgent.slug}/inference`}
+            ticketEndpoint={`/api/${tenantSlug}/agents/${activeAgent.slug}/runtime-ticket`}
+            newSessionHref={`${workspaceBase}/d/chat?agentId=${activeAgent.id}`}
+            embedded
+          />
+        ) : (
+          <div className="py-12 text-center">
+            <span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-muted">
+              <BotIcon className="size-5" />
+            </span>
+            <h2 className="mt-4 text-lg font-semibold">Aucun agent à configurer</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Créez un agent avant de choisir son fournisseur et son modèle.
+            </p>
+            {owner ? (
+              <Button asChild className="mt-5">
+                <Link href={`${workspaceBase}/agents/new`}><PlusIcon />Créer un agent</Link>
+              </Button>
+            ) : null}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const firstAgent = agentRows[0]
+
+  if (panel === "permissions") {
+    return (
+      <div className="space-y-8">
+        <SettingsPanelHeader
+          title="Permissions"
+          description="Garde-fous appliqués côté console. La restriction réelle du système de fichiers et du shell se règle dans Runtime."
+        />
+        {owner ? (
+          <PermissionsSection
+            workspaceId={access.workspace.id}
+            permissions={normalizePermissions(access.workspace.permissions)}
+            profile={firstAgent?.hermesProfileName ?? null}
+            toolsetApiBase={`/api/${tenantSlug}/tools/toolsets`}
+            runtimeHref={`${workspaceBase}/settings/runtime`}
+          />
+        ) : <ReadOnlyNotice role={access.role} />}
+      </div>
+    )
+  }
+
+  if (panel === "instance") {
+    if (!owner) {
+      return (
+        <div className="space-y-8">
+          <SettingsPanelHeader
+            description="Réglages du déploiement : email, URL publiques, drapeaux."
+            title="Instance"
+          />
+          <ReadOnlyNotice role={access.role} />
+        </div>
+      )
+    }
+    const settings = await resolveAllSettings(CONSOLE_SETTING_KEYS)
+    return (
+      <div className="space-y-8">
+        <SettingsPanelHeader
+          description="Ces valeurs surchargent le fichier .env du serveur, sans redéploiement. Chaque réglage indique d’où vient sa valeur effective."
+          title="Instance"
+        />
+        <InstanceSettingsPanel
+          endpoint={`/api/${tenantSlug}/settings/instance`}
+          overridesDisabled={overridesDisabled()}
+          settings={settings.map((setting) => ({
+            key: setting.key,
+            source: setting.source,
+            isSecret: setting.isSecret,
+            // Le rendu serveur ne fait pas exception : un secret ne traverse pas la
+            // frontière client, même vers un Owner.
+            value: setting.isSecret ? null : setting.value,
+            defined: Boolean(setting.value),
+          }))}
+        />
+      </div>
+    )
+  }
+
+  if (panel === "runtime") {
+    const installation = firstAgent ? await runtimeInstallationForAgent(firstAgent.id) : null
+    const runtimeAccess = firstAgent
+      ? await getRuntimeAccess(firstAgent.hermesProfileName, { agentId: firstAgent.id }).catch(() => ({
+          defaultCwd: null,
+          branch: null,
+          approvalMode: null,
+          toolsets: [],
+          mcpServers: [],
+          offline: true,
+        }))
+      : null
+
+    return (
+      <div className="space-y-8">
+        <SettingsPanelHeader
+          title="Runtime"
+          description="Consultez et réglez l’accès machine réel des agents de cette organisation."
+        />
+        <SettingsSection title="Connexion Hermes">
+          <SettingsRow
+            label="Adresse du runtime"
+            description="Le runtime est partagé par l’installation et chaque requête reste limitée au profil de l’agent actif."
+            control={(
+              <code className="break-all rounded-md bg-muted px-2 py-1 font-mono text-xs">
+                {installation?.gatewayHttpUrl ?? "Aucune installation"}
+              </code>
+            )}
+          />
+          <SettingsRow
+            label="Accès navigateur"
+            description="Les secrets ne sont jamais envoyés au navigateur. Le bridge accepte uniquement des tickets courts signés par cette application."
+            control={<Badge variant="outline">Protégé</Badge>}
+          />
+        </SettingsSection>
+        {runtimeAccess ? (
+          <RuntimeAccessSection
+            access={runtimeAccess}
+            profile={firstAgent?.hermesProfileName ?? null}
+            configApiBase={`/api/${tenantSlug}/runtime/config`}
+            toolsHref={`${workspaceBase}/settings/tools`}
+            mcpHref={`${workspaceBase}/settings/mcp`}
+            canEdit={owner}
+          />
+        ) : (
+          <Alert variant="info" title="Aucun agent">
+            Créez un agent pour afficher son accès machine.
+          </Alert>
+        )}
+      </div>
+    )
+  }
+
+  if (panel === "mcp") {
+    if (!firstAgent) {
+      return (
+        <div className="space-y-8">
+          <SettingsPanelHeader
+            title="Connecteurs (MCP)"
+            description="Serveurs Model Context Protocol branchés sur cet agent."
+          />
+          <Alert variant="warning" title="Aucun agent">Créez d’abord un agent.</Alert>
+        </div>
+      )
+    }
+    // Le même use-case que la route publique : un seul chemin de lecture, donc
+    // aucun risque que l'écran et l'API divergent.
+    const response = await mcpService.get({ tenantSlug, agentSlug: firstAgent.slug })
+    const body = response.body as {
+      error?: string
+      servers?: McpServerView[]
+      catalog?: McpCatalogView[]
+      catalogAvailable?: boolean
+      canEdit?: boolean
+    }
+
+    if (response.status !== 200) {
+      return (
+        <div className="space-y-8">
+          <SettingsPanelHeader
+            title="Connecteurs (MCP)"
+            description="Serveurs Model Context Protocol branchés sur cet agent."
+          />
+          <Alert variant="warning" title="Runtime injoignable">
+            {body.error ?? "Impossible de lire les connecteurs de cet agent."}
+          </Alert>
+        </div>
+      )
+    }
+
+    return (
+      <McpServersPanel
+        servers={body.servers ?? []}
+        catalog={body.catalog ?? []}
+        catalogAvailable={body.catalogAvailable ?? false}
+        apiBase={`/api/${tenantSlug}/agents/${firstAgent.slug}/mcp`}
+        canEdit={body.canEdit ?? false}
+      />
+    )
+  }
+
+  if (panel === "tools") {
+    const result = firstAgent
+      ? await hermesFetch<unknown>(
+          `/api/tools/toolsets?profile=${encodeURIComponent(firstAgent.hermesProfileName)}`,
+          {},
+          { agentId: firstAgent.id, profile: firstAgent.hermesProfileName },
+        )
+          .then((data) => ({ data, error: null as string | null }))
+          .catch((error) => ({
+            data: null,
+            error: error instanceof Error ? error.message : "Runtime indisponible",
+          }))
+      : { data: null, error: "Créez d’abord un agent." }
+
+    if (result.error) {
+      return (
+        <div className="space-y-8">
+          <SettingsPanelHeader
+            title="Outils intégrés du runtime"
+            description="Familles d’outils fournies par le runtime Hermes (shell, fichiers, etc.) pour le profil principal. Les serveurs MCP externes, eux, se gèrent dans le panneau Connecteurs."
+          />
+          <Alert variant="warning" title="Données indisponibles">
+            {result.error}
+          </Alert>
+        </div>
+      )
+    }
+
+    return (
+      <ToolsSettingsPanel
+        items={toToolsetItems(result.data)}
+        profile={firstAgent?.hermesProfileName ?? null}
+        apiBase={`/api/${tenantSlug}/tools/toolsets`}
+        canEdit={owner}
+      />
+    )
+  }
+
+  return null
+}
